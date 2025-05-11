@@ -1,6 +1,6 @@
 # ☕LABYRINTHE JAVA☕
 ## ⚠️ Sommaire ⚠️
-1. [📓 TUTORIEL D'INSTALLATION 📓](#tutoriel-d'installation)
+1. [📓 TUTORIEL D'INSTALLATION 📓](#tutoriel-dinstallation-)
 2. [📖WIKI📖](#wiki)
 3. [🧑‍🤝‍🧑PARTICIPANTS🧑‍🤝‍🧑](#participants)
 
