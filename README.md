@@ -24,3 +24,9 @@ plugins {
 7) tapez ``gradle run``
 8) Enjoy l'installation 😄!
 ## 📖WIKI📖
+## 🧑‍🤝‍🧑PARTICIPANTS🧑‍🤝‍🧑
+Jérémy 
+Fellipe
+Abdella
+Sharov
+Mélanie
