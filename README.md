@@ -1,4 +1,4 @@
-#LABYRINTHE JAVA
+# ☕LABYRINTHE JAVA☕
 
 ## 📓TUTORIEL D'INSTALLATION 📓
 1) Télécharger [gradle](https://gradle.org/install/)
