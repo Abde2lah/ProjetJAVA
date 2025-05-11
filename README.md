@@ -3,7 +3,7 @@
 ## 📓TUTORIEL D'INSTALLATION 📓
 1) Télécharger [gradle](https://gradle.org/install/)
 2) modifiez les variable d'environnement et mettez le nom du chemin qui contient le dossier bin : C:\gradle\gradle-7.x\bin
-3) vérifiez l'installation ```gradle -v``
+3) vérifiez l'installation ``gradle -v``
 4) Créez un dossier vide. Ca sera le dossier du projet
 5) modifiez le fichier et mettez ``#org.gradle.configuration-cache=true`` en commentaire
 Modifications de build.gradle.kts:
