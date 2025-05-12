@@ -84,7 +84,11 @@ public class Main extends Application {
     }
 
     // Génère un labyrinthe parfait (DFS)
+     // Génère un labyrinthe parfait (DFS)
     private void generateMazeDFS() {
+        int seed = 232322;
+        Random rndGenerator = new Random(seed);
+        
         Stack<int[]> stack = new Stack<>();
         stack.push(new int[]{0, 0});
         visited[0][0] = true;
@@ -93,9 +97,13 @@ public class Main extends Application {
             int[] current = stack.peek();
             int r = current[0];
             int c = current[1];
+            /*Adding pseudo random variable create the possibility of obtaining same maze with a same seed
+             * * each seed generate an unique maze
+             * */
+            
+            List<Integer> directions = new ArrayList<>(List.of(0,1,2,3));
 
-            List<Integer> directions = new ArrayList<>(List.of(0, 1, 2, 3));
-            Collections.shuffle(directions);
+            Collections.shuffle(directions, rndGenerator);
             boolean moved = false;
 
             for (int dir : directions) {
@@ -122,7 +130,6 @@ public class Main extends Application {
             }
         }
     }
-
     //
     private void drawMaze(GraphicsContext gc) {
         gc.clearRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
