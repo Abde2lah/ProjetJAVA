@@ -47,7 +47,7 @@ public class Edges {
  * Returns the destination vertex of this edge.
  *@return the destination of this vertex edge.
  * */
- public int getDestination() {
+  public int getDestination() {
       return this.destination;
   }
   
