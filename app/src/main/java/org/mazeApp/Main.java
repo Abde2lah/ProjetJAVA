@@ -6,21 +6,23 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.*;
 
 public class Main extends Application {
 
-    private static final int CELL_SIZE = 40;
-    private static final int ROWS = 10;
-    private static final int COLS = 10;
+    private static final int CELL_SIZE = 20;
+    private static int ROWS = 2;
+    private static int COLS = 10;
 
-    private boolean[][][] walls = new boolean[ROWS][COLS][4]; // N, E, S, W
-    private boolean[][] visited = new boolean[ROWS][COLS];
+    private boolean[][][] walls;
+    private boolean[][] visited;
     private Canvas canvas;
 
     public static void main(String[] args) {
@@ -29,61 +31,98 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Home screen buttons
+        // Home screen
         Button createMazeBtn = new Button("Créer un labyrinthe");
         Button displayMazeBtn = new Button("Voir les anciens labyrinthes");
 
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(createMazeBtn, displayMazeBtn);
+        VBox homeRoot = new VBox(20);
+        homeRoot.setAlignment(Pos.CENTER);
+        homeRoot.getChildren().addAll(createMazeBtn, displayMazeBtn);
+        Scene startingScene = new Scene(homeRoot, 1920, 1080);
 
-        Scene startingScene = new Scene(root, 400, 300);
+        // Maze algorithm choice screen
+        Button DFSCreation = new Button("Labyrinthe avec DFS");
+        Button BFSCreation = new Button("Labyrinthe avec BFS");
+        Button AStarCreation = new Button("Labyrinthe avec A*");
+        Button DijkstraCreation = new Button("Labyrinthe avec Dijkstra");
+        Button PrimCreation = new Button("Labyrinthe avec Prim");
+
+        VBox creationPane = new VBox(20);
+        creationPane.setAlignment(Pos.CENTER);
+        creationPane.getChildren().addAll(
+            DFSCreation, BFSCreation, AStarCreation, DijkstraCreation, PrimCreation
+        );
+        Scene creationScene = new Scene(creationPane, 1920, 1080);
+
+        // Scene where maze will be drawn
+        StackPane canvasPane = new StackPane();
+        Scene mazeScene = new Scene(canvasPane, 1920, 1080);
+
+        // Size input screen
+        Text rowLabel = new Text("Nombre de lignes :");
+        TextField rowInput = new TextField();
+
+        Text colLabel = new Text("Nombre de colonnes :");
+        TextField colInput = new TextField();
+
+        Button validateSizeBtn = new Button("Valider les dimensions");
+
+        VBox sizePane = new VBox(20, rowLabel, rowInput, colLabel, colInput, validateSizeBtn);
+        sizePane.setAlignment(Pos.CENTER);
+        Scene sizeScene = new Scene(sizePane, 1920, 1080);
+
+        // Button to go to size selection
+        createMazeBtn.setOnAction(event -> {
+            primaryStage.setScene(sizeScene);
+        });
+
+        // Validate size input and go to algorithm choice only if all is good
+        validateSizeBtn.setOnAction(event -> {
+            try {
+                ROWS = Integer.parseInt(rowInput.getText());
+                COLS = Integer.parseInt(colInput.getText());
+                if (ROWS <= 0 || COLS <= 0) throw new NumberFormatException();
+
+                // Re-init arrays based on new size
+                walls = new boolean[ROWS][COLS][4];
+                visited = new boolean[ROWS][COLS];
+
+                primaryStage.setScene(creationScene);
+            } catch (NumberFormatException e) {
+                rowInput.clear();
+                colInput.clear();
+            }
+        });
+
+        // Maze generation with DFS
+        DFSCreation.setOnAction(event -> {
+            initializeMaze();
+            generateMazeDFS();
+
+            canvas = new Canvas(COLS * CELL_SIZE, ROWS * CELL_SIZE);
+            drawMaze(canvas.getGraphicsContext2D());
+
+            canvasPane.getChildren().setAll(canvas);
+            primaryStage.setScene(mazeScene);
+        });
+
+        // Initial screen
         primaryStage.setTitle("CYNAPSE");
         primaryStage.setScene(startingScene);
         primaryStage.show();
-
-        // MAze creation screen
-        canvas = new Canvas(COLS * CELL_SIZE, ROWS * CELL_SIZE);
-        StackPane canvasPane = new StackPane(canvas);
-        Scene mazeScene = new Scene(canvasPane, COLS * CELL_SIZE, ROWS * CELL_SIZE);
-
-        //Resolution screen
-        Button DFSResolution = new Button("Labyrinthe crée avec un algorithme DFS");
-
-        VBox resolutionPane = new VBox(20);
-        resolutionPane.setAlignment(Pos.CENTER);
-        resolutionPane.getChildren().addAll(DFSResolution);
-
-        Scene resolutionScene = new Scene(resolutionPane, COLS * CELL_SIZE, ROWS * CELL_SIZE);
-        DFSResolution.setOnAction(event -> {
-            primaryStage.setScene(resolutionScene);
-        });
-
-        // Button action Create Maze button
-        createMazeBtn.setOnAction(event -> {
-            primaryStage.setScene(resolutionScene);
-        });
-
-        // Resolution with DFS
-        DFSResolution.setOnAction(event -> {
-            initializeMaze();
-            generateMazeDFS();
-            drawMaze(canvas.getGraphicsContext2D());
-            primaryStage.setScene(mazeScene);
-        });
     }
 
-    // Initialise toutes les cellules avec des murs
     private void initializeMaze() {
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
-                Arrays.fill(walls[r][c], true);  // 4 murs
+                Arrays.fill(walls[r][c], true);
                 visited[r][c] = false;
             }
         }
     }
 
-    // Génère un labyrinthe parfait (DFS)
+    //Generates the maze with DFS  
+
     private void generateMazeDFS() {
         Stack<int[]> stack = new Stack<>();
         stack.push(new int[]{0, 0});
@@ -91,8 +130,7 @@ public class Main extends Application {
 
         while (!stack.isEmpty()) {
             int[] current = stack.peek();
-            int r = current[0];
-            int c = current[1];
+            int r = current[0], c = current[1];
 
             List<Integer> directions = new ArrayList<>(List.of(0, 1, 2, 3));
             Collections.shuffle(directions);
@@ -101,10 +139,10 @@ public class Main extends Application {
             for (int dir : directions) {
                 int nr = r, nc = c;
                 switch (dir) {
-                    case 0: nr--; break; // N
-                    case 1: nc++; break; // E
-                    case 2: nr++; break; // S
-                    case 3: nc--; break; // W
+                    case 0: nr--; break;
+                    case 1: nc++; break;
+                    case 2: nr++; break;
+                    case 3: nc--; break;
                 }
 
                 if (nr >= 0 && nc >= 0 && nr < ROWS && nc < COLS && !visited[nr][nc]) {
@@ -117,13 +155,12 @@ public class Main extends Application {
                 }
             }
 
-            if (!moved) {
-                stack.pop();
-            }
+            if (!moved) stack.pop();
         }
     }
 
-    //
+    //Draws the maze on the canvas.
+
     private void drawMaze(GraphicsContext gc) {
         gc.clearRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
         gc.setStroke(Color.BLACK);
@@ -134,10 +171,10 @@ public class Main extends Application {
                 double x = c * CELL_SIZE;
                 double y = r * CELL_SIZE;
 
-                if (walls[r][c][0]) gc.strokeLine(x, y, x + CELL_SIZE, y);               // Nord
+                if (walls[r][c][0]) gc.strokeLine(x, y, x + CELL_SIZE, y);  // Nord
                 if (walls[r][c][1]) gc.strokeLine(x + CELL_SIZE, y, x + CELL_SIZE, y + CELL_SIZE); // Est
                 if (walls[r][c][2]) gc.strokeLine(x, y + CELL_SIZE, x + CELL_SIZE, y + CELL_SIZE); // Sud
-                if (walls[r][c][3]) gc.strokeLine(x, y, x, y + CELL_SIZE);               // Ouest
+                if (walls[r][c][3]) gc.strokeLine(x, y, x, y + CELL_SIZE);  // Ouest
             }
         }
     }
