@@ -119,15 +119,12 @@ public class Graph {
         for (Edges edge : edges) {
             int source = edge.getSource();
             int destination = edge.getDestination();
-            
             // Vérifier si l'ajout de cette arête crée un cycle
             int sourceRoot = find(parent, source);
             int destRoot = find(parent, destination);
-            
             if (sourceRoot != destRoot) {
                 // Ajouter l'arête au graphe
                 addEdgeBidirectional(source, destination);
-                
                 // Fusionner les deux composantes
                 union(parent, sourceRoot, destRoot);
                 
