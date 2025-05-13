@@ -18,22 +18,22 @@ public class MazeView extends Pane {
         getChildren().clear();
         
         // Récupérer les dimensions réelles du labyrinthe
-        int lignes = graph.getLignes();
-        int colonnes = graph.getColonnes();
+        int rows = graph.getRows();
+        int columns = graph.getColumns();
         
         // Créer une structure pour savoir quels murs doivent être dessinés
-        boolean[][] horizontalWalls = new boolean[lignes+1][colonnes]; // Murs horizontaux
-        boolean[][] verticalWalls = new boolean[lignes][colonnes+1];   // Murs verticaux
+        boolean[][] horizontalWalls = new boolean[rows+1][columns]; // Murs horizontaux
+        boolean[][] verticalWalls = new boolean[rows][columns+1];   // Murs verticaux
         
         // Par défaut, tous les murs sont présents
-        for (int i = 0; i <= lignes; i++) {
-            for (int j = 0; j < colonnes; j++) {
+        for (int i = 0; i <= rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 horizontalWalls[i][j] = true;
             }
         }
         
-        for (int i = 0; i < lignes; i++) {
-            for (int j = 0; j <= colonnes; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j <= rows; j++) {
                 verticalWalls[i][j] = true;
             }
         }
@@ -45,10 +45,10 @@ public class MazeView extends Pane {
                 int source = edge.getSource();
                 int dest = edge.getDestination();
                 
-                int sourceX = source % colonnes;
-                int sourceY = source / colonnes;
-                int destX = dest % colonnes;
-                int destY = dest / colonnes;
+                int sourceX = source % columns;
+                int sourceY = source / columns;
+                int destX = dest % columns;
+                int destY = dest / columns;
                 
                 // Retirer les murs entre les cellules connectées
                 if (sourceX == destX) { // Même colonne - passage vertical
@@ -62,13 +62,13 @@ public class MazeView extends Pane {
         }
         
         // Dessiner le fond blanc pour toutes les cellules
-        Rectangle background = new Rectangle(padding, padding, colonnes * cellSize, lignes * cellSize);
+        Rectangle background = new Rectangle(padding, padding, columns * cellSize, rows * cellSize);
         background.setFill(Color.WHITE);
         getChildren().add(background);
         
         // Dessiner les murs horizontaux
-        for (int i = 0; i <= lignes; i++) {
-            for (int j = 0; j < colonnes; j++) {
+        for (int i = 0; i <= rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 if (horizontalWalls[i][j]) {
                     double x1 = j * cellSize + padding;
                     double y1 = i * cellSize + padding;
@@ -82,8 +82,8 @@ public class MazeView extends Pane {
         }
         
         // Dessiner les murs verticaux
-        for (int i = 0; i < lignes; i++) {
-            for (int j = 0; j <= colonnes; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j <= columns; j++) {
                 if (verticalWalls[i][j]) {
                     double x1 = j * cellSize + padding;
                     double y1 = i * cellSize + padding;

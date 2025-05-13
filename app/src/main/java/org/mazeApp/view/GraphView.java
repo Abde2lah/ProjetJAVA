@@ -17,13 +17,13 @@ public class GraphView extends Pane {
         getChildren().clear();
         
         // Récupérer les dimensions réelles du labyrinthe
-        int lignes = graph.getLignes();
-        int colonnes = graph.getColonnes();
+        int rows = graph.getRows();
+        int columns = graph.getColumns();
         
         // Dessiner les sommets
         for (int i = 0; i < graph.getGraphMaze().size(); i++) {
-            int row = i / colonnes;
-            int col = i % colonnes;
+            int row = i / columns;
+            int col = i % columns;
             
             double x = col * cellSize + padding;
             double y = row * cellSize + padding;
@@ -36,8 +36,8 @@ public class GraphView extends Pane {
             ArrayList<Edges> edges = graph.getGraphMaze().get(i);
             for (Edges edge : edges) {
                 int destIndex = edge.getDestination();
-                int destRow = destIndex / colonnes;
-                int destCol = destIndex % colonnes;
+                int destRow = destIndex / columns;
+                int destCol = destIndex % columns;
                 
                 double destX = destCol * cellSize + padding;
                 double destY = destRow * cellSize + padding;
