@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import org.mazeApp.model.Graph;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
+import org.mazeApp.controller.MazeController;
 
 public class Main extends Application {
 
@@ -68,46 +69,34 @@ public class Main extends Application {
             buttonContainer
         );
         
-        // Configurer les actions des boutons
+        // Dans la méthode start de votre classe Main
+        MazeController controller = new MazeController(this.graph, this.graphView, this.mazeView);
+
+        // Configurer les actions des boutons avec le contrôleur
         generateButton.setOnAction(e -> {
             try {
-                // Récupérer les valeurs saisies par l'utilisateur
                 int lignes = Integer.parseInt(rowInput.getText());
                 int colonnes = Integer.parseInt(colInput.getText());
                 int seed;
                 
-                // Vérifier si une graine a été fournie
                 if (seedInput.getText().isEmpty()) {
-                    // Générer une graine aléatoire si aucune n'est fournie
                     seed = (int) (Math.random() * Integer.MAX_VALUE);
-                    seedInput.setText(String.valueOf(seed)); // Afficher la graine générée
+                    seedInput.setText(String.valueOf(seed));
                 } else {
                     seed = Integer.parseInt(seedInput.getText());
                 }
                 
-                // Vérifier que les dimensions sont valides
-                if (lignes < 2 || colonnes < 2) {
-                    System.out.println("Erreur: Les dimensions doivent être d'au moins 2x2");
-                    return;
-                }
-                
-                System.out.println("Génération d'un labyrinthe " + lignes + "x" + colonnes + " avec la graine " + seed);
-                
-                // Créer le nouveau graphe avec les paramètres fournis
-                this.graph = new Graph(seed, lignes, colonnes);
-                
-                // Mettre à jour les vues
-                refresh_view();
+                controller.generateMaze(lignes, colonnes, seed);
+                this.graph = controller.getModel(); // Mettre à jour la référence au graphe
                 
             } catch (NumberFormatException ex) {
                 System.out.println("Erreur: Veuillez entrer des nombres valides");
             }
         });
-        
+
         clearButton.setOnAction(e -> {
-            System.out.println("Effacement du graphe");
-            this.graph.clearGraph();
-            refresh_view();
+            controller.clearMaze();
+            this.graph = controller.getModel(); // Mettre à jour la référence au graphe
         });
         
         // Organiser la mise en page principale

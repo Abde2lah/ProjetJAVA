@@ -74,6 +74,8 @@ public class Graph {
         
         // Appliquer l'algorithme de Kruskal pour créer un arbre couvrant
         applyKruskalAlgorithm(allEdges, lignes * colonnes);
+        //Vous pouvez également ajouter une méthode pour générer un labyrinthe parfait
+        // DFS ou Prim
     }
     
     /**
