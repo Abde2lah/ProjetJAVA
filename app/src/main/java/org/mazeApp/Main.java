@@ -121,19 +121,36 @@ public class Main extends Application {
         }
     }
 
+<<<<<<< HEAD
     //Generates the maze with DFS  
 
+=======
+    // Génère un labyrinthe parfait (DFS)
+     // Génère un labyrinthe parfait (DFS)
+>>>>>>> 6864669b690e1c883af251fbad8eda78a01f10f6
     private void generateMazeDFS() {
+        int seed = 232322;
+        Random rndGenerator = new Random(seed);
+        
         Stack<int[]> stack = new Stack<>();
         stack.push(new int[]{0, 0});
         visited[0][0] = true;
 
         while (!stack.isEmpty()) {
             int[] current = stack.peek();
+<<<<<<< HEAD
             int r = current[0], c = current[1];
+=======
+            int r = current[0];
+            int c = current[1];
+            /*Adding pseudo random variable create the possibility of obtaining same maze with a same seed
+             * * each seed generate an unique maze
+             * */
+            
+            List<Integer> directions = new ArrayList<>(List.of(0,1,2,3));
+>>>>>>> 6864669b690e1c883af251fbad8eda78a01f10f6
 
-            List<Integer> directions = new ArrayList<>(List.of(0, 1, 2, 3));
-            Collections.shuffle(directions);
+            Collections.shuffle(directions, rndGenerator);
             boolean moved = false;
 
             for (int dir : directions) {
@@ -158,9 +175,13 @@ public class Main extends Application {
             if (!moved) stack.pop();
         }
     }
+<<<<<<< HEAD
 
     //Draws the maze on the canvas.
 
+=======
+    //
+>>>>>>> 6864669b690e1c883af251fbad8eda78a01f10f6
     private void drawMaze(GraphicsContext gc) {
         gc.clearRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
         gc.setStroke(Color.BLACK);
