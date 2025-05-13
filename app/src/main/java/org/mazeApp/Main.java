@@ -20,6 +20,7 @@ public class Main extends Application {
     private static final int CELL_SIZE = 20;
     private static int ROWS = 2;
     private static int COLS = 10;
+    private static int SEED = 1;
 
     private boolean[][][] walls;
     private boolean[][] visited;
@@ -46,11 +47,12 @@ public class Main extends Application {
         Button AStarCreation = new Button("Labyrinthe avec A*");
         Button DijkstraCreation = new Button("Labyrinthe avec Dijkstra");
         Button PrimCreation = new Button("Labyrinthe avec Prim");
+        Button DegeneratedCreation = new Button("Labyrinthe dégénéré");
 
         VBox creationPane = new VBox(20);
         creationPane.setAlignment(Pos.CENTER);
         creationPane.getChildren().addAll(
-            DFSCreation, BFSCreation, AStarCreation, DijkstraCreation, PrimCreation
+            DFSCreation, BFSCreation, AStarCreation, DijkstraCreation, PrimCreation, DegeneratedCreation
         );
         Scene creationScene = new Scene(creationPane, 1920, 1080);
 
@@ -65,9 +67,12 @@ public class Main extends Application {
         Text colLabel = new Text("Nombre de colonnes :");
         TextField colInput = new TextField();
 
+        Text seedLabel = new Text("Graine :");
+        TextField seedInput = new TextField();
+
         Button validateSizeBtn = new Button("Valider les dimensions");
 
-        VBox sizePane = new VBox(20, rowLabel, rowInput, colLabel, colInput, validateSizeBtn);
+        VBox sizePane = new VBox(20, rowLabel, rowInput, colLabel, colInput, seedLabel, seedInput, validateSizeBtn);
         sizePane.setAlignment(Pos.CENTER);
         Scene sizeScene = new Scene(sizePane, 1920, 1080);
 
@@ -81,7 +86,8 @@ public class Main extends Application {
             try {
                 ROWS = Integer.parseInt(rowInput.getText());
                 COLS = Integer.parseInt(colInput.getText());
-                if (ROWS <= 0 || COLS <= 0) throw new NumberFormatException();
+                SEED = Integer.parseInt(seedInput.getText());
+                if (ROWS <= 0 || COLS <= 0 || SEED <= 0) throw new NumberFormatException();
 
                 // Re-init arrays based on new size
                 walls = new boolean[ROWS][COLS][4];
@@ -123,7 +129,8 @@ public class Main extends Application {
 
 
     private void generateMazeDFS() {
-        int seed = 232322;
+        // Initialize the random number generator with the seed
+        int seed = SEED;
         Random rndGenerator = new Random(seed);
         
         Stack<int[]> stack = new Stack<>();
@@ -165,6 +172,9 @@ public class Main extends Application {
             if (!moved) stack.pop();
         }
     }
+
+
+
     private void drawMaze(GraphicsContext gc) {
         gc.clearRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
         gc.setStroke(Color.BLACK);
