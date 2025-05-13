@@ -50,7 +50,15 @@ public class Edges {
   public int getDestination() {
       return this.destination;
   }
-  
+  /**
+   * Returns a string representation of this edge in the format "(source -> destination)".
+   * 
+   * @return a string representation of the edge
+   */
+  @Override
+  public String toString() {
+      return String.format("(%d -> %d)", source, destination);
+  }
 
 }
 

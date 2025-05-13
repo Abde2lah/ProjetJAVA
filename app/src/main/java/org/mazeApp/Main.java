@@ -1,195 +1,137 @@
 package org.mazeApp;
 
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 
-import java.util.*;
+import org.mazeApp.model.Graph;
+import org.mazeApp.view.GraphView;
+import org.mazeApp.view.MazeView;
 
 public class Main extends Application {
 
-    private static final int CELL_SIZE = 20;
-    private static int ROWS = 2;
-    private static int COLS = 10;
-    private static int SEED = 1;
-
-    private boolean[][][] walls;
-    private boolean[][] visited;
-    private Canvas canvas;
+    public GraphView graphView;
+    public MazeView mazeView;
+    public Graph graph;  // Cette variable doit être unique
+    
+    @Override
+    public void start(Stage primaryStage) {
+        Image icon = new Image("file:src/main/resources/icone.png");
+        primaryStage.getIcons().add(icon);
+        // Création des champs de saisie
+        Text rowLabel = new Text("Nombre de lignes :");
+        TextField rowInput = new TextField("5");  // Valeur par défaut
+        Text colLabel = new Text("Nombre de colonnes :");
+        TextField colInput = new TextField("5");  // Valeur par défaut
+        Text seedLabel = new Text("Graine :");
+        TextField seedInput = new TextField("42");  // Valeur par défaut
+        // Création des conteneurs
+        VBox inputContainer = new VBox(10);
+        VBox graphContainer = new VBox(10);
+        VBox mazeContainer = new VBox(10);
+        // Créer un labyrinthe 5x5 par défaut
+        this.graph = new Graph(42, 5);  // Utiliser this.graph
+        System.out.println(graph);
+        this.graphView = new GraphView();
+        this.mazeView = new MazeView();
+        
+        // Dessiner les vues initiales
+        this.graphView.draw(this.graph); 
+        this.mazeView.draw(this.graph);
+        
+        // Créer des étiquettes pour chaque vue
+        Label graphLabel = new Label("Vue du Graphe");
+        Label mazeLabel = new Label("Vue du Labyrinthe");
+        
+        // Ajouter les vues à leurs conteneurs
+        graphContainer.getChildren().addAll(graphLabel, this.graphView);
+        mazeContainer.getChildren().addAll(mazeLabel, this.mazeView);
+        
+        // Créer les boutons
+        Button clearButton = new Button("Effacer");
+        Button generateButton = new Button("Générer");
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.getChildren().addAll(clearButton, generateButton);
+        
+        // Ajouter les champs de saisie et les boutons au conteneur d'entrée
+        inputContainer.getChildren().addAll(
+            rowLabel, rowInput, 
+            colLabel, colInput, 
+            seedLabel, seedInput,
+            buttonContainer
+        );
+        
+        // Configurer les actions des boutons
+        generateButton.setOnAction(e -> {
+            try {
+                // Récupérer les valeurs saisies par l'utilisateur
+                int lignes = Integer.parseInt(rowInput.getText());
+                int colonnes = Integer.parseInt(colInput.getText());
+                int seed;
+                
+                // Vérifier si une graine a été fournie
+                if (seedInput.getText().isEmpty()) {
+                    // Générer une graine aléatoire si aucune n'est fournie
+                    seed = (int) (Math.random() * Integer.MAX_VALUE);
+                    seedInput.setText(String.valueOf(seed)); // Afficher la graine générée
+                } else {
+                    seed = Integer.parseInt(seedInput.getText());
+                }
+                
+                // Vérifier que les dimensions sont valides
+                if (lignes < 2 || colonnes < 2) {
+                    System.out.println("Erreur: Les dimensions doivent être d'au moins 2x2");
+                    return;
+                }
+                
+                System.out.println("Génération d'un labyrinthe " + lignes + "x" + colonnes + " avec la graine " + seed);
+                
+                // Créer le nouveau graphe avec les paramètres fournis
+                this.graph = new Graph(seed, lignes, colonnes);
+                
+                // Mettre à jour les vues
+                refresh_view();
+                
+            } catch (NumberFormatException ex) {
+                System.out.println("Erreur: Veuillez entrer des nombres valides");
+            }
+        });
+        
+        clearButton.setOnAction(e -> {
+            System.out.println("Effacement du graphe");
+            this.graph.clearGraph();
+            refresh_view();
+        });
+        
+        // Organiser la mise en page principale
+        HBox root = new HBox(20);
+        root.getChildren().addAll(inputContainer, graphContainer, mazeContainer);
+        
+        // Ajouter du style
+        root.setStyle("-fx-padding: 10;");
+        graphLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        mazeLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        
+        // Créer et afficher la scène
+        Scene scene = new Scene(root, 1200, 600);
+        primaryStage.setTitle("Visualisation de Labyrinthe");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
     public static void main(String[] args) {
         launch(args);
     }
-
-    @Override
-    public void start(Stage primaryStage) {
-        // Home screen
-        Button createMazeBtn = new Button("Créer un labyrinthe");
-        Button displayMazeBtn = new Button("Voir les anciens labyrinthes");
-
-        VBox homeRoot = new VBox(20);
-        homeRoot.setAlignment(Pos.CENTER);
-        homeRoot.getChildren().addAll(createMazeBtn, displayMazeBtn);
-        Scene startingScene = new Scene(homeRoot, 1920, 1080);
-
-        // Maze algorithm choice screen
-        Button DFSCreation = new Button("Labyrinthe avec DFS");
-        Button BFSCreation = new Button("Labyrinthe avec BFS");
-        Button AStarCreation = new Button("Labyrinthe avec A*");
-        Button DijkstraCreation = new Button("Labyrinthe avec Dijkstra");
-        Button PrimCreation = new Button("Labyrinthe avec Prim");
-        Button DegeneratedCreation = new Button("Labyrinthe dégénéré");
-
-        VBox creationPane = new VBox(20);
-        creationPane.setAlignment(Pos.CENTER);
-        creationPane.getChildren().addAll(
-            DFSCreation, BFSCreation, AStarCreation, DijkstraCreation, PrimCreation, DegeneratedCreation
-        );
-        Scene creationScene = new Scene(creationPane, 1920, 1080);
-
-        // Scene where maze will be drawn
-        StackPane canvasPane = new StackPane();
-        Scene mazeScene = new Scene(canvasPane, 1920, 1080);
-
-        // Size input screen
-        Text rowLabel = new Text("Nombre de lignes :");
-        TextField rowInput = new TextField();
-
-        Text colLabel = new Text("Nombre de colonnes :");
-        TextField colInput = new TextField();
-
-        Text seedLabel = new Text("Graine :");
-        TextField seedInput = new TextField();
-
-        Button validateSizeBtn = new Button("Valider les dimensions");
-
-        VBox sizePane = new VBox(20, rowLabel, rowInput, colLabel, colInput, seedLabel, seedInput, validateSizeBtn);
-        sizePane.setAlignment(Pos.CENTER);
-        Scene sizeScene = new Scene(sizePane, 1920, 1080);
-
-        // Button to go to size selection
-        createMazeBtn.setOnAction(event -> {
-            primaryStage.setScene(sizeScene);
-        });
-
-        // Validate size input and go to algorithm choice only if all is good
-        validateSizeBtn.setOnAction(event -> {
-            try {
-                ROWS = Integer.parseInt(rowInput.getText());
-                COLS = Integer.parseInt(colInput.getText());
-                SEED = Integer.parseInt(seedInput.getText());
-                if (ROWS <= 0 || COLS <= 0 || SEED <= 0) throw new NumberFormatException();
-
-                // Re-init arrays based on new size
-                walls = new boolean[ROWS][COLS][4];
-                visited = new boolean[ROWS][COLS];
-
-                primaryStage.setScene(creationScene);
-            } catch (NumberFormatException e) {
-                rowInput.clear();
-                colInput.clear();
-            }
-        });
-
-        // Maze generation with DFS
-        DFSCreation.setOnAction(event -> {
-            initializeMaze();
-            generateMazeDFS();
-
-            canvas = new Canvas(COLS * CELL_SIZE, ROWS * CELL_SIZE);
-            drawMaze(canvas.getGraphicsContext2D());
-
-            canvasPane.getChildren().setAll(canvas);
-            primaryStage.setScene(mazeScene);
-        });
-
-        // Initial screen
-        primaryStage.setTitle("CYNAPSE");
-        primaryStage.setScene(startingScene);
-        primaryStage.show();
-    }
-
-    private void initializeMaze() {
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLS; c++) {
-                Arrays.fill(walls[r][c], true);
-                visited[r][c] = false;
-            }
-        }
-    }
-
-
-    private void generateMazeDFS() {
-        // Initialize the random number generator with the seed
-        int seed = SEED;
-        Random rndGenerator = new Random(seed);
-        
-        Stack<int[]> stack = new Stack<>();
-        stack.push(new int[]{0, 0});
-        visited[0][0] = true;
-
-        while (!stack.isEmpty()) {
-            int[] current = stack.peek();
-            int r = current[0];
-            int c = current[1];
-            /*Adding pseudo random variable create the possibility of obtaining same maze with a same seed
-             * * each seed generate an unique maze
-             * */
-            
-            List<Integer> directions = new ArrayList<>(List.of(0,1,2,3));
-
-            Collections.shuffle(directions, rndGenerator);
-            boolean moved = false;
-
-            for (int dir : directions) {
-                int nr = r, nc = c;
-                switch (dir) {
-                    case 0: nr--; break;
-                    case 1: nc++; break;
-                    case 2: nr++; break;
-                    case 3: nc--; break;
-                }
-
-                if (nr >= 0 && nc >= 0 && nr < ROWS && nc < COLS && !visited[nr][nc]) {
-                    visited[nr][nc] = true;
-                    walls[r][c][dir] = false;
-                    walls[nr][nc][(dir + 2) % 4] = false;
-                    stack.push(new int[]{nr, nc});
-                    moved = true;
-                    break;
-                }
-            }
-
-            if (!moved) stack.pop();
-        }
-    }
-
-
-
-    private void drawMaze(GraphicsContext gc) {
-        gc.clearRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
-
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLS; c++) {
-                double x = c * CELL_SIZE;
-                double y = r * CELL_SIZE;
-
-                if (walls[r][c][0]) gc.strokeLine(x, y, x + CELL_SIZE, y);  // Nord
-                if (walls[r][c][1]) gc.strokeLine(x + CELL_SIZE, y, x + CELL_SIZE, y + CELL_SIZE); // Est
-                if (walls[r][c][2]) gc.strokeLine(x, y + CELL_SIZE, x + CELL_SIZE, y + CELL_SIZE); // Sud
-                if (walls[r][c][3]) gc.strokeLine(x, y, x, y + CELL_SIZE);  // Ouest
-            }
-        }
+    
+    public void refresh_view() {
+        this.graphView.draw(this.graph);
+        this.mazeView.draw(this.graph);    
     }
 }
