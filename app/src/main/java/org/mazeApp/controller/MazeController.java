@@ -64,8 +64,8 @@ public class MazeController {
         this.seedInput = new TextField("42");  // Default value
         
         // Create buttons
-        this.clearButton = new Button("Clear");
-        this.generateButton = new Button("Generate");
+        this.clearButton = new Button("Effacer");
+        this.generateButton = new Button("Generer");
 
         this.DFSButton = new Button("DFS");
         this.BFSButton = new Button("BFS");
@@ -97,7 +97,8 @@ public class MazeController {
         inputContainer.getChildren().addAll(
             rowLabel, this.rowInput, 
             colLabel, this.colInput, 
-            seedLabel, this.seedInput
+            seedLabel, this.seedInput,
+            this.generateButton, this.clearButton
         );
 
         // Style the algorithm button container

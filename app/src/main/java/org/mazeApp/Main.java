@@ -41,6 +41,7 @@ public class Main extends Application {
             controller.getInputContainer(),
             controller.getGraphContainer(), 
             controller.getMazeContainer(),
+            
             controller.getAlgoButtonContainer() 
         );
         
