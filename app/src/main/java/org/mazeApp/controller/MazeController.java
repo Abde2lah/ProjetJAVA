@@ -88,7 +88,8 @@ public class MazeController {
         HBox buttonContainer = new HBox(10);
         buttonContainer.getChildren().addAll(this.clearButton, this.generateButton);
 
-        this.AlgobuttonContainer.getChildren().addAll(
+        VBox algobuttonContainer = new VBox(10);
+        algobuttonContainer.getChildren().addAll(
             this.DFSButton, this.BFSButton, 
             this.AStarButton, this.PrimButton,
             this.KruskalButton, this.DijkstraButton,
