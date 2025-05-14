@@ -1,10 +1,8 @@
 package org.mazeApp.view;
 
 import java.util.ArrayList;
-
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
-
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -12,250 +10,327 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class MazeView extends Pane {
-    private double cellSize = 40; // Size of each cell in the maze
-    private double padding = 20; // Padding around the maze
-    private double wallThickness = 2.5; // Thickness of the walls
-
-    private int columns;
-    private int rows;
-
-
-    // hover variables
-    private double hoveredX = -1;
-    private double hoveredY = -1;
-
-    // Variables for start and end points
-    private int startIndex = -1;
-    private int endIndex = -1;
-    private boolean selectingStart = true;
-    private boolean selectingEnd = true;
-
+    // Constantes et propriétés
+    private final double FIXED_WIDTH = 300;
+    private final double FIXED_HEIGHT = 300;
+    private final double padding = 2;
+    private final double minWallThickness = 0.5;
+    
+    // État du labyrinthe
     private Graph currentGraph;
-
-    public MazeView(Graph graph){
-
+    private int rows, columns;
+    private int startIndex = -1, endIndex = -1;
+    private boolean selectingStart = true, selectingEnd = true;
+    private double hoveredX = -1, hoveredY = -1;
+    
+    /**
+     * Constructeur initialisé avec un graphe
+     */
+    public MazeView(Graph graph) {
         this.currentGraph = graph;
-
-        // Mouse hover listener for highlighting cells
+        initializeView();
+        setupEventHandlers();
+    }
+    
+    /**
+     * Initialise les propriétés de base de la vue
+     */
+    private void initializeView() {
+        setPrefSize(FIXED_WIDTH, FIXED_HEIGHT);
+        setMinSize(FIXED_WIDTH, FIXED_HEIGHT);
+        setMaxSize(FIXED_WIDTH, FIXED_HEIGHT);
+    }
+    
+    /**
+     * Configure les gestionnaires d'événements
+     */
+    private void setupEventHandlers() {
+        // Gestion du survol de la souris
         setOnMouseMoved(event -> {
+            if (currentGraph == null) return;
+            
+            double cellSize = calculateCellSize();
             double mouseX = event.getX() - padding;
             double mouseY = event.getY() - padding;
-        
+            
             int col = (int) (mouseX / cellSize);
             int row = (int) (mouseY / cellSize);
-        
-            // verify that the hover is on the border
-            if (row >= 0 && row < rows && col >= 0 && col < columns
-                && (row == 0 || row == rows - 1 || col == 0 || col == columns - 1)) {
+            
+            // Vérifier si le survol est sur la bordure
+            boolean isOnBorder = row >= 0 && row < rows && col >= 0 && col < columns 
+                              && (row == 0 || row == rows - 1 || col == 0 || col == columns - 1);
+                
+            if (isOnBorder) {
                 hoveredX = col * cellSize + padding + cellSize / 2;
                 hoveredY = row * cellSize + padding + cellSize / 2;
             } else {
                 hoveredX = -1;
                 hoveredY = -1;
             }
-            draw(); // redraw to show hover
+            
+            draw();
         });
         
-        // Mouse click listener for placing start and end points
+        // Gestion des clics de souris
         setOnMouseClicked(event -> {
-            if (hoveredX == -1 || hoveredY == -1) return;
-
+            if (currentGraph == null || hoveredX < 0) return;
+            
+            double cellSize = calculateCellSize();
             int col = (int) ((hoveredX - padding) / cellSize);
             int row = (int) ((hoveredY - padding) / cellSize);
-
-            // verify that the click is on the border
+            
             if (!(row == 0 || row == rows - 1 || col == 0 || col == columns - 1)) return;
-
+            
             int index = row * columns + col;
             
             if (selectingStart) {
                 startIndex = index;
-                selectingStart = false; // Next click will place the end point
-            } else if(selectingEnd) {
+                selectingStart = false;
+            } else if (selectingEnd) {
                 endIndex = index;
                 selectingEnd = false;
             }
             
             draw();
         });
-        
     }
-
+    
     /**
-     * Draws the maze.
-     * 
+     * Dessine le labyrinthe
      */
     public void draw() {
-        // Clear any previous maze
         getChildren().clear();
-
-
-        // Get the number of rows and columns in the currentGraph
+        if (currentGraph == null) return;
+        
+        // Initialisation des dimensions
         this.rows = currentGraph.getRows();
         this.columns = currentGraph.getColumns();
-
-        // Initialize arrays to track horizontal and vertical walls
+        double cellSize = calculateCellSize();
+        double wallThickness = Math.max(minWallThickness, cellSize * 0.1);
+        
+        // Préparer les tableaux des murs
         boolean[][] horizontalWalls = new boolean[rows + 1][columns];
         boolean[][] verticalWalls = new boolean[rows][columns + 1];
-
-        // Set all walls to true initially
+        initializeWalls(horizontalWalls, verticalWalls);
+        removeWallsBasedOnEdges(horizontalWalls, verticalWalls);
+        
+        // Fond blanc
+        drawBackground();
+        
+        // Dessiner tous les murs
+        drawWalls(horizontalWalls, verticalWalls, cellSize, wallThickness);
+        
+        // Dessiner les points spéciaux
+        drawSpecialPoints(cellSize);
+    }
+    
+    /**
+     * Initialise les murs à true (tous présents)
+     */
+    private void initializeWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
+        // Initialiser tous les murs horizontaux
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
                 horizontalWalls[i][j] = true;
             }
         }
+        
+        // Initialiser tous les murs verticaux
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j <= columns; j++) {
                 verticalWalls[i][j] = true;
             }
         }
-
-        // Remove walls based on the edges in the currentGraph
+    }
+    
+    /**
+     * Supprime les murs en fonction des arêtes du graphe
+     */
+    private void removeWallsBasedOnEdges(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         for (int i = 0; i < currentGraph.getGraphMaze().size(); i++) {
-            ArrayList<Edges> edges = currentGraph.getGraphMaze().get(i);
-            for (Edges edge : edges) {
+            for (Edges edge : currentGraph.getGraphMaze().get(i)) {
                 int source = edge.getSource();
                 int dest = edge.getDestination();
-
+                
                 int sourceX = source % columns;
                 int sourceY = source / columns;
                 int destX = dest % columns;
                 int destY = dest / columns;
-
-                // Remove horizontal or vertical walls based on the edge direction
-                if (sourceX == destX) {
+                
+                // Supprimer le mur entre les cellules connectées
+                if (sourceX == destX) { // Même colonne (passage vertical)
                     int minY = Math.min(sourceY, destY);
                     horizontalWalls[minY + 1][sourceX] = false;
-                } else if (sourceY == destY) {
+                } else if (sourceY == destY) { // Même ligne (passage horizontal)
                     int minX = Math.min(sourceX, destX);
                     verticalWalls[sourceY][minX + 1] = false;
                 }
             }
         }
-
-        // Draw the maze background
-        Rectangle background = new Rectangle(padding, padding, columns * cellSize, rows * cellSize);
+    }
+    
+    /**
+     * Dessine le fond blanc du labyrinthe
+     */
+    private void drawBackground() {
+        double availableWidth = FIXED_WIDTH - (2 * padding);
+        double availableHeight = FIXED_HEIGHT - (2 * padding);
+        
+        Rectangle background = new Rectangle(padding, padding, availableWidth, availableHeight);
         background.setFill(Color.WHITE);
         getChildren().add(background);
-
-        // Draw horizontal walls
+    }
+    
+    /**
+     * Dessine tous les murs horizontaux et verticaux
+     */
+    private void drawWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls, 
+                          double cellSize, double wallThickness) {
+        // Murs horizontaux
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (horizontalWalls[i][j]) {
-                    double x1 = j * cellSize + padding;
-                    double y1 = i * cellSize + padding;
-                    double x2 = (j + 1) * cellSize + padding;
-
-                    Line wall = new Line(x1, y1, x2, y1);
+                    Line wall = new Line(
+                        j * cellSize + padding, 
+                        i * cellSize + padding,
+                        (j + 1) * cellSize + padding, 
+                        i * cellSize + padding
+                    );
                     wall.setStrokeWidth(wallThickness);
                     wall.setStroke(Color.BLACK);
                     getChildren().add(wall);
                 }
             }
         }
-
-        // Draw vertical walls
+        
+        // Murs verticaux
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j <= columns; j++) {
                 if (verticalWalls[i][j]) {
-                    double x1 = j * cellSize + padding;
-                    double y1 = i * cellSize + padding;
-                    double y2 = (i + 1) * cellSize + padding;
-
-                    Line wall = new Line(x1, y1, x1, y2);
+                    Line wall = new Line(
+                        j * cellSize + padding, 
+                        i * cellSize + padding,
+                        j * cellSize + padding, 
+                        (i + 1) * cellSize + padding
+                    );
                     wall.setStrokeWidth(wallThickness);
                     wall.setStroke(Color.BLACK);
                     getChildren().add(wall);
                 }
             }
         }
-
-        // Draw start point (green)
-        if (startIndex != -1) {
+    }
+    
+    /**
+     * Dessine les points spéciaux (départ, arrivée, survol)
+     */
+    private void drawSpecialPoints(double cellSize) {
+        double pointRadius = Math.max(0.5, cellSize / 4);
+        
+        // Point de départ (vert)
+        if (startIndex >= 0) {
             int row = startIndex / columns;
             int col = startIndex % columns;
-            double x = col * cellSize + padding + cellSize / 2;
-            double y = row * cellSize + padding + cellSize / 2;
-
-            Circle startCircle = new Circle(x, y, cellSize / 4, Color.GREEN);
-            System.out.println("le start point est à :" + startIndex);
-            this.getChildren().add(startCircle);
+            Circle startCircle = new Circle(
+                col * cellSize + padding + cellSize / 2,
+                row * cellSize + padding + cellSize / 2, 
+                pointRadius, Color.GREEN
+            );
+            getChildren().add(startCircle);
         }
-
-        // Draw end point (red)
-        if (endIndex != -1) {
+        
+        // Point d'arrivée (rouge)
+        if (endIndex >= 0) {
             int row = endIndex / columns;
             int col = endIndex % columns;
-            double x = col * cellSize + padding + cellSize / 2;
-            double y = row * cellSize + padding + cellSize / 2;
-
-            Circle endCircle = new Circle(x, y, cellSize / 4, Color.RED);
-            System.out.println("le end point est à :" + endIndex);
-            this.getChildren().add(endCircle);
+            Circle endCircle = new Circle(
+                col * cellSize + padding + cellSize / 2,
+                row * cellSize + padding + cellSize / 2, 
+                pointRadius, Color.RED
+            );
+            getChildren().add(endCircle);
         }
-
-        // Draw hover circle (light blue)
-        if (hoveredX != -1 && hoveredY != -1 && (selectingStart || selectingEnd)) {
-            Circle hoverCircle = new Circle(hoveredX, hoveredY, cellSize / 4, Color.LIGHTBLUE);
+        
+        // Cercle de survol (bleu clair)
+        if (hoveredX >= 0 && (selectingStart || selectingEnd)) {
+            Circle hoverCircle = new Circle(hoveredX, hoveredY, pointRadius, Color.LIGHTBLUE);
             hoverCircle.setOpacity(0.5);
-            this.getChildren().add(hoverCircle);
+            getChildren().add(hoverCircle);
         }
     }
-
+    
     /**
-     * Clears the maze view.
+     * Calcule la taille des cellules pour s'adapter à l'espace fixe
      */
-    public void clear() {
-        getChildren().clear();
+    private double calculateCellSize() {
+        if (currentGraph == null) return 0;
+        
+        double availableWidth = FIXED_WIDTH - (2 * padding);
+        double availableHeight = FIXED_HEIGHT - (2 * padding);
+        
+        double widthBasedSize = availableWidth / columns;
+        double heightBasedSize = availableHeight / rows;
+        
+        return Math.min(widthBasedSize, heightBasedSize);
     }
-
+    
     /**
-     * Draws the solution path in the maze.
-     * 
-     * @param path The list of indices representing the solution path.
+     * Dessine un chemin dans le labyrinthe
      */
     public void drawPath(ArrayList<Integer> path) {
-        // Determine the number of columns based on the path
-        int columns = 0;
-        if (path.size() > 1) {
-            int max = path.stream().max(Integer::compare).orElse(0);
-            columns = (int) Math.sqrt(max + 1);
-        }
-
-        // Draw lines connecting each point in the path
+        if (path == null || path.isEmpty() || currentGraph == null) return;
+        
+        double cellSize = calculateCellSize();
+        double pathThickness = Math.max(0.5, cellSize * 0.1);
+        
         for (int i = 0; i < path.size() - 1; i++) {
             int current = path.get(i);
             int next = path.get(i + 1);
-
+            
             int currentRow = current / columns;
             int currentCol = current % columns;
             int nextRow = next / columns;
             int nextCol = next % columns;
-
-            double x1 = currentCol * cellSize + padding + cellSize / 2;
-            double y1 = currentRow * cellSize + padding + cellSize / 2;
-            double x2 = nextCol * cellSize + padding + cellSize / 2;
-            double y2 = nextRow * cellSize + padding + cellSize / 2;
-
-            Line pathLine = new Line(x1, y1, x2, y2);
+            
+            Line pathLine = new Line(
+                currentCol * cellSize + padding + cellSize / 2,
+                currentRow * cellSize + padding + cellSize / 2,
+                nextCol * cellSize + padding + cellSize / 2,
+                nextRow * cellSize + padding + cellSize / 2
+            );
             pathLine.setStroke(Color.RED);
-            pathLine.setStrokeWidth(2.0);
+            pathLine.setStrokeWidth(pathThickness);
             getChildren().add(pathLine);
         }
     }
-
-
+    
+    /**
+     * Met à jour le graphe et redessine le labyrinthe
+     */
+    public void draw(Graph graph) {
+        this.currentGraph = graph;
+        resetStartEndPoints();
+    }
+    
+    /**
+     * Réinitialise les points de départ et d'arrivée
+     */
     public void resetStartEndPoints() {
         startIndex = -1;
         endIndex = -1;
         selectingStart = true;
+        selectingEnd = true;
         draw();
     }
-
+    
+    public void clear() {
+        getChildren().clear();
+    }
+    
     public int getStartIndex() {
         return startIndex;
     }
-
+    
     public int getEndIndex() {
         return endIndex;
     }

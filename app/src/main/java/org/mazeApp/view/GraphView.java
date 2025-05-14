@@ -1,40 +1,78 @@
 package org.mazeApp.view;
 
 import java.util.ArrayList;
-
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
-
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 
 public class GraphView extends Pane {
-
-    private double cellSize = 50;
-    private double padding = 20; 
+    // Constantes et propriétés
+    private final double FIXED_WIDTH = 300;
+    private final double FIXED_HEIGHT = 300;
+    private final double padding = 20;
+    private final double minVertexRadius = 0.5;
+    private final double maxVertexRadius = 5;
     
     /**
-     * Draw the graph in the pane.
-     * 
-     * @param graph The graph to be drawn.
+     * Constructeur qui initialise la vue
+     */
+    public GraphView() {
+        setPrefSize(FIXED_WIDTH, FIXED_HEIGHT);
+        setMinSize(FIXED_WIDTH, FIXED_HEIGHT);
+        setMaxSize(FIXED_WIDTH, FIXED_HEIGHT);
+    }
+    
+    /**
+     * Dessine le graphe
      */
     public void draw(Graph graph) {
-        // Clear previous graph
         getChildren().clear();
-        
-        // Verify if the graph is null
         if (graph == null || graph.getGraphMaze() == null) {
             System.out.println("Erreur : Le graphe est null ou invalide.");
             return;
         }
-
-        // Récupthe graph dimensions
+        
+        // Récupérer les dimensions du graphe
         int rows = graph.getRows();
         int columns = graph.getColumns();
+        int totalVertices = rows * columns;
         
-        // Draw the vertices
+        // Calculer les dimensions adaptatives
+        double cellSize = calculateCellSize(rows, columns);
+        double vertexRadius = calculateVertexRadius(cellSize);
+        double lineWidth = calculateLineWidth(cellSize);
+        
+        // Fond blanc
+        drawBackground();
+        
+        // Dessiner les arêtes puis les sommets
+        drawEdges(graph, columns, cellSize, lineWidth);
+        drawVertices(totalVertices, columns, cellSize, vertexRadius);
+    }
+    
+    /**
+     * Dessine le fond blanc du graphe
+     */
+    private void drawBackground() {
+        Rectangle background = new Rectangle(
+            padding, padding,
+            FIXED_WIDTH - (2 * padding), 
+            FIXED_HEIGHT - (2 * padding)
+        );
+        background.setFill(Color.WHITE);
+        background.setStroke(Color.LIGHTGRAY);
+        background.setStrokeWidth(1);
+        getChildren().add(background);
+    }
+    
+    /**
+     * Dessine les arêtes du graphe
+     */
+    private void drawEdges(Graph graph, int columns, double cellSize, double lineWidth) {
         for (int i = 0; i < graph.getGraphMaze().size(); i++) {
             int row = i / columns;
             int col = i % columns;
@@ -42,15 +80,7 @@ public class GraphView extends Pane {
             double x = col * cellSize + padding;
             double y = row * cellSize + padding;
             
-            // Create vertex
-            Circle vertex = new Circle(x, y, 5);
-            vertex.setFill(Color.WHITE);
-            vertex.setStroke(Color.BLACK);
-            getChildren().add(vertex);
-            
-            // Draw the edges
-            ArrayList<Edges> edges = graph.getGraphMaze().get(i);
-            for (Edges edge : edges) {
+            for (Edges edge : graph.getGraphMaze().get(i)) {
                 int destIndex = edge.getDestination();
                 int destRow = destIndex / columns;
                 int destCol = destIndex % columns;
@@ -58,12 +88,59 @@ public class GraphView extends Pane {
                 double destX = destCol * cellSize + padding;
                 double destY = destRow * cellSize + padding;
                 
-                // Edge creation
                 Line line = new Line(x, y, destX, destY);
                 line.setStroke(Color.GRAY);
-                line.setStrokeWidth(1.5);
+                line.setStrokeWidth(lineWidth);
                 getChildren().add(line);
             }
         }
+    }
+    
+    /**
+     * Dessine les sommets du graphe
+     */
+    private void drawVertices(int totalVertices, int columns, double cellSize, double vertexRadius) {
+        for (int i = 0; i < totalVertices; i++) {
+            int row = i / columns;
+            int col = i % columns;
+            
+            double x = col * cellSize + padding;
+            double y = row * cellSize + padding;
+            
+            Circle vertex = new Circle(x, y, vertexRadius);
+            vertex.setFill(Color.WHITE);
+            vertex.setStroke(Color.BLACK);
+            vertex.setStrokeWidth(Math.max(0.3, vertexRadius * 0.2));
+            getChildren().add(vertex);
+        }
+    }
+    
+    /**
+     * Calcule la taille des cellules pour s'adapter à l'espace fixe
+     */
+    private double calculateCellSize(int rows, int columns) {
+        double availableWidth = FIXED_WIDTH - (2 * padding);
+        double availableHeight = FIXED_HEIGHT - (2 * padding);
+        
+        double widthBasedSize = availableWidth / columns;
+        double heightBasedSize = availableHeight / rows;
+        
+        return Math.min(widthBasedSize, heightBasedSize);
+    }
+    
+    /**
+     * Calcule le rayon optimal des sommets
+     */
+    private double calculateVertexRadius(double cellSize) {
+        double radius = cellSize * 0.25;
+        return Math.max(minVertexRadius, Math.min(radius, maxVertexRadius));
+    }
+    
+    /**
+     * Calcule l'épaisseur optimale des lignes
+     */
+    private double calculateLineWidth(double cellSize) {
+        double width = cellSize * 0.05;
+        return Math.max(0.5, Math.min(width, 2.0));
     }
 }

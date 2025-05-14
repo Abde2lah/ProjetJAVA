@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
 
 public class Main extends Application {
     public GraphView graphView;
@@ -28,32 +29,31 @@ public class Main extends Application {
         this.graphView = new GraphView();
         this.mazeView = new MazeView(graph);
         
-        // Initialize the graph and maze views
         this.graphView.draw(this.graph);
-        this.mazeView.draw();
+        this.mazeView.draw(this.graph);
         
         // Create the controller
         MazeController controller = new MazeController(this.graph, this.graphView, this.mazeView);
         
-        // Organize the layout
-        HBox root = new HBox(20);
+        // Organize the layout with specific spacing
+        HBox root = new HBox(30); // Augmenter l'espacement horizontal
+        root.setAlignment(Pos.CENTER); // Centrer les éléments horizontalement
+        
         root.getChildren().addAll(
             controller.getInputContainer(),
             controller.getGraphContainer(), 
             controller.getMazeContainer(),
-            
             controller.getAlgoButtonContainer() 
         );
         
         // Add style to the root container
-        root.setStyle("-fx-padding: 10;");
+        root.setStyle("-fx-padding: 15; -fx-background-color:rgb(253, 255, 237);");
         
-        // Create the scene and set it to the stage
+        // Create the scene and set it to the stage - augmenter la taille
         Scene scene = new Scene(root, 1200, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
     public static void main(String[] args) {
         launch(args);
     }

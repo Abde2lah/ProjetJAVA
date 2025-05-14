@@ -8,11 +8,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
 
 import java.io.*;
 import java.util.HashMap;
@@ -46,6 +48,7 @@ public class MazeController {
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
+    private Button toggleGraphButton; // Ajouter un nouveau bouton pour afficher/masquer le graphe
     private VBox inputContainer;
     private VBox graphContainer;
     private VBox mazeContainer;
@@ -54,6 +57,9 @@ public class MazeController {
     // Storage for saved mazes
     private HashMap<String, SavedMaze> savedMazes;
     private static final String FILE_PATH = "savedMazes.txt"; // File to store saved mazes
+
+    // Ajouter un attribut pour suivre l'état de visibilité du graphe
+    private boolean graphVisible = true;
 
     /**
      * Class to represent a saved maze.
@@ -129,6 +135,10 @@ public class MazeController {
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
 
+        // Créer le bouton pour afficher/masquer le graphe
+        this.toggleGraphButton = new Button("Masquer le graphe");
+        this.toggleGraphButton.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white;");
+
         // Style the buttons
         this.saveButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         this.loadButton.setStyle("-fx-background-color: #FFC107; -fx-text-fill: black;");
@@ -138,7 +148,7 @@ public class MazeController {
         this.graphContainer = new VBox(10);
         this.mazeContainer = new VBox(10);
         this.algoButtonContainer = new VBox(10);
-
+        this.algoButtonContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
         // Add input fields and buttons to the input container
         inputContainer.getChildren().addAll(
             rowLabel, this.rowInput,
@@ -148,7 +158,8 @@ public class MazeController {
             this.clearButton,
             this.saveButton,
             this.loadButton,
-            this.showSavedMazesButton
+            this.showSavedMazesButton,
+            this.toggleGraphButton  // Ajouter le nouveau bouton
         );
 
         // Add algorithm buttons to the algo button container
@@ -165,7 +176,7 @@ public class MazeController {
         );
 
         // Style the input container
-        inputContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1;");
+        inputContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
     }
 
     /**
@@ -232,13 +243,33 @@ public class MazeController {
 
     //setupContainers
     private void setupContainers() {
+        // Créer des titres pour chaque conteneur
+        Label graphTitle = new Label("Vue du Graphe");
+        graphTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        Label mazeTitle = new Label("Vue du Labyrinthe");
+        mazeTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        
         // Set up the graph and maze containers
-        this.graphContainer.getChildren().add(this.graphView);
-        this.mazeContainer.getChildren().add(this.mazeView);
+        this.graphContainer = new VBox(10); // Espacement vertical
+        this.mazeContainer = new VBox(10); // Espacement vertical
+        
+        // Ajouter les titres et vues aux conteneurs
+        this.graphContainer.getChildren().addAll(graphTitle, this.graphView);
+        this.mazeContainer.getChildren().addAll(mazeTitle, this.mazeView);
+        
+        // Définir des tailles fixes pour les conteneurs
+        this.graphContainer.setPrefWidth(350);
+        this.mazeContainer.setPrefWidth(350);
+        this.graphContainer.setMinWidth(350);
+        this.mazeContainer.setMinWidth(350);
+        
+        // Empêcher la superposition en fixant des alignements
+        this.graphContainer.setAlignment(Pos.TOP_CENTER);
+        this.mazeContainer.setAlignment(Pos.TOP_CENTER);
 
         // Style the graph and maze containers
-        this.graphContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1;");
-        this.mazeContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1;");
+        this.graphContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color:rgb(255, 254, 211);");
+        this.mazeContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
     }
     /**
      * Set up actions for buttons.
@@ -280,6 +311,9 @@ public class MazeController {
             // Show the saved mazes window
             showSavedMazesWindow();
         });
+
+        // Action pour le bouton de toggle du graphe
+        this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
     }
 
     /**
@@ -366,6 +400,25 @@ public class MazeController {
     public void refreshViews() {
         this.graphView.draw(this.model);
         this.mazeView.draw();
+    }
+
+    /**
+     * Bascule la visibilité du graphe
+     */
+    private void toggleGraphVisibility() {
+        graphVisible = !graphVisible;
+        
+        if (graphVisible) {
+            // Afficher le graphe
+            this.graphContainer.setVisible(true);
+            this.graphContainer.setManaged(true);
+            this.toggleGraphButton.setText("Masquer le graphe");
+        } else {
+            // Masquer le graphe
+            this.graphContainer.setVisible(false);
+            this.graphContainer.setManaged(false);
+            this.toggleGraphButton.setText("Afficher le graphe");
+        }
     }
 
     // Getters for model and UI containers
