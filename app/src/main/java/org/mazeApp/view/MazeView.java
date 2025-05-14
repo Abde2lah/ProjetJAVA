@@ -1,31 +1,31 @@
 package org.mazeApp.view;
 
+import java.util.ArrayList;
+
+import org.mazeApp.model.Edges;
+import org.mazeApp.model.Graph;
+
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import org.mazeApp.model.Graph;
-import org.mazeApp.model.Edges;
-import java.util.ArrayList;
 
 public class MazeView extends Pane {
-    private double cellSize = 40; // Cellules plus grandes pour une meilleure visibilité
+    private double cellSize = 40; // Size of each cell in the maze
     private double padding = 20;
-    private double wallThickness = 2.5; // Murs plus épais pour meilleure visibilité
+    private double wallThickness = 2.5; // Thick value for walls
 
     public void draw(Graph graph) {
-        // Effacer tous les éléments existants avant de redessiner
+        // Erase the previous maze
         getChildren().clear();
         
-        // Récupérer les dimensions réelles du labyrinthe
+        // Recup the data given by the user
         int rows = graph.getRows();
         int columns = graph.getColumns();
+        // Create the walls
+        boolean[][] horizontalWalls = new boolean[rows+1][columns]; // Walls horizontally
+        boolean[][] verticalWalls = new boolean[rows][columns+1];   // Walls vertically
         
-        // Créer une structure pour savoir quels murs doivent être dessinés
-        boolean[][] horizontalWalls = new boolean[rows+1][columns]; // Murs horizontaux
-        boolean[][] verticalWalls = new boolean[rows][columns+1];   // Murs verticaux
-        
-        // Par défaut, tous les murs sont présents
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
                 horizontalWalls[i][j] = true;
@@ -38,7 +38,7 @@ public class MazeView extends Pane {
             }
         }
         
-        // Supprimer les murs entre les cellules connectées
+        // Delete walls between cells based on the edges in the graph
         for (int i = 0; i < graph.getGraphMaze().size(); i++) {
             ArrayList<Edges> edges = graph.getGraphMaze().get(i);
             for (Edges edge : edges) {
@@ -50,23 +50,23 @@ public class MazeView extends Pane {
                 int destX = dest % columns;
                 int destY = dest / columns;
                 
-                // Retirer les murs entre les cellules connectées
-                if (sourceX == destX) { // Même colonne - passage vertical
+                // Put off the wall between the two cells
+                if (sourceX == destX) { 
                     int minY = Math.min(sourceY, destY);
-                    horizontalWalls[minY+1][sourceX] = false; // Enlever le mur horizontal entre les cellules
-                } else if (sourceY == destY) { // Même ligne - passage horizontal
+                    horizontalWalls[minY+1][sourceX] = false; 
+                } else if (sourceY == destY) { 
                     int minX = Math.min(sourceX, destX);
-                    verticalWalls[sourceY][minX+1] = false; // Enlever le mur vertical entre les cellules
+                    verticalWalls[sourceY][minX+1] = false; 
                 }
             }
         }
         
-        // Dessiner le fond blanc pour toutes les cellules
+        // draw the maze with a white background
         Rectangle background = new Rectangle(padding, padding, columns * cellSize, rows * cellSize);
         background.setFill(Color.WHITE);
         getChildren().add(background);
         
-        // Dessiner les murs horizontaux
+        // Draw horizontal walls
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (horizontalWalls[i][j]) {
@@ -81,7 +81,7 @@ public class MazeView extends Pane {
             }
         }
         
-        // Dessiner les murs verticaux
+        // Draw the walls vertically
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j <= columns; j++) {
                 if (verticalWalls[i][j]) {

@@ -1,5 +1,9 @@
 package org.mazeApp.controller;
 
+import org.mazeApp.model.Graph;
+import org.mazeApp.view.GraphView;
+import org.mazeApp.view.MazeView;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -7,14 +11,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import org.mazeApp.model.Graph;
-import org.mazeApp.view.GraphView;
-import org.mazeApp.view.MazeView;
-
 /**
- * Contrôleur principal pour l'application de labyrinthe
- * Gère les interactions entre le modèle (Graph) et les vues
- * Contient également les composants UI et leur logique
+    Main controller for the maze application
+    This class handles the generation and clearing of mazes,
+    as well as the interaction with the user interface.
  */
 public class MazeController {
     
@@ -28,26 +28,37 @@ public class MazeController {
     private TextField seedInput;
     private Button clearButton;
     private Button generateButton;
+    private Button DFSButton;
+    private Button BFSButton;
+    private Button AStarButton;
+    private Button PrimButton;
+    private Button KruskalButton;
+    private Button DijkstraButton;
+    private Button RandomButton;
+    private Button RightPathButton;
     private VBox inputContainer;
     private VBox graphContainer;
     private VBox mazeContainer;
+    private VBox AlgobuttonContainer;
     
     public MazeController(Graph model, GraphView graphView, MazeView mazeView) {
         this.model = model;
         this.graphView = graphView;
         this.mazeView = mazeView;
+
+
         
-        // Initialisation des composants UI
+        // Initialize UI components
         initializeUIComponents();
         setupButtonActions();
         setupContainers();
     }
     
     /**
-     * Initialise tous les composants de l'interface utilisateur
+     * Initialize UI components
      */
     private void initializeUIComponents() {
-        // Création des champs de saisie
+        // Label creation
         Text rowLabel = new Text("Nombre de lignes :");
         this.rowInput = new TextField("5");  // Valeur par défaut
         Text colLabel = new Text("Nombre de colonnes :");
@@ -55,29 +66,48 @@ public class MazeController {
         Text seedLabel = new Text("Graine :");
         this.seedInput = new TextField("42");  // Valeur par défaut
         
-        // Création des boutons
+        // Button creation
         this.clearButton = new Button("Effacer");
         this.generateButton = new Button("Générer");
+
+        this.DFSButton = new Button("DFS");
+        this.BFSButton = new Button("BFS");
+        this.AStarButton = new Button("A*");
+        this.PrimButton = new Button("Prim");
+        this.KruskalButton = new Button("Kruskal");
+        this.DijkstraButton = new Button("Dijkstra");
+        this.RandomButton = new Button("Random");
+        this.RightPathButton = new Button("Right Path");
         
-        // Création des conteneurs
+        // Container creations
         this.inputContainer = new VBox(10);
         this.graphContainer = new VBox(10);
         this.mazeContainer = new VBox(10);
+        this.AlgobuttonContainer = new VBox(10);
         
         HBox buttonContainer = new HBox(10);
         buttonContainer.getChildren().addAll(this.clearButton, this.generateButton);
+
+        this.AlgobuttonContainer.getChildren().addAll(
+            this.DFSButton, this.BFSButton, 
+            this.AStarButton, this.PrimButton,
+            this.KruskalButton, this.DijkstraButton,
+            this.RandomButton, this.RightPathButton
+        );
         
-        // Ajouter les champs de saisie et les boutons au conteneur d'entrée
+        // Adding components to the input container
         inputContainer.getChildren().addAll(
             rowLabel, this.rowInput, 
             colLabel, this.colInput, 
-            seedLabel, this.seedInput,
-            buttonContainer
+            seedLabel, this.seedInput
         );
     }
     
+
+    
+
     /**
-     * Configure les actions pour les boutons
+     * setup actions for buttons
      */
     private void setupButtonActions() {
         this.generateButton.setOnAction(e -> {
@@ -105,10 +135,10 @@ public class MazeController {
     }
     
     /**
-     * Configure les conteneurs pour les vues
+     * Setup container for views
      */
     private void setupContainers() {
-        // Créer des étiquettes pour chaque vue
+        // Create label for each views
         Label graphLabel = new Label("Vue du Graphe");
         Label mazeLabel = new Label("Vue du Labyrinthe");
         
@@ -116,13 +146,13 @@ public class MazeController {
         graphLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
         mazeLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
         
-        // Ajouter les vues à leurs conteneurs
+        // Add views to the containers
         this.graphContainer.getChildren().addAll(graphLabel, this.graphView);
         this.mazeContainer.getChildren().addAll(mazeLabel, this.mazeView);
     }
     
     /**
-     * Génère un nouveau labyrinthe avec les paramètres spécifiés
+     * Génerate new maze with the given settings
      */
     public void generateMaze(int rows, int columns, int seed) {
         if (rows < 2 || columns < 2) {
@@ -132,13 +162,13 @@ public class MazeController {
         
         System.out.println("Génération d'un labyrinthe " + rows + "x" + columns + " avec la graine " + seed);
         
-        // Créer le nouveau graphe avec les paramètres fournis
+        // Create new graph with current settings
         this.model = new Graph(seed, rows, columns);
         refreshViews();
     }
     
     /**
-     * Efface le graphe actuel
+     * Erase current graph
      */
     public void clearMaze() {
         System.out.println("Effacement du graphe");
@@ -147,24 +177,24 @@ public class MazeController {
     }
     
     /**
-     * Rafraîchit les vues pour refléter l'état actuel du modèle
+     * Refresh views
      */
     public void refreshViews() {
         this.graphView.draw(this.model);
         this.mazeView.draw(this.model);
     }
     
-    // Getters pour le modèle et les conteneurs UI
+    // Getters for model and UI containers
     
     /**
-     * Retourne le modèle actuel
+     * Return the current model
      */
     public Graph getModel() {
         return model;
     }
     
     /**
-     * Définit un nouveau modèle et met à jour les vues
+     * Défine a model
      */
     public void setModel(Graph model) {
         this.model = model;
@@ -172,23 +202,31 @@ public class MazeController {
     }
     
     /**
-     * Retourne le conteneur d'entrée (champs et boutons)
+     * Return Input container
      */
     public VBox getInputContainer() {
         return this.inputContainer;
     }
     
     /**
-     * Retourne le conteneur de la vue graphe
+     * Return Graph view container
      */
     public VBox getGraphContainer() {
         return this.graphContainer;
     }
     
     /**
-     * Retourne le conteneur de la vue labyrinthe
+     * Return Maze container
      */
     public VBox getMazeContainer() {
         return this.mazeContainer;
     }
+    /**
+     * Return Algobutton container
+     */
+    public VBox getAlgobuttonContainer() {
+        return this.AlgobuttonContainer;
+    }
+
+
 }

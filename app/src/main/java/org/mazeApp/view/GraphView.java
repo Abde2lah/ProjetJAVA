@@ -1,11 +1,13 @@
 package org.mazeApp.view;
 
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Circle;
-import org.mazeApp.model.Graph;
-import org.mazeApp.model.Edges;
 import java.util.ArrayList;
+
+import org.mazeApp.model.Edges;
+import org.mazeApp.model.Graph;
+
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 
 public class GraphView extends Pane {
 
@@ -13,14 +15,14 @@ public class GraphView extends Pane {
     private double padding = 20;    
     
     public void draw(Graph graph) {
-        // Effacer tous les éléments existants avant de redessiner
+        // Erase the previous graph
         getChildren().clear();
         
-        // Récupérer les dimensions réelles du labyrinthe
+        // Recup the data given by the user
         int rows = graph.getRows();
         int columns = graph.getColumns();
         
-        // Dessiner les sommets
+        // Draw the vertices
         for (int i = 0; i < graph.getGraphMaze().size(); i++) {
             int row = i / columns;
             int col = i % columns;
@@ -32,7 +34,7 @@ public class GraphView extends Pane {
             vertex.setStyle("-fx-fill: white; -fx-stroke: black;");
             getChildren().add(vertex);
             
-            // Dessiner les arêtes
+            // Draw the edges
             ArrayList<Edges> edges = graph.getGraphMaze().get(i);
             for (Edges edge : edges) {
                 int destIndex = edge.getDestination();
