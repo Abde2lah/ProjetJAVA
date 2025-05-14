@@ -1,9 +1,22 @@
 package org.mazeApp.controller;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -14,10 +27,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.geometry.Pos;
+import javafx.util.Duration;
 
-import java.io.*;
-import java.util.HashMap;
 
 /**
  * Main controller for the maze application.
@@ -39,6 +50,7 @@ public class MazeController {
     private Button saveButton;
     private Button loadButton;
     private Button showSavedMazesButton;
+    private Button animateGenerationButton;
     private Button DFSButton;
     private Button BFSButton;
     private Button AStarButton;
@@ -123,6 +135,7 @@ public class MazeController {
         this.saveButton = new Button("Save Maze");
         this.loadButton = new Button("Load Maze");
         this.showSavedMazesButton = new Button("Show Saved Mazes");
+        this.animateGenerationButton = new Button("Animate Generation");
 
         // Initialize algorithm buttons
         this.DFSButton = new Button("DFS");
@@ -159,7 +172,8 @@ public class MazeController {
             this.saveButton,
             this.loadButton,
             this.showSavedMazesButton,
-            this.toggleGraphButton  // Ajouter le nouveau bouton
+            this.toggleGraphButton,
+            this.animateGenerationButton
         );
 
         // Add algorithm buttons to the algo button container
@@ -293,6 +307,7 @@ public class MazeController {
             } catch (NumberFormatException ex) {
                 System.out.println("Error: Please enter valid numbers.");
             }
+            
         });
 
         // Action for the clear button
@@ -314,7 +329,11 @@ public class MazeController {
 
         // Action pour le bouton de toggle du graphe
         this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
-    }
+        // action to slow down the maze generation
+        this.animateGenerationButton.setOnAction(e -> playMazeGenerationStepByStep());
+
+        };
+
 
     /**
      * Show a window to display saved mazes and allow the user to load one.
@@ -341,9 +360,16 @@ public class MazeController {
             if (selectedMaze != null) {
                 String mazeName = selectedMaze.split(" \\| ")[0].split(": ")[1];
                 SavedMaze savedMaze = savedMazes.get(mazeName);
+
+                // 💡 Met à jour les champs de saisie dans l'UI
+                this.rowInput.setText(String.valueOf(savedMaze.getRows()));
+                this.colInput.setText(String.valueOf(savedMaze.getColumns()));
+                this.seedInput.setText(String.valueOf(savedMaze.getSeed()));
+
+                // Génère le labyrinthe
                 generateMaze(savedMaze.getRows(), savedMaze.getColumns(), savedMaze.getSeed());
                 System.out.println("Loaded maze: " + mazeName);
-                savedMazesStage.close(); // Close the window after loading
+                savedMazesStage.close(); // Ferme la fenêtre
             } else {
                 Alert alert = new Alert(AlertType.WARNING);
                 alert.setTitle("No Selection");
@@ -438,4 +464,53 @@ public class MazeController {
     public VBox getAlgoButtonContainer() {
         return this.algoButtonContainer;
     }
+
+    public void playMazeGenerationStepByStep() {
+        try {
+            int rows = Integer.parseInt(this.rowInput.getText());
+            int columns = Integer.parseInt(this.colInput.getText());
+            int seed;
+
+            if (this.seedInput.getText().isEmpty()) {
+                seed = (int) (Math.random() * Integer.MAX_VALUE);
+                this.seedInput.setText(String.valueOf(seed));
+            } else {
+                seed = Integer.parseInt(this.seedInput.getText());
+            }
+
+            System.out.println("Animation du labyrinthe " + rows + "x" + columns + " avec seed " + seed);
+
+            // Création du graphe complet juste pour récupérer les étapes
+            Graph fullGraph = new Graph(seed, rows, columns);
+            ArrayList<Edges> steps = fullGraph.getGenerationSteps();
+
+            // Création d’un graphe vide pour l’animation
+            Graph animatedGraph = Graph.emptyGraph(rows, columns);
+            MazeView animatedMazeView = new MazeView(animatedGraph);
+
+            this.model = animatedGraph;
+            this.mazeView = animatedMazeView;
+
+            this.mazeContainer.getChildren().clear();
+            this.mazeContainer.getChildren().add(animatedMazeView);
+
+            Timeline timeline = new Timeline();
+            int delay = 50;
+
+            for (int i = 0; i < steps.size(); i++) {
+                Edges edge = steps.get(i);
+                KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
+                    animatedGraph.addEdge(edge.getSource(), edge.getDestination());
+                    animatedMazeView.draw();
+                });
+                timeline.getKeyFrames().add(frame);
+            }
+
+            timeline.play();
+        } catch (NumberFormatException e) {
+            System.out.println("Erreur : entrez des valeurs valides pour lignes/colonnes/seed.");
+        }
+    }
+
+
 }

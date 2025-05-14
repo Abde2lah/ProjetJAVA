@@ -6,11 +6,11 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.geometry.Pos;
 
 public class Main extends Application {
     public GraphView graphView;
