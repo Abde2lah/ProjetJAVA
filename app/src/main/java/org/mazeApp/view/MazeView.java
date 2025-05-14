@@ -7,6 +7,7 @@ import org.mazeApp.model.Graph;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
@@ -15,18 +16,83 @@ public class MazeView extends Pane {
     private double padding = 20; // Padding around the maze
     private double wallThickness = 2.5; // Thickness of the walls
 
+    private int columns;
+    private int rows;
+
+
+    // hover variables
+    private double hoveredX = -1;
+    private double hoveredY = -1;
+
+    // Variables for start and end points
+    private int startIndex = -1;
+    private int endIndex = -1;
+    private boolean selectingStart = true;
+    private boolean selectingEnd = true;
+
+    private Graph currentGraph;
+
+    public MazeView(Graph graph){
+
+        this.currentGraph = graph;
+
+        // Mouse hover listener for highlighting cells
+        setOnMouseMoved(event -> {
+            double mouseX = event.getX() - padding;
+            double mouseY = event.getY() - padding;
+        
+            int col = (int) (mouseX / cellSize);
+            int row = (int) (mouseY / cellSize);
+        
+            // verify that the hover is on the border
+            if (row >= 0 && row < rows && col >= 0 && col < columns
+                && (row == 0 || row == rows - 1 || col == 0 || col == columns - 1)) {
+                hoveredX = col * cellSize + padding + cellSize / 2;
+                hoveredY = row * cellSize + padding + cellSize / 2;
+            } else {
+                hoveredX = -1;
+                hoveredY = -1;
+            }
+            draw(); // redraw to show hover
+        });
+        
+        // Mouse click listener for placing start and end points
+        setOnMouseClicked(event -> {
+            if (hoveredX == -1 || hoveredY == -1) return;
+
+            int col = (int) ((hoveredX - padding) / cellSize);
+            int row = (int) ((hoveredY - padding) / cellSize);
+
+            // verify that the click is on the border
+            if (!(row == 0 || row == rows - 1 || col == 0 || col == columns - 1)) return;
+
+            int index = row * columns + col;
+            
+            if (selectingStart) {
+                startIndex = index;
+                selectingStart = false; // Next click will place the end point
+            } else if(selectingEnd) {
+                endIndex = index;
+                selectingEnd = false;
+            }
+            
+            draw();
+        });
+        
+    }
+
     /**
-     * Draws the maze based on the given graph.
+     * Draws the maze.
      * 
-     * @param graph The graph representing the maze.
      */
-    public void draw(Graph graph) {
+    public void draw() {
         // Clear any previous maze
         getChildren().clear();
 
-        // Get the number of rows and columns in the graph
-        int rows = graph.getRows();
-        int columns = graph.getColumns();
+
+        // Get the number of rows and columns in the currentGraph
+        this.rows = currentGraph.getRows();
+        this.columns = currentGraph.getColumns();
 
         // Initialize arrays to track horizontal and vertical walls
         boolean[][] horizontalWalls = new boolean[rows + 1][columns];
@@ -44,9 +110,9 @@ public class MazeView extends Pane {
             }
         }
 
-        // Remove walls based on the edges in the graph
-        for (int i = 0; i < graph.getGraphMaze().size(); i++) {
-            ArrayList<Edges> edges = graph.getGraphMaze().get(i);
+        // Remove walls based on the edges in the currentGraph
+        for (int i = 0; i < currentGraph.getGraphMaze().size(); i++) {
+            ArrayList<Edges> edges = currentGraph.getGraphMaze().get(i);
             for (Edges edge : edges) {
                 int source = edge.getSource();
                 int dest = edge.getDestination();
@@ -103,6 +169,37 @@ public class MazeView extends Pane {
                 }
             }
         }
+
+        // Draw start point (green)
+        if (startIndex != -1) {
+            int row = startIndex / columns;
+            int col = startIndex % columns;
+            double x = col * cellSize + padding + cellSize / 2;
+            double y = row * cellSize + padding + cellSize / 2;
+
+            Circle startCircle = new Circle(x, y, cellSize / 4, Color.GREEN);
+            System.out.println("le start point est à :" + startIndex);
+            this.getChildren().add(startCircle);
+        }
+
+        // Draw end point (red)
+        if (endIndex != -1) {
+            int row = endIndex / columns;
+            int col = endIndex % columns;
+            double x = col * cellSize + padding + cellSize / 2;
+            double y = row * cellSize + padding + cellSize / 2;
+
+            Circle endCircle = new Circle(x, y, cellSize / 4, Color.RED);
+            System.out.println("le end point est à :" + endIndex);
+            this.getChildren().add(endCircle);
+        }
+
+        // Draw hover circle (light blue)
+        if (hoveredX != -1 && hoveredY != -1 && (selectingStart || selectingEnd)) {
+            Circle hoverCircle = new Circle(hoveredX, hoveredY, cellSize / 4, Color.LIGHTBLUE);
+            hoverCircle.setOpacity(0.5);
+            this.getChildren().add(hoverCircle);
+        }
     }
 
     /**
@@ -145,5 +242,21 @@ public class MazeView extends Pane {
             pathLine.setStrokeWidth(2.0);
             getChildren().add(pathLine);
         }
+    }
+
+
+    public void resetStartEndPoints() {
+        startIndex = -1;
+        endIndex = -1;
+        selectingStart = true;
+        draw();
+    }
+
+    public int getStartIndex() {
+        return startIndex;
+    }
+
+    public int getEndIndex() {
+        return endIndex;
     }
 }

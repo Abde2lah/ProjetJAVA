@@ -26,11 +26,11 @@ public class Main extends Application {
         // Create a graph 5x5 by default with a seed of 42
         this.graph = new Graph(42, 5);
         this.graphView = new GraphView();
-        this.mazeView = new MazeView();
+        this.mazeView = new MazeView(graph);
         
         // Initialize the graph and maze views
         this.graphView.draw(this.graph);
-        this.mazeView.draw(this.graph);
+        this.mazeView.draw();
         
         // Create the controller
         MazeController controller = new MazeController(this.graph, this.graphView, this.mazeView);

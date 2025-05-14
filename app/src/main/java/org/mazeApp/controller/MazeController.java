@@ -342,6 +342,12 @@ public class MazeController {
 
         // Create a new graph with the current settings
         this.model = new Graph(seed, rows, columns);
+        this.mazeView = new MazeView(model);
+
+        // updating container
+        this.mazeContainer.getChildren().clear();
+        this.mazeContainer.getChildren().add(this.mazeView);
+        
         refreshViews();
     }
 
@@ -359,7 +365,7 @@ public class MazeController {
      */
     public void refreshViews() {
         this.graphView.draw(this.model);
-        this.mazeView.draw(this.model);
+        this.mazeView.draw();
     }
 
     // Getters for model and UI containers
