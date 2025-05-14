@@ -6,19 +6,31 @@ import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
 public class GraphView extends Pane {
 
     private double cellSize = 50;
-    private double padding = 20;    
+    private double padding = 20; 
     
+    /**
+     * Draw the graph in the pane.
+     * 
+     * @param graph The graph to be drawn.
+     */
     public void draw(Graph graph) {
-        // Erase the previous graph
+        // Clear previous graph
         getChildren().clear();
         
-        // Recup the data given by the user
+        // Verify if the graph is null
+        if (graph == null || graph.getGraphMaze() == null) {
+            System.out.println("Erreur : Le graphe est null ou invalide.");
+            return;
+        }
+
+        // Récupthe graph dimensions
         int rows = graph.getRows();
         int columns = graph.getColumns();
         
@@ -30,8 +42,10 @@ public class GraphView extends Pane {
             double x = col * cellSize + padding;
             double y = row * cellSize + padding;
             
+            // Create vertex
             Circle vertex = new Circle(x, y, 5);
-            vertex.setStyle("-fx-fill: white; -fx-stroke: black;");
+            vertex.setFill(Color.WHITE);
+            vertex.setStroke(Color.BLACK);
             getChildren().add(vertex);
             
             // Draw the edges
@@ -44,7 +58,10 @@ public class GraphView extends Pane {
                 double destX = destCol * cellSize + padding;
                 double destY = destRow * cellSize + padding;
                 
+                // Edge creation
                 Line line = new Line(x, y, destX, destY);
+                line.setStroke(Color.GRAY);
+                line.setStrokeWidth(1.5);
                 getChildren().add(line);
             }
         }

@@ -23,7 +23,7 @@ public class Main extends Application {
         primaryStage.getIcons().add(icon);
         primaryStage.setTitle("Visualisation de Labyrinthe");
         
-        // Create a graphe 5*5 by default with a seed of 42
+        // Create a graph 5x5 by default with a seed of 42
         this.graph = new Graph(42, 5);
         this.graphView = new GraphView();
         this.mazeView = new MazeView();
@@ -41,7 +41,7 @@ public class Main extends Application {
             controller.getInputContainer(),
             controller.getGraphContainer(), 
             controller.getMazeContainer(),
-            controller.getAlgobuttonContainer()
+            controller.getAlgoButtonContainer() 
         );
         
         // Add style to the root container

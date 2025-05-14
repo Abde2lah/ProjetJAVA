@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import javafx.scene.canvas.GraphicsContext;
+
 /**
  * Representation of a maze as a graph.
  * Uses an adjacency list to model the connections between cells.
@@ -324,4 +326,6 @@ public String toString() {
 
     return sb.toString();
   }
+
+  
 }
