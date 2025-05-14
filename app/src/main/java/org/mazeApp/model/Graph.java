@@ -257,4 +257,39 @@ public class Graph {
 
         return sb.toString();
     }
+
+    /**
+     * Perform a depth-first search (DFS) on the maze.
+     */
+    private ArrayList<Integer> depthFirstSearch(int start, int end) {
+        ArrayList<Integer> path = new ArrayList<>();
+        boolean[] visited = new boolean[getVertexNb()];
+
+        if (dfsRecursive(start, end, visited, path)) {
+            return path;
+        } else {
+            System.out.println("Aucun chemin trouvé entre " + start + " et " + end);
+            return new ArrayList<>();
+        }
+    }
+
+    private boolean dfsRecursive(int current, int target, boolean[] visited, ArrayList<Integer> path) {
+        visited[current] = true;
+        path.add(current);
+
+        if (current == target) return true;
+
+        for (Edges edge : getGraphMaze().get(current)) {
+            int neighbor = edge.getDestination();
+            if (!visited[neighbor]) {
+                if (dfsRecursive(neighbor, target, visited, path)) {
+                    return true;
+                }
+            }
+        }
+
+        path.remove(path.size() - 1); 
+        return false;
+    }
+
 }

@@ -99,6 +99,17 @@ public class MazeController {
             return columns;
         }
     }
+    //tool for the dfs step y step
+    private static class DFSStep {
+        int current;
+        ArrayList<Integer> pathSoFar;
+
+        DFSStep(int current, ArrayList<Integer> path) {
+            this.current = current;
+            this.pathSoFar = new ArrayList<>(path);
+        }
+    }
+
 
     public MazeController(Graph model, GraphView graphView, MazeView mazeView) {
         this.model = model;
@@ -327,6 +338,38 @@ public class MazeController {
             showSavedMazesWindow();
         });
 
+        //Action to solve the maze with dfs
+        this.DFSButton.setOnAction(e -> {
+            int start = mazeView.getStartIndex();
+            int end = mazeView.getEndIndex();
+
+            if (start < 0 || end < 0) {
+                System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+                return;
+            }
+
+            ArrayList<DFSStep> steps = getDFSVisitSteps(start, end);
+
+            Timeline timeline = new Timeline();
+            int delay = 100;
+
+            for (int i = 0; i < steps.size(); i++) {
+                DFSStep step = steps.get(i);
+                KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e2 -> {
+                    graphView.highlightVertex(step.current, model); // surligne le sommet
+                });
+                timeline.getKeyFrames().add(frame);
+            }
+
+            timeline.setOnFinished(e3 -> {
+                // Quand l'animation est terminée, dessiner le chemin sur le maze
+                mazeView.draw();
+                mazeView.drawPath(steps.get(steps.size() - 1).pathSoFar);
+            });
+
+            timeline.play();
+        });
+
         // Action pour le bouton de toggle du graphe
         this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
         // action to slow down the maze generation
@@ -511,6 +554,49 @@ public class MazeController {
             System.out.println("Erreur : entrez des valeurs valides pour lignes/colonnes/seed.");
         }
     }
+
+    private ArrayList<DFSStep> getDFSVisitSteps(int start, int end) {
+        ArrayList<DFSStep> steps = new ArrayList<>();
+        boolean[] visited = new boolean[model.getVertexNb()];
+        ArrayList<Integer> path = new ArrayList<>();
+        dfsWithSteps(start, end, visited, path, steps);
+        return steps;
+    }
+
+    // DFS récursif avec enregistrement des étapes
+    private boolean dfsWithSteps(int current, int target, boolean[] visited,
+                                ArrayList<Integer> path, ArrayList<DFSStep> steps) {
+        visited[current] = true;
+        path.add(current);
+        steps.add(new DFSStep(current, path)); // enregistre l'étape
+
+        if (current == target) return true;
+
+        for (Edges edge : model.getGraphMaze().get(current)) {
+            int neighbor = edge.getDestination();
+            if (!visited[neighbor]) {
+                if (dfsWithSteps(neighbor, target, visited, path, steps)) {
+                    return true;
+                }
+            }
+        }
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+
+        path.remove(path.size() - 1); // backtracking
+        return false;
+    }
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
+        //ne pas oublier de mettre un aspect temporel pour comparer les performances
 
 
 }

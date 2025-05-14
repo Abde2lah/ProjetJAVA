@@ -164,4 +164,24 @@ public class GraphView extends Pane {
         double width = cellSize * 0.05;
         return Math.max(0.5, Math.min(width, 2.0));
     }
+
+    public void highlightVertex(int index, Graph model) {
+        // Redessine le graphe avec le sommet "index" en surbrillance
+        draw(model); // Redessine de base
+        int rows = model.getRows();
+        int cols = model.getColumns();
+        double cellSize = calculateCellSize(rows, cols);
+        double radius = calculateVertexRadius(cellSize);
+
+        int row = index / cols;
+        int col = index % cols;
+
+        double x = col * cellSize + padding;
+        double y = row * cellSize + padding;
+
+        javafx.scene.shape.Circle highlight = new javafx.scene.shape.Circle(x, y, radius + 2);
+        highlight.setFill(Color.LIGHTGREEN);
+        getChildren().add(highlight);
+    }
+
 }
