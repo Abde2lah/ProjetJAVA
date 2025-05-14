@@ -1,7 +1,5 @@
 package org.mazeApp.controller;
 
-import java.util.ArrayList;
-
 import org.mazeApp.model.Graph;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
@@ -136,12 +134,7 @@ public class MazeController {
         });
 
         // Action for the DFS button
-        this.DFSButton.setOnAction(e -> {
-            int start = model.getRandomStart();
-            int end = model.getRandomEnd();
-            ArrayList<Integer> path = model.dfs(start, end);
-            mazeView.drawPath(path);
-        });
+
     }
     
     /**
