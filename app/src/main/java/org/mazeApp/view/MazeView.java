@@ -276,14 +276,6 @@ public class MazeView extends Pane {
     }
 
     /**
-     * Met à jour le graphe actuel et redessine
-     */
-    public void draw(Graph graph) {
-        this.currentGraph = graph;
-        resetStartEndPoints();
-    }
-
-    /**
      * Réinitialise les points de départ et d’arrivée
      */
     public void resetStartEndPoints() {
@@ -292,10 +284,6 @@ public class MazeView extends Pane {
         selectingStart = true;
         selectingEnd = true;
         draw();
-    }
-
-    public void clear() {
-        getChildren().clear();
     }
 
     public int getStartIndex() {

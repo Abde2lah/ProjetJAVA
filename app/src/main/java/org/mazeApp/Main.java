@@ -1,6 +1,7 @@
 package org.mazeApp;
 
-import org.mazeApp.controller.MazeController;
+import org.mazeApp.controller.AlgorithmController;
+import org.mazeApp.controller.MainControlleur;
 import org.mazeApp.model.Graph;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
@@ -13,8 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    public GraphView graphView;
-    public MazeView mazeView;
+
     public Graph graph;
     
     @Override
@@ -26,15 +26,10 @@ public class Main extends Application {
         
         // Create a graph 5x5 by default with a seed of 42
         this.graph = new Graph(42, 5);
-        this.graphView = new GraphView();
-        this.mazeView = new MazeView(graph);
-        
-        this.graphView.draw(this.graph);
-        this.mazeView.draw(this.graph);
         
         // Create the controller
-        MazeController controller = new MazeController(this.graph, this.graphView, this.mazeView);
-        
+        AlgorithmController controller = new AlgorithmController(this.graph);
+
         // Organize the layout with specific spacing
         HBox root = new HBox(30); // Augmenter l'espacement horizontal
         root.setAlignment(Pos.CENTER); // Centrer les éléments horizontalement

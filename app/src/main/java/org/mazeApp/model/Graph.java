@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import org.mazeApp.model.generator.KruskalGenerator;
+import org.mazeApp.model.generator.MazeGenerator;
+
 /**
  * Représentation d'un labyrinthe sous forme de graphe.
  * Utilise une liste d'adjacence pour modéliser les connexions entre cellules.
@@ -19,6 +22,7 @@ public class Graph {
     private int columns;
     private ArrayList<ArrayList<Edges>> graphMaze;
     private ArrayList<Edges> generationSteps;
+    private static MazeGenerator currentGenerator = new KruskalGenerator();
 
     /**
      * Retourne la liste des étapes de génération (pour l'animation).
@@ -77,6 +81,11 @@ public class Graph {
         this.graphMaze = new ArrayList<>();
         this.generationSteps = new ArrayList<>();
         initializeGraph(totalVertices);
+        
+        // Ne génère pas le labyrinthe si empty est true
+        if (!empty) {
+            generateGridMaze(0, rows, columns);
+        }
     }
 
     /**
@@ -92,94 +101,18 @@ public class Graph {
      * Génère un labyrinthe planaire (sans croisements).
      */
     private void generateGridMaze(int seed, int rows, int columns) {
-        generationSteps.clear(); // Important pour l'animation
-        ArrayList<Edges> allEdges = createGridEdges(rows, columns);
-        Collections.shuffle(allEdges, new Random(seed));
-        applyKruskalAlgorithm(allEdges, rows * columns);
-    }
-
-    /**
-     * Crée les arêtes possibles entre voisins orthogonaux dans la grille.
-     */
-    private ArrayList<Edges> createGridEdges(int rows, int columns) {
-        ArrayList<Edges> edges = new ArrayList<>();
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
-                int current = row * columns + col;
-
-                if (col < columns - 1) {
-                    edges.add(new Edges(current, current + 1));
-                }
-                if (row < rows - 1) {
-                    edges.add(new Edges(current, current + columns));
-                }
-            }
-        }
-        return edges;
-    }
-
-    /**
-     * Applique l'algorithme de Kruskal pour générer le labyrinthe.
-     */
-    private void applyKruskalAlgorithm(ArrayList<Edges> edges, int totalVertices) {
-        int[] parent = new int[totalVertices];
-        for (int i = 0; i < totalVertices; i++) {
-            parent[i] = i;
-        }
-
-        for (Edges edge : edges) {
-            int source = edge.getSource();
-            int destination = edge.getDestination();
-
-            int sourceRoot = find(parent, source);
-            int destRoot = find(parent, destination);
-
-            if (sourceRoot != destRoot) {
-                addEdgeBidirectional(source, destination);
-                generationSteps.add(new Edges(source, destination)); // Pour l'animation
-                union(parent, sourceRoot, destRoot);
-
-                if (this.edgeCount == totalVertices - 1) break;
-            }
+        generationSteps = currentGenerator.generate(rows, columns, seed);
+        
+        // Construire le graphe à partir des étapes
+        for (Edges edge : generationSteps) {
+            addEdgeBidirectional(edge.getSource(), edge.getDestination());
         }
     }
-
-    // Union-Find : trouve le représentant d’un ensemble
-    private int find(int[] parent, int vertex) {
-        if (parent[vertex] != vertex) {
-            parent[vertex] = find(parent, parent[vertex]);
-        }
-        return parent[vertex];
-    }
-
-    // Union-Find : fusionne deux ensembles
-    private void union(int[] parent, int x, int y) {
-        parent[x] = y;
-    }
-
     // Ajoute une arête bidirectionnelle
     private void addEdgeBidirectional(int source, int destination) {
         this.graphMaze.get(source).add(new Edges(source, destination));
         this.graphMaze.get(destination).add(new Edges(destination, source));
         this.edgeCount++;
-    }
-
-    public void addEdge(int source, int destination) {
-        this.graphMaze.get(source).add(new Edges(source, destination));
-        this.graphMaze.get(destination).add(new Edges(destination, source));
-        this.edgeCount++;
-    }
-
-    public void deleteEdge(int source, int destination) {
-        graphMaze.get(source).removeIf(edge -> edge.getDestination() == destination);
-        graphMaze.get(destination).removeIf(edge -> edge.getDestination() == source);
-        edgeCount--;
-    }
-
-    public void addVertex() {
-        graphMaze.add(new ArrayList<>());
-        vertexCount++;
     }
 
     public void removeVertex(int vertex) {
@@ -223,7 +156,11 @@ public class Graph {
     public int getColumns() {
         return this.columns;
     }
-
+    public void addEdge(int source, int destination) {
+        this.graphMaze.get(source).add(new Edges(source, destination));
+        this.graphMaze.get(destination).add(new Edges(destination, source));
+        this.edgeCount++;
+    }
     public ArrayList<ArrayList<Edges>> getGraphMaze() {
         return this.graphMaze;
     }
@@ -259,37 +196,17 @@ public class Graph {
     }
 
     /**
-     * Perform a depth-first search (DFS) on the maze.
+     * Définit l'algorithme de génération à utiliser
      */
-    private ArrayList<Integer> depthFirstSearch(int start, int end) {
-        ArrayList<Integer> path = new ArrayList<>();
-        boolean[] visited = new boolean[getVertexNb()];
-
-        if (dfsRecursive(start, end, visited, path)) {
-            return path;
-        } else {
-            System.out.println("Aucun chemin trouvé entre " + start + " et " + end);
-            return new ArrayList<>();
-        }
+    public static void setGenerator(MazeGenerator generator) {
+        currentGenerator = generator;
     }
 
-    private boolean dfsRecursive(int current, int target, boolean[] visited, ArrayList<Integer> path) {
-        visited[current] = true;
-        path.add(current);
-
-        if (current == target) return true;
-
-        for (Edges edge : getGraphMaze().get(current)) {
-            int neighbor = edge.getDestination();
-            if (!visited[neighbor]) {
-                if (dfsRecursive(neighbor, target, visited, path)) {
-                    return true;
-                }
-            }
-        }
-
-        path.remove(path.size() - 1); 
-        return false;
+    /**
+     * Retourne le générateur courant
+     */
+    public static MazeGenerator getCurrentGenerator() {
+        return currentGenerator;
     }
 
 }
