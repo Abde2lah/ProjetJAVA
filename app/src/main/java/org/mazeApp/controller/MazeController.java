@@ -49,7 +49,6 @@ public class MazeController {
     private Button generateButton;
     private Button saveButton;
     private Button loadButton;
-    private Button showSavedMazesButton;
     private Button animateGenerationButton;
     private Button DFSButton;
     private Button BFSButton;
@@ -60,7 +59,7 @@ public class MazeController {
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
-    private Button toggleGraphButton; // Ajouter un nouveau bouton pour afficher/masquer le graphe
+    private Button toggleGraphButton;
     private VBox inputContainer;
     private VBox graphContainer;
     private VBox mazeContainer;
@@ -134,21 +133,33 @@ public class MazeController {
     private void initializeUIComponents() {
         // Create labels and input fields
         Text rowLabel = new Text("Number of rows:");
-        this.rowInput = new TextField("5");  // Default value
+        this.rowInput = new TextField();  // Default value
         Text colLabel = new Text("Number of columns:");
-        this.colInput = new TextField("5");  // Default value
+        this.colInput = new TextField();  // Default value
         Text seedLabel = new Text("Seed:");
-        this.seedInput = new TextField("42");  // Default value
+        this.seedInput = new TextField();  // Default value
 
         // Create buttons
         this.clearButton = new Button("Clear");
         this.generateButton = new Button("Generate");
         this.saveButton = new Button("Save Maze");
         this.loadButton = new Button("Load Maze");
-        this.showSavedMazesButton = new Button("Show Saved Mazes");
-        this.animateGenerationButton = new Button("Animate Generation");
+        this.animateGenerationButton = new Button("Step by step");
 
-        // Initialize algorithm buttons
+        //Give the same size to input fields
+        this.rowInput.setPrefSize(100, 30);
+        this.colInput.setPrefSize(100, 30);
+        this.seedInput.setPrefSize(100, 30);
+        this.clearButton.setPrefSize(100, 30);
+        this.generateButton.setPrefSize(100, 30);
+        this.saveButton.setPrefSize(100, 30);
+        this.loadButton.setPrefSize(100, 30);
+        this.animateGenerationButton.setPrefSize(100, 30);
+
+        // Initialize algorithm label with centering
+        Text algoLabel = new Text("Algorithms");
+        algoLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        // Create algorithm buttons
         this.DFSButton = new Button("DFS");
         this.BFSButton = new Button("BFS");
         this.AStarButton = new Button("A*");
@@ -159,8 +170,21 @@ public class MazeController {
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
 
+        //Give the same size to algo buttons
+
+        this.DFSButton.setPrefSize(100, 30);
+        this.BFSButton.setPrefSize(100, 30);
+        this.AStarButton.setPrefSize(100, 30);
+        this.DijkstraButton.setPrefSize(100, 30);
+        this.PrimButton.setPrefSize(100, 30);
+        this.KruskalButton.setPrefSize(100, 30);
+        this.RightButton.setPrefSize(100, 30);
+        this.LeftButton.setPrefSize(100, 30);
+        this.RandomButton.setPrefSize(100, 30);
+        
+
         // Créer le bouton pour afficher/masquer le graphe
-        this.toggleGraphButton = new Button("Masquer le graphe");
+        this.toggleGraphButton = new Button("Hide Graph");
         this.toggleGraphButton.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white;");
 
         // Style the buttons
@@ -182,13 +206,13 @@ public class MazeController {
             this.clearButton,
             this.saveButton,
             this.loadButton,
-            this.showSavedMazesButton,
             this.toggleGraphButton,
             this.animateGenerationButton
         );
 
         // Add algorithm buttons to the algo button container
         this.algoButtonContainer.getChildren().addAll(
+            algoLabel,
             this.DFSButton,
             this.BFSButton,
             this.AStarButton,
@@ -381,10 +405,10 @@ public class MazeController {
     /**
      * Show a window to display saved mazes and allow the user to load one.
      */
-    private void showSavedMazesWindow() {
-        // Create a new stage (window)
-        Stage savedMazesStage = new Stage();
-        savedMazesStage.setTitle("Saved Mazes");
+        private void showSavedMazesWindow() {
+            // Create a new stage (window)
+            Stage savedMazesStage = new Stage();
+            savedMazesStage.setTitle("Saved Mazes");
 
         // Create a ListView to display the saved mazes
         ListView<String> mazeListView = new ListView<>();
