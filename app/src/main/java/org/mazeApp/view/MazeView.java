@@ -22,7 +22,7 @@ public class MazeView extends Pane {
     private Graph currentGraph;
     private int rows, columns;
     private int startIndex = -1, endIndex = -1;
-    private boolean selectingStart = true, selectingEnd = true;
+    private boolean selectingStart = true, selectingEnd = true, bothPointsPlaced = false;
     private double hoveredX = -1, hoveredY = -1;
 
     /**
@@ -44,9 +44,11 @@ public class MazeView extends Pane {
 
     // Configure les interactions souris : survol et clic
     private void setupEventHandlers() {
+
         // Souris en mouvement : détecter survol des bords
         setOnMouseMoved(event -> {
-            if (currentGraph == null) return;
+
+            if (bothPointsPlaced || currentGraph == null) return;
 
             double cellSize = calculateCellSize();
             double mouseX = event.getX() - padding;
@@ -71,7 +73,7 @@ public class MazeView extends Pane {
 
         // Clic souris : choisir point de départ/arrivée
         setOnMouseClicked(event -> {
-            if (currentGraph == null || hoveredX < 0) return;
+            if (currentGraph == null || hoveredX < 0 || bothPointsPlaced) return;
 
             double cellSize = calculateCellSize();
             int col = (int) ((hoveredX - padding) / cellSize);
@@ -90,6 +92,10 @@ public class MazeView extends Pane {
             }
 
             draw();
+
+            if (!selectingStart && !selectingEnd){
+                bothPointsPlaced = true;
+            }
         });
     }
 

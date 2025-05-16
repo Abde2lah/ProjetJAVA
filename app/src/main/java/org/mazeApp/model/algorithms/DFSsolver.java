@@ -82,6 +82,7 @@ public class DFSsolver {
      * @param steps Les étapes du parcours à animer
      */
     private void animateSteps(ArrayList<DFSStep> steps) {
+        mazeView.draw();
         Timeline timeline = new Timeline();
         int delay = 100;
 
@@ -89,6 +90,7 @@ public class DFSsolver {
             final DFSStep step = steps.get(i);
             KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
                 graphView.highlightVertex(step.getCurrent(), model);
+                mazeView.drawPath(step.getPathSoFar());
             });
             timeline.getKeyFrames().add(frame);
         }
@@ -133,6 +135,7 @@ public class DFSsolver {
                                ArrayList<Integer> path, ArrayList<DFSStep> steps) {
         visited[current] = true;
         path.add(current);
+        // mazeView.drawPath(path);
         steps.add(new DFSStep(current, path)); // enregistre l'étape
 
         if (current == target) return true;
