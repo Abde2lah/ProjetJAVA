@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.algorithms.DFSsolver;
+import org.mazeApp.model.algorithms.RandomSolver;
 import org.mazeApp.model.algorithms.DFSsolver.DFSStep;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
@@ -86,6 +87,10 @@ public class AlgorithmController extends MainControlleur {
     private void setupAlgorithmButtonActions() {
         // Action to solve the maze with DFS
         this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
+
+        // Action to solve the maze with Random
+        this.RandomButton.setOnAction(e -> executeRandomAlgorithm());
+        
         
         // Autres actions à implémenter
         this.BFSButton.setOnAction(e -> System.out.println("BFS non implémenté"));
@@ -95,7 +100,6 @@ public class AlgorithmController extends MainControlleur {
         this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
         this.RightButton.setOnAction(e -> System.out.println("Right non implémenté"));
         this.LeftButton.setOnAction(e -> System.out.println("Left non implémenté"));
-        this.RandomButton.setOnAction(e -> System.out.println("Random non implémenté"));
     }
     
     /**
@@ -107,6 +111,13 @@ public class AlgorithmController extends MainControlleur {
         Graph model = getModel();
         DFSsolver dfsSolver = new DFSsolver(model, graphView, mazeView);
         dfsSolver.visualize();
+    }
+
+    private void executeRandomAlgorithm() {
+        Graph model = getModel();
+        MazeView mazeView = getMazeView();
+        RandomSolver randomSolver = new RandomSolver(model, mazeView);
+        randomSolver.visualize();
     }
     
     /**
