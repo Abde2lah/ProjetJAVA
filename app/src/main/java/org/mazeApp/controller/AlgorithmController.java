@@ -86,6 +86,7 @@ public class AlgorithmController extends MainControlleur {
      * Configure les actions des boutons d'algorithmes
      */
     private void setupAlgorithmButtonActions() {
+        
         // Action to solve the maze with DFS
         this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
 
@@ -99,7 +100,8 @@ public class AlgorithmController extends MainControlleur {
 
             int colInputVal;
             int rowInputVal;
-            
+            MazeView mazeView = getMazeView();
+
             try{
                 colInputVal = getColumnValue();
                 rowInputVal = getRowValue();
@@ -108,15 +110,13 @@ public class AlgorithmController extends MainControlleur {
 
             
         
-           boolean isOperationAllowed =  (colInputVal>0 && colInputVal<5000) ? true : false; 
-            isOperationAllowed = (isOperationAllowed &&(rowInputVal>0 && rowInputVal<5000))? true : false;
+           boolean isOperationAllowed =  (colInputVal>0 && colInputVal<31) ? true : false; 
+            isOperationAllowed = (isOperationAllowed &&(rowInputVal>0 && rowInputVal<31))? true : false;
 
             if(isOperationAllowed){
-                executeBFSAlgorithm();
-                System.out.println("Bfs executed correctly");
-
-            
-         }   
+                ArrayList<Integer> path = executeBFSAlgorithm();
+                mazeView.drawPath(path);  
+            }   
         });
         this.AStarButton.setOnAction(e -> System.out.println("A* non implémenté"));
         this.DijkstraButton.setOnAction(e -> System.out.println("Dijkstra non implémenté"));
@@ -148,33 +148,28 @@ public class AlgorithmController extends MainControlleur {
     /**
      * Executes BFS Algorithm in the graph
      */
-    private void executeBFSAlgorithm(){
+    private ArrayList<Integer> executeBFSAlgorithm(){
 
         int verticesNb = getModel().getVertexNb();
         int startingPoint = getMazeView().getStartIndex() ;
         int endingPoint =  getMazeView().getEndIndex();
-        
-        ArrayList<ArrayList<Edges>> graphAdjList;
 
-        try{
-            graphAdjList = getModel().getGraphMaze();
-        }catch(Exception e ){
-            e.printStackTrace();
-            return;
-        }
+        ArrayList<ArrayList<Edges>> graphAdjList =  getModel().getGraphMaze();
 
         if( verticesNb < 0 ){
             System.out.println("Graph has invalid number of Vertices");
-            return;
+            
         }
 
         if (startingPoint < 0 || endingPoint < 0) {
             System.out.println("Input valid coordinates for starting and ending points");
-            return;
+            
         }
 
         BFSsolver bfsSolver = new BFSsolver(verticesNb);
-        bfsSolver.visualize(startingPoint,endingPoint,graphAdjList);
+        ArrayList<Integer >steps = bfsSolver.visualize(startingPoint,endingPoint,graphAdjList);
+
+        return steps;
     }
 
     /**

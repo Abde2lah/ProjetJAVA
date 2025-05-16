@@ -65,12 +65,12 @@ public class BFSsolver {
         
     }
     
-    public void visualize(int startingPoint, int endingPoint,ArrayList<ArrayList<Edges>> graph) { 
+    public ArrayList<Integer> visualize(int startingPoint, int endingPoint,ArrayList<ArrayList<Edges>> graph) { 
 
         ArrayList<Integer> steps = bfsWithSteps(startingPoint, endingPoint, graph);
 
-        //animateSteps(steps);
-
+        return steps;
+        
 
     }
 
