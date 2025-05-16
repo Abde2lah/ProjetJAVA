@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.model.algorithms.BFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver.DFSStep;
 import org.mazeApp.view.GraphView;
@@ -88,7 +89,28 @@ public class AlgorithmController extends MainControlleur {
         this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
         
         // Autres actions à implémenter
-        this.BFSButton.setOnAction(e -> System.out.println("BFS non implémenté"));
+        this.BFSButton.setOnAction(e -> {
+            
+
+            int seedInputVal;
+            int colInputVal;
+            int rowInputVal;
+            
+            try{
+                seedInputVal = Integer.valueOf(getSeedValue());
+                colInputVal = Integer.valueOf(getColumnValue());
+                rowInputVal = Integer.valueOf(getRowValue());
+
+            }catch(Exception err){err.printStackTrace(); return;}
+
+            boolean isOperationAllowed = seedInputVal > 0? true : false;
+            isOperationAllowed = (isOperationAllowed && (colInputVal>0 && colInputVal<5000) )? true : false; 
+            isOperationAllowed = (isOperationAllowed &&(colInputVal>0 && colInputVal<5000))? true : false;
+
+            if(isOperationAllowed){
+            executeBFSAlgorithm();
+         }   
+        });
         this.AStarButton.setOnAction(e -> System.out.println("A* non implémenté"));
         this.DijkstraButton.setOnAction(e -> System.out.println("Dijkstra non implémenté"));
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
@@ -109,6 +131,18 @@ public class AlgorithmController extends MainControlleur {
         dfsSolver.visualize();
     }
     
+
+    /**
+     * Executes BFS Algorithm in the graph
+     */
+    private void executeBFSAlgorithm(){
+
+        int verticesNb = getModel().getVertexNb();
+        
+        BFSsolver bfsSolver = new BFSsolver(verticesNb);
+        bfsSolver.visualize();
+    }
+
     /**
      * Implémentation de l'animation de génération du labyrinthe
      */
