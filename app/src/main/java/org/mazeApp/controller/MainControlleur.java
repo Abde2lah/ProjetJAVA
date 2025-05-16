@@ -336,6 +336,7 @@ public class MainControlleur {
 
         // Create a new graph with the current settings
         this.model = new Graph(seed, rows, columns);
+        model.getAllNeighbours();
         this.mazeView = new MazeView(model);
 
         // updating container

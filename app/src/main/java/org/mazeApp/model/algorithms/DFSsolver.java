@@ -136,7 +136,6 @@ public class DFSsolver {
                                ArrayList<Integer> path, ArrayList<DFSStep> steps) {
         visited[current] = true;
         path.add(current);
-        // mazeView.drawPath(path);
         steps.add(new DFSStep(current, path)); // enregistre l'étape
 
         if (current == target) return true;

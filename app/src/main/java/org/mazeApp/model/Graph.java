@@ -52,6 +52,16 @@ public class Graph {
         generateGridMaze(seed, rows, columns);
     }
 
+    public void getAllNeighbours(){
+        for(ArrayList<Edges> arrayEdges : graphMaze){
+            for(Edges edge : arrayEdges){
+                System.out.println(edge);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
     /**
      * Constructeur simplifié pour créer un labyrinthe carré.
      * 
@@ -156,6 +166,7 @@ public class Graph {
     public int getColumns() {
         return this.columns;
     }
+    
     public void addEdge(int source, int destination) {
         this.graphMaze.get(source).add(new Edges(source, destination));
         this.graphMaze.get(destination).add(new Edges(destination, source));
