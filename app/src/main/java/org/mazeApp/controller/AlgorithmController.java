@@ -92,23 +92,25 @@ public class AlgorithmController extends MainControlleur {
         this.BFSButton.setOnAction(e -> {
             
 
-            int seedInputVal;
             int colInputVal;
             int rowInputVal;
             
             try{
-                seedInputVal = Integer.valueOf(getSeedValue());
-                colInputVal = Integer.valueOf(getColumnValue());
-                rowInputVal = Integer.valueOf(getRowValue());
+                colInputVal = getColumnValue();
+                rowInputVal = getRowValue();
 
             }catch(Exception err){err.printStackTrace(); return;}
 
-            boolean isOperationAllowed = seedInputVal > 0? true : false;
-            isOperationAllowed = (isOperationAllowed && (colInputVal>0 && colInputVal<5000) )? true : false; 
-            isOperationAllowed = (isOperationAllowed &&(colInputVal>0 && colInputVal<5000))? true : false;
+            
+        
+           boolean isOperationAllowed =  (colInputVal>0 && colInputVal<5000) ? true : false; 
+            isOperationAllowed = (isOperationAllowed &&(rowInputVal>0 && rowInputVal<5000))? true : false;
 
             if(isOperationAllowed){
-            executeBFSAlgorithm();
+                executeBFSAlgorithm();
+                System.out.println("Bfs executed correctly");
+
+            
          }   
         });
         this.AStarButton.setOnAction(e -> System.out.println("A* non implémenté"));
@@ -138,9 +140,30 @@ public class AlgorithmController extends MainControlleur {
     private void executeBFSAlgorithm(){
 
         int verticesNb = getModel().getVertexNb();
+        int startingPoint = getMazeView().getStartIndex() ;
+        int endingPoint =  getMazeView().getEndIndex();
         
+        ArrayList<ArrayList<Edges>> graphAdjList;
+
+        try{
+            graphAdjList = getModel().getGraphMaze();
+        }catch(Exception e ){
+            e.printStackTrace();
+            return;
+        }
+
+        if( verticesNb < 0 ){
+            System.out.println("Graph has invalid number of Vertices");
+            return;
+        }
+
+        if (startingPoint < 0 || endingPoint < 0) {
+            System.out.println("Input valid coordinates for starting and ending points");
+            return;
+        }
+
         BFSsolver bfsSolver = new BFSsolver(verticesNb);
-        bfsSolver.visualize();
+        bfsSolver.visualize(startingPoint,endingPoint,graphAdjList);
     }
 
     /**

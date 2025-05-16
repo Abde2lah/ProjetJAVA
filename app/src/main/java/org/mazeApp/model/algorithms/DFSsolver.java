@@ -105,7 +105,8 @@ public class DFSsolver {
 
         timeline.play();
     }
-    
+
+
     /**
      * Génère les étapes du parcours DFS
      * 
