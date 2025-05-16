@@ -192,11 +192,11 @@ public class MainControlleur {
     }
     
     protected int getRowValue() {
-        return Integer.parseInt(this.rowInput.getText());
+        return this.rowInput.getText().equals("")? -1 : Integer.parseInt(this.rowInput.getText());
     }
     
     protected int getColumnValue() {
-        return Integer.parseInt(this.colInput.getText());
+        return this.colInput.getText().equals("")? -1 : Integer.parseInt(this.colInput.getText());
     }
     
     protected int getSeedValue() {

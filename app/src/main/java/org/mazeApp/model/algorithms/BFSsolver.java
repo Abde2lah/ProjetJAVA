@@ -1,11 +1,13 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import org.mazeApp.model.Edges;
+
 
 public class BFSsolver {
 
@@ -62,7 +64,17 @@ public class BFSsolver {
         
         
     }
-    public ArrayList<Integer> reconstructPath(HashMap<Integer,Integer> parent, int goal){
+    
+    public void visualize(int startingPoint, int endingPoint,ArrayList<ArrayList<Edges>> graph) { 
+
+        ArrayList<Integer> steps = bfsWithSteps(startingPoint, endingPoint, graph);
+
+        //animateSteps(steps);
+
+
+    }
+
+    private ArrayList<Integer> reconstructPath(HashMap<Integer,Integer> parent, int goal){
         
         ArrayList<Integer> pth = new ArrayList<Integer>();
         int node = goal;
@@ -78,7 +90,7 @@ public class BFSsolver {
             }
         }
 
-        pth.reversed();
+        Collections.reverse(pth);
 
         return pth;
     }
