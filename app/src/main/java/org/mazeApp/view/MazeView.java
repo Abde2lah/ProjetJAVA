@@ -481,7 +481,6 @@ public class MazeView extends Pane {
     // Dessine les points de départ, d'arrivée et le survol
     private void drawSpecialPoints(double cellSize) {
         double pointRadius = Math.max(0.5, cellSize / 4);
-
         if (startIndex >= 0) {
             int row = startIndex / columns;
             int col = startIndex % columns;
