@@ -64,7 +64,7 @@ public class RandomSolver {
                 allSteps.add(new ArrayList<>(path));
             } else {
                 path.remove(path.size() - 1);
-                allSteps.add(new ArrayList<>(path)); 
+                allSteps.add(new ArrayList<>(path)); // Même si on recule, on l'affiche
             }
         }
 
@@ -82,8 +82,27 @@ public class RandomSolver {
 
         ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
 
-        mazeView.visualiseStep(steps);
+        if (steps.isEmpty()) {
+            System.out.println("Aucun chemin trouvé.");
+            return;
+        }
+
+        Timeline timeline = new Timeline();
+        int delay = 100; 
+
+        for (int i = 0; i < steps.size(); i++) {
+            final ArrayList<Integer> stepPath = steps.get(i);
+            KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
+                mazeView.draw();
+                mazeView.drawPath(stepPath);
+            });
+            timeline.getKeyFrames().add(frame);
+        }
+
+        timeline.setOnFinished(e -> {
+            System.out.println("Chemin trouvé de longueur " + steps.get(steps.size() - 1).size());
+        });
+
+        timeline.play();
     }
-
-
 }

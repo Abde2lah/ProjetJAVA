@@ -62,7 +62,7 @@ public class MainControlleur {
     public MainControlleur(Graph graph) {
         this.model = graph;
         this.graphView = new GraphView();
-        this.mazeView = new MazeView(model, graphView);
+        this.mazeView = new MazeView(model);
         this.graphView.draw(model);
         this.mazeView.draw();
 
@@ -337,7 +337,7 @@ public class MainControlleur {
         // Create a new graph with the current settings
         this.model = new Graph(seed, rows, columns);
         model.getAllNeighbours();
-        this.mazeView = new MazeView(model, graphView);
+        this.mazeView = new MazeView(model);
 
         // updating container
         this.mazeContainer.getChildren().clear();
@@ -359,7 +359,7 @@ public class MainControlleur {
      * Refresh the views.
      */
     public void refreshViews() {
-        this.graphView.draw(model);
+        this.graphView.draw(this.model);
         this.mazeView.draw();
     }
 

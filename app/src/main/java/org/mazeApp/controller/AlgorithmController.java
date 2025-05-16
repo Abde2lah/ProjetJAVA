@@ -189,7 +189,7 @@ public class AlgorithmController extends MainControlleur {
             // Récupérer les étapes de génération en fonction de l'algorithme actuel
             ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
             
-            MazeView animatedMazeView = new MazeView(animatedGraph, getGraphView());
+            MazeView animatedMazeView = new MazeView(animatedGraph);
 
             setModel(animatedGraph);
             setMazeView(animatedMazeView);
