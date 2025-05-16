@@ -10,7 +10,7 @@ import org.mazeApp.model.Edges;
 public class BFSsolver {
 
     private boolean[] visitedVerticesArray;
-    private ArrayList<Integer> vertexVisitOrder
+    private ArrayList<Integer> vertexVisitOrder;
     
 
     public BFSsolver(int verticesNb){
