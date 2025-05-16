@@ -1,5 +1,7 @@
 package org.mazeApp.view;
 
+import java.util.ArrayList;
+
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 
@@ -16,6 +18,7 @@ public class GraphView extends Pane {
     private final double padding = 20;
     private final double minVertexRadius = 0.5;
     private final double maxVertexRadius = 5;
+    
 
     /**
      * Constructeur : initialise les dimensions fixes de la vue
@@ -183,5 +186,47 @@ public class GraphView extends Pane {
         highlight.setFill(Color.LIGHTGREEN);
         getChildren().add(highlight);
     }
+
+    public void drawHighlightedVertices(ArrayList<Integer> indices, Graph model, Color color) {
+        if (indices == null || indices.isEmpty()) return;
+
+        int rows = model.getRows();
+        int columns = model.getColumns();
+        double cellSize = calculateCellSize(rows, columns);
+        double radius = calculateVertexRadius(cellSize);
+
+        for (int index : indices) {
+            int row = index / columns;
+            int col = index % columns;
+
+            double x = col * cellSize + padding;
+            double y = row * cellSize + padding;
+
+            javafx.scene.shape.Circle highlight = new javafx.scene.shape.Circle(x, y, radius + 2);
+            highlight.setFill(color);
+            getChildren().add(highlight);
+        }
+    }
+
+
+    public void drawHighlightedVertices(int index, Graph model, Color color) {
+
+        int rows = model.getRows();
+        int columns = model.getColumns();
+
+        int row = index / columns;
+        int col = index % columns;
+        double cellSize = calculateCellSize(rows, columns);
+        double radius = calculateVertexRadius(cellSize);
+    
+        double x = col * cellSize + padding;
+        double y = row * cellSize + padding;
+    
+        javafx.scene.shape.Circle highlight = new javafx.scene.shape.Circle(x, y, radius + 2);
+        highlight.setFill(color);
+        getChildren().add(highlight);
+    }
+
+    
 
 }
