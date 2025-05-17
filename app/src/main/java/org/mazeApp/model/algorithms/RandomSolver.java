@@ -79,9 +79,11 @@ public class RandomSolver {
             System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
             return;
         }
-
+        long startTime = System.currentTimeMillis();
         ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
-
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.println("Durée de l'algorithme Random Walk : " + duration + " ms");
         mazeView.visualiseStep(steps);
     }
 

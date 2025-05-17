@@ -8,42 +8,17 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Cette classe contient l'implémentation de l'algorithme de parcours en profondeur (DFS)
- * pour résoudre un labyrinthe
+ * Implémentation de l'algorithme de parcours en profondeur (DFS)
+ * avec visualisation et mesure du temps d'exécution.
  */
 public class DFSsolver {
-
-    /**
-     * Classe interne pour représenter une étape du parcours DFS
-     */
-    public static class DFSStep {
-        private int current;
-        private ArrayList<Integer> pathSoFar;
-
-        public DFSStep(int current, ArrayList<Integer> path) {
-            this.current = current;
-            this.pathSoFar = new ArrayList<>(path);
-        }
-
-        public int getCurrent() {
-            return current;
-        }
-
-        public ArrayList<Integer> getPathSoFar() {
-            return pathSoFar;
-        }
-    }
 
     private Graph model;
     private GraphView graphView;
     private MazeView mazeView;
 
     /**
-     * Constructeur
-     *
-     * @param model Le graphe à parcourir
-     * @param graphView La vue du graphe pour la visualisation
-     * @param mazeView La vue du labyrinthe pour la visualisation
+     * Constructeur du solveur DFS
      */
     public DFSsolver(Graph model, GraphView graphView, MazeView mazeView) {
         this.model = model;
@@ -52,7 +27,7 @@ public class DFSsolver {
     }
 
     /**
-     * Exécute l'algorithme DFS avec visualisation animée
+     * Exécute l'algorithme DFS et anime les étapes dans la vue
      */
     public void visualize() {
         int start = mazeView.getStartIndex();
@@ -63,59 +38,52 @@ public class DFSsolver {
             return;
         }
 
-        ArrayList<DFSStep> steps = getDFSVisitSteps(start, end);
+        // ⏱ Début du chronométrage
+        long startTime = System.currentTimeMillis();
+
+        ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
+
+        // ⏱ Fin du chronométrage
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+
         if (steps.isEmpty()) {
             System.out.println("Aucun chemin trouvé.");
             return;
         }
 
-        // Convertir les étapes en liste de chemins intermédiaires
-        ArrayList<ArrayList<Integer>> convertedSteps = new ArrayList<>();
-        for (DFSStep step : steps) {
-            convertedSteps.add(step.getPathSoFar());
-        }
-
-        // Utiliser l'animation centralisée de la vue
-        mazeView.visualiseStep(convertedSteps);
+        System.out.println("Durée de l'algorithme DFS : " + duration + " ms");
+        mazeView.visualiseStep(steps);
     }
 
     /**
-     * Génère les étapes du parcours DFS
-     *
-     * @param start Indice du sommet de départ
-     * @param end Indice du sommet d'arrivée
-     * @return Liste des étapes du parcours
+     * Effectue un parcours DFS et retourne toutes les étapes intermédiaires
      */
-    public ArrayList<DFSStep> getDFSVisitSteps(int start, int end) {
-        ArrayList<DFSStep> steps = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> solveDFSWithSteps(int start, int end) {
+        ArrayList<ArrayList<Integer>> steps = new ArrayList<>();
         boolean[] visited = new boolean[model.getVertexNb()];
         ArrayList<Integer> path = new ArrayList<>();
-        dfsWithSteps(start, end, visited, path, steps);
+        dfsRecursive(start, end, visited, path, steps);
         return steps;
     }
 
     /**
-     * DFS récursif avec enregistrement des étapes
-     *
-     * @param current Sommet courant
-     * @param target Sommet cible
-     * @param visited Tableau des sommets visités
-     * @param path Chemin parcouru jusqu'à présent
-     * @param steps Liste des étapes à enregistrer
-     * @return true si un chemin est trouvé, false sinon
+     * DFS récursif avec enregistrement des chemins intermédiaires
      */
-    private boolean dfsWithSteps(int current, int target, boolean[] visited,
-                                 ArrayList<Integer> path, ArrayList<DFSStep> steps) {
+    private boolean dfsRecursive(int current, int target, boolean[] visited,
+                                 ArrayList<Integer> path, ArrayList<ArrayList<Integer>> steps) {
         visited[current] = true;
         path.add(current);
-        steps.add(new DFSStep(current, path)); // enregistre l'étape
+        steps.add(new ArrayList<>(path)); // Sauvegarder l'étape
 
-        if (current == target) return true;
+        if (current == target) {
+            return true;
+        }
 
         for (Edges edge : model.getGraphMaze().get(current)) {
             int neighbor = edge.getDestination();
             if (!visited[neighbor]) {
-                if (dfsWithSteps(neighbor, target, visited, path, steps)) {
+                if (dfsRecursive(neighbor, target, visited, path, steps)) {
                     return true;
                 }
             }
@@ -126,17 +94,11 @@ public class DFSsolver {
     }
 
     /**
-     * Trouve un chemin entre deux points sans visualisation
-     *
-     * @param start Indice du sommet de départ
-     * @param end Indice du sommet d'arrivée
-     * @return Liste des sommets constituant le chemin, ou null si aucun chemin n'existe
+     * Trouve un chemin sans animation (peut être utilisé pour tests ou algo combinés)
      */
     public ArrayList<Integer> findPath(int start, int end) {
-        ArrayList<DFSStep> steps = getDFSVisitSteps(start, end);
-        if (steps.isEmpty()) {
-            return null;
-        }
-        return steps.get(steps.size() - 1).getPathSoFar();
+        ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
+        if (steps.isEmpty()) return null;
+        return steps.get(steps.size() - 1);
     }
 }

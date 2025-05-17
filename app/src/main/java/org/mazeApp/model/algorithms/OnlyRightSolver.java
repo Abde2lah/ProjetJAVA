@@ -269,13 +269,16 @@ public class OnlyRightSolver {
             return;
         }
 
+        long startTime = System.currentTimeMillis();
         ArrayList<ArrayList<Integer>> steps = solveRightSteps();
         
         if (steps.isEmpty()) {
             System.out.println("Impossible de résoudre le labyrinthe.");
             return;
         }
-        
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.println("Durée de l'algorithme de la main droite : " + duration + " ms");
         mazeView.visualiseStep(steps);
     }
 }

@@ -165,7 +165,14 @@ public class OnlyLeftSolver {
         }
         
         boolean[] visited = new boolean[vertexCount];
+
+        long startTime = System.currentTimeMillis();
+
         ArrayList<ArrayList<Integer>> allSteps = new ArrayList<>();
+
+        long endTime = System.currentTimeMillis(); 
+        long duration = endTime - startTime; 
+        System.out.println("Durée de l'algorithme OnlyLeftSolver : " + duration + " ms");
         
         Stack<Integer> stack = new Stack<>();
         stack.push(start);
@@ -270,12 +277,17 @@ public class OnlyLeftSolver {
             return;
         }
 
+        long startTime = System.currentTimeMillis();
+
         ArrayList<ArrayList<Integer>> steps = solveLeftSteps();
         
         if (steps.isEmpty()) {
             System.out.println("Impossible de résoudre le labyrinthe.");
             return;
         }
+        long endTime = System.currentTimeMillis();   
+        long duration = endTime - startTime;
+        System.out.println("Durée de l'algorithme OnlyLeftSolver : " + duration + " ms");
         
         mazeView.visualiseStep(steps);
     }

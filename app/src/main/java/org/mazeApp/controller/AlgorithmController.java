@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.model.algorithms.AStarSolver;
 import org.mazeApp.model.algorithms.BFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver;
+import org.mazeApp.model.algorithms.DijkstraSolver;
 import org.mazeApp.model.algorithms.OnlyLeftSolver;
 import org.mazeApp.model.algorithms.OnlyRightSolver;
 import org.mazeApp.model.algorithms.RandomSolver;
@@ -125,8 +127,23 @@ public class AlgorithmController extends MainControlleur {
                 mazeView.drawPath(path);  
             }   
         });
-        this.AStarButton.setOnAction(e -> System.out.println("A* non implémenté"));
-        this.DijkstraButton.setOnAction(e -> System.out.println("Dijkstra non implémenté"));
+        this.AStarButton.setOnAction(e -> {
+            GraphView graphView = getGraphView();
+            MazeView mazeView = getMazeView();
+            Graph model = getModel();
+            AStarSolver aStarSolver = new AStarSolver(model, graphView, mazeView);
+            aStarSolver.visualize();
+        });
+
+        this.DijkstraButton.setOnAction(e -> {
+            Graph model = getModel();
+            MazeView mazeView = getMazeView();
+            GraphView graphView = getGraphView();
+
+            DijkstraSolver dijkstraSolver = new DijkstraSolver(model, graphView, mazeView);
+            dijkstraSolver.visualize();
+        });
+
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
         this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
     }
@@ -162,7 +179,6 @@ public class AlgorithmController extends MainControlleur {
         OnlyLeftSolver OnlyLeftSolver = new OnlyLeftSolver(model, mazeView);
         OnlyLeftSolver.visualize();
     }
-    
 
     /**
      * Executes BFS Algorithm in the graph
