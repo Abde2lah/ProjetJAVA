@@ -19,11 +19,10 @@ public class OnlyLeftSolver {
     private int rows;
 
     /**
-     * Crée un solveur qui tente de résoudre le labyrinthe en privilégiant 
-     * les déplacements vers la gauche relative au sens de déplacement.
+    Create a solver for the maze using the left-hand rule
      * 
-     * @param graph Le graphe représentant le labyrinthe
-     * @param mazeView La vue du labyrinthe à mettre à jour
+     * @param graph The graph representing the maze
+     * @param mazeView The view for visualizing the maze
      */
     public OnlyLeftSolver(Graph graph, MazeView mazeView) {
         this.graph = graph;
@@ -36,13 +35,13 @@ public class OnlyLeftSolver {
     }
 
     /**
-     * Directions cardinales possibles
+     * Cardinal directions for the left-hand rule
      */
     private enum Direction {
-        RIGHT(0),    // Est
-        DOWN(1),     // Sud
-        LEFT(2),     // Ouest
-        UP(3);       // Nord
+        RIGHT(0),    // East
+        DOWN(1),     // South
+        LEFT(2),     // West
+        UP(3);       // North
         
         private final int value;
         
@@ -51,21 +50,21 @@ public class OnlyLeftSolver {
         }
         
         /**
-         * Calcule la direction après rotation à droite
+         * Calcule the direction after a right turn
          */
         public Direction turnRight() {
             return values()[(value + 1) % 4];
         }
         
         /**
-         * Calcule la direction après rotation à gauche
+         * Calcule the direction after a left turn
          */
         public Direction turnLeft() {
             return values()[(value + 3) % 4]; // équivalent à (value - 1 + 4) % 4
         }
         
         /**
-         * Calcule la direction après demi-tour
+         * Calcule the direction after a 180° turn
          */
         public Direction turnAround() {
             return values()[(value + 2) % 4];
@@ -73,12 +72,12 @@ public class OnlyLeftSolver {
     }
 
     /**
-     * Détermine si un déplacement vers un sommet voisin correspond à une direction donnée
+     * Determinate if the movement between two vertices corresponds to a specific direction
      * 
-     * @param current Le sommet actuel
-     * @param neighbor Le sommet voisin potentiel
-     * @param direction La direction souhaitée
-     * @return true si le déplacement correspond à la direction
+     * @param current The current vertex
+     * @param neighbor The potential neighboring vertex
+     * @param direction The desired direction
+     * @return true if the movement corresponds to the direction
      */
     private boolean isDirection(int current, int neighbor, Direction direction) {
         int currentRow = current / columns;
@@ -101,11 +100,11 @@ public class OnlyLeftSolver {
     }
 
     /**
-     * Détermine la direction du mouvement entre deux sommets
+     * DDtermine the direction of movement between two vertices
      * 
-     * @param from Sommet de départ
-     * @param to Sommet d'arrivée
-     * @return La direction du mouvement ou null si les sommets ne sont pas adjacents
+     * @param from Starting vertex
+     * @param to Ending vertex
+     * @return Direction of movement (UP, DOWN, LEFT, RIGHT) or null if not adjacent
      */
     private Direction getMovementDirection(int from, int to) {
         int fromRow = from / columns;
@@ -121,16 +120,16 @@ public class OnlyLeftSolver {
             if (toRow == fromRow - 1) return Direction.UP;
         }
         
-        return null; // Les sommets ne sont pas adjacents
+        return null; // The vertices are not adjacent
     }
 
     /**
-     * Tente de se déplacer dans une direction spécifique à partir d'un sommet
+     * Try to move in a specific direction from the current vertex
      * 
-     * @param current Sommet actuel
-     * @param visited Tableau des sommets déjà visités
-     * @param direction Direction préférentielle
-     * @return Le sommet voisin dans la direction souhaitée ou -1 si impossible
+     * @param current Current vertex
+     * @param visited Table of visited vertices
+     * @param direction Favorite direction
+     * @return The next vertex in the specified direction, or -1 if not possible
      */
     private int tryMove(int current, boolean[] visited, Direction direction) {
         if (current < 0 || current >= graphMaze.size()) {
@@ -145,20 +144,18 @@ public class OnlyLeftSolver {
             }
         }
         
-        return -1;  // Aucun mouvement possible dans cette direction
+        return -1;  // No valid move in the specified direction
     }
 
     /**
-     * Résout le labyrinthe en suivant le mur gauche (en tournant à gauche dès que possible)
+     * Solve the maze using the left-hand rule
      * 
-     * @return Liste des étapes de la résolution
+     * @return Steps taken to solve the maze
      */
     public ArrayList<ArrayList<Integer>> solveLeftSteps() {
-        // Mise à jour des points de départ et d'arrivée
+        // Veirification of initialization
         this.start = mazeView.getStartIndex();
         this.goal = mazeView.getEndIndex();
-        
-        // Vérification des points de départ et d'arrivée
         if (start < 0 || goal < 0 || start >= vertexCount || goal >= vertexCount) {
             System.out.println("Points de départ ou d'arrivée invalides.");
             return new ArrayList<>();
@@ -182,7 +179,7 @@ public class OnlyLeftSolver {
         path.add(start);
         allSteps.add(new ArrayList<>(path));
         
-        // Direction initiale (par défaut vers la droite sur la carte)
+        // Initial direction facing right on the maze
         Direction facing = Direction.RIGHT;
         
         while (!stack.isEmpty()) {
@@ -192,43 +189,37 @@ public class OnlyLeftSolver {
                 break;
             }
             
-            // Algorithme de la main gauche:
-            // 1. Essayer de tourner à gauche
-            // 2. Si impossible, essayer tout droit
-            // 3. Si impossible, essayer à droite 
-            // 4. Si impossible, faire demi-tour
-            
             Direction leftDirection = facing.turnLeft();
             Direction forwardDirection = facing;
             Direction rightDirection = facing.turnRight();
             Direction backDirection = facing.turnAround();
             
-            // Essayer d'abord de tourner à gauche
+            // Try to move in the left direction first
             int next = tryMove(current, visited, leftDirection);
             
             if (next != -1) {
-                // On peut tourner à gauche
+                // Turn to the left
                 facing = leftDirection;
             } else {
-                // Sinon, essayer d'aller tout droit
+                // try to go straight
                 next = tryMove(current, visited, forwardDirection);
                 
                 if (next != -1) {
-                    // On peut aller tout droit
+                    // We can go straight
                     facing = forwardDirection;
                 } else {
-                    // Sinon, essayer de tourner à droite
+                    // Try to turn right
                     next = tryMove(current, visited, rightDirection);
                     
                     if (next != -1) {
-                        // On peut tourner à droite
+                        // We can go right
                         facing = rightDirection;
                     } else {
-                        // Sinon, faire demi-tour
+                        // Try to go back
                         next = tryMove(current, visited, backDirection);
                         
                         if (next != -1) {
-                            // On fait demi-tour
+                            // We can go back
                             facing = backDirection;
                         }
                     }
@@ -236,16 +227,16 @@ public class OnlyLeftSolver {
             }
             
             if (next != -1) {
-                // On a trouvé un chemin valide
+                // Path found, move to the next vertex
                 stack.push(next);
                 visited[next] = true;
                 path.add(next);
                 allSteps.add(new ArrayList<>(path));
             } else {
-                // Aucun mouvement possible, on doit reculer
+                // No valid move, backtrack
                 int removedVertex = stack.pop();
                 
-                // Mise à jour de la direction si on revient en arrière
+                // Determine the direction to backtrack
                 if (!stack.isEmpty() && !path.isEmpty()) {
                     int previous = stack.peek();
                     Direction backtrackDir = getMovementDirection(previous, removedVertex);
@@ -256,22 +247,22 @@ public class OnlyLeftSolver {
                 
                 if (!path.isEmpty()) {
                     path.remove(path.size() - 1);
-                    // N'ajouter une étape que si le chemin a changé
+                    // Add the current path to allSteps if it's not already there
                     if (!allSteps.isEmpty() && !path.equals(allSteps.get(allSteps.size() - 1))) {
                         allSteps.add(new ArrayList<>(path));
                     }
                 }
             }
         }
-        
+        System.out.println("Path found : " + path);
         return allSteps;
     }
 
     /**
-     * Visualise la résolution du labyrinthe
+     * Visualize the maze solving process
      */
     public void visualize() {
-        // Vérifier que les points de départ et d'arrivée sont définis
+        // Veirification of initialization
         if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
             System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
             return;

@@ -8,8 +8,7 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implémentation de l'algorithme de parcours en profondeur (DFS)
- * avec visualisation et mesure du temps d'exécution.
+    Implementation of the DFS algorithm to solve a maze.
  */
 public class DFSsolver {
 
@@ -18,7 +17,7 @@ public class DFSsolver {
     private MazeView mazeView;
 
     /**
-     * Constructeur du solveur DFS
+     * DFS solver constructor
      */
     public DFSsolver(Graph model, GraphView graphView, MazeView mazeView) {
         this.model = model;
@@ -27,7 +26,7 @@ public class DFSsolver {
     }
 
     /**
-     * Exécute l'algorithme DFS et anime les étapes dans la vue
+     * Launches the maze solving with step-by-step visualization
      */
     public void visualize() {
         int start = mazeView.getStartIndex();
@@ -38,12 +37,12 @@ public class DFSsolver {
             return;
         }
 
-        // ⏱ Début du chronométrage
+        // time begin
         long startTime = System.currentTimeMillis();
 
         ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
 
-        // ⏱ Fin du chronométrage
+        // Time end
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
 
@@ -57,24 +56,25 @@ public class DFSsolver {
     }
 
     /**
-     * Effectue un parcours DFS et retourne toutes les étapes intermédiaires
+     * Do a DFS search and return the steps taken
      */
     private ArrayList<ArrayList<Integer>> solveDFSWithSteps(int start, int end) {
         ArrayList<ArrayList<Integer>> steps = new ArrayList<>();
         boolean[] visited = new boolean[model.getVertexNb()];
         ArrayList<Integer> path = new ArrayList<>();
         dfsRecursive(start, end, visited, path, steps);
+        System.out.println("Path found: " + path);
         return steps;
     }
 
     /**
-     * DFS récursif avec enregistrement des chemins intermédiaires
+     * Recursive DFS function
      */
     private boolean dfsRecursive(int current, int target, boolean[] visited,
                                  ArrayList<Integer> path, ArrayList<ArrayList<Integer>> steps) {
         visited[current] = true;
         path.add(current);
-        steps.add(new ArrayList<>(path)); // Sauvegarder l'étape
+        steps.add(new ArrayList<>(path)); // Save the step
 
         if (current == target) {
             return true;
@@ -94,7 +94,7 @@ public class DFSsolver {
     }
 
     /**
-     * Trouve un chemin sans animation (peut être utilisé pour tests ou algo combinés)
+     * Find the path from start to end without visualizing the steps
      */
     public ArrayList<Integer> findPath(int start, int end) {
         ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);

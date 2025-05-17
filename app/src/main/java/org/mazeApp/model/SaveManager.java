@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Gestionnaire de sauvegarde pour les labyrinthes.
- * Cette classe est responsable de la sauvegarde et du chargement des labyrinthes.
+    *Gestionnary of the saved mazes
+    * This class is responsible for saving and loading mazes from a file.
+    * It allows the user to save mazes with a unique name and retrieve them later.
  */
 public class SaveManager {
     
@@ -18,7 +19,7 @@ public class SaveManager {
     private static final String FILE_PATH = "savedMazes.txt";
     
     /**
-     * Classe interne pour représenter un labyrinthe sauvegardé.
+     * Internal class representing a saved maze. 
      */
     public static class SavedMaze {
         private final int seed;
@@ -45,8 +46,8 @@ public class SaveManager {
     }
     
     /**
-     * Constructeur du gestionnaire de sauvegarde.
-     * Initialise le stockage et charge les labyrinthes depuis le fichier.
+     * Constructor for SaveManager.
+     * Initialize the savedMazes HashMap and load mazes from the file.
      */
     public SaveManager() {
         this.savedMazes = new HashMap<>();
@@ -54,17 +55,17 @@ public class SaveManager {
     }
     
     /**
-     * Sauvegarde un labyrinthe avec un nom unique.
+     * Save a maze with a unique name.
      * 
-     * @param rows Nombre de lignes
-     * @param columns Nombre de colonnes
-     * @param seed Valeur de seed pour générer le labyrinthe
-     * @return Le nom unique attribué au labyrinthe sauvegardé ou null si le labyrinthe existe déjà
+     * @param rows  Rows number
+     * @param columns Columns number
+     * @param seed Seed value for the maze generation
+     * @return The only name of the maze
      */
     public String saveMaze(int rows, int columns, int seed) {
-        String mazeName = "Maze_" + System.currentTimeMillis(); // Génère un nom unique
+        String mazeName = "Maze_" + System.currentTimeMillis(); // Génerate a unique name based on the current time
         
-        // Vérifie les doublons
+        // Verify if the maze already exists
         for (SavedMaze savedMaze : savedMazes.values()) {
             if (savedMaze.getSeed() == seed && savedMaze.getRows() == rows && savedMaze.getColumns() == columns) {
                 System.out.println("Ce labyrinthe existe déjà dans la liste sauvegardée.");
@@ -72,44 +73,44 @@ public class SaveManager {
             }
         }
         
-        // Sauvegarde le labyrinthe en mémoire et dans le fichier
+        // Save the maze
         savedMazes.put(mazeName, new SavedMaze(seed, rows, columns));
-        saveMazesToFile(); // Persiste les changements
-        System.out.println("Labyrinthe sauvegardé sous: " + mazeName);
+        saveMazesToFile(); // Keep the file updated
+        System.out.println("Mazes saved with " + mazeName);
         
         return mazeName;
     }
     
     /**
-     * Récupère un labyrinthe sauvegardé par son nom.
+     * Collect a saved maze by its name.
      * 
-     * @param mazeName Nom du labyrinthe
-     * @return Le labyrinthe sauvegardé ou null s'il n'existe pas
+     * @param mazeName Maze name
+     * @return LMaze save if it exists, null otherwise
      */
     public SavedMaze getSavedMaze(String mazeName) {
         return savedMazes.get(mazeName);
     }
     
     /**
-     * Récupère tous les labyrinthes sauvegardés.
+     * Recup all saved mazes.
      * 
-     * @return Une HashMap contenant tous les labyrinthes sauvegardés
+     * @return An Hashmap getting all saved mazes
      */
     public HashMap<String, SavedMaze> getAllSavedMazes() {
         return savedMazes;
     }
     
     /**
-     * Vérifie si des labyrinthes ont été sauvegardés.
+     * Verify if there are any saved mazes.
      * 
-     * @return true si des labyrinthes sont sauvegardés, false sinon
+     * @return true if there are saved mazes, false otherwise
      */
     public boolean hasSavedMazes() {
         return !savedMazes.isEmpty();
     }
     
     /**
-     * Sauvegarde tous les labyrinthes dans un fichier pour un stockage permanent.
+     * Saves all mazes to a file.
      */
     private void saveMazesToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
@@ -117,9 +118,9 @@ public class SaveManager {
                 SavedMaze savedMaze = savedMazes.get(mazeName);
                 writer.write(String.format("%s,%d,%d,%d\n", mazeName, savedMaze.getSeed(), savedMaze.getRows(), savedMaze.getColumns()));
             }
-            System.out.println("Labyrinthes sauvegardés dans le fichier.");
+            System.out.println("Mazes saved to file.");
         } catch (IOException e) {
-            System.out.println("Erreur lors de la sauvegarde des labyrinthes: " + e.getMessage());
+            System.out.println("Error during the loaded mazes" + e.getMessage());
         }
     }
     
@@ -139,24 +140,24 @@ public class SaveManager {
                     savedMazes.put(mazeName, new SavedMaze(seed, rows, columns));
                 }
             }
-            System.out.println("Labyrinthes chargés depuis le fichier.");
+            System.out.println("Mazes loaded from file.");
         } catch (FileNotFoundException e) {
-            System.out.println("Aucun fichier de labyrinthes sauvegardés trouvé. Démarrage à neuf.");
+            System.out.println("No file found. No mazes loaded.");
         } catch (IOException e) {
-            System.out.println("Erreur lors du chargement des labyrinthes: " + e.getMessage());
+            System.out.println("Error no saved mazes" + e.getMessage());
         }
     }
     
     /**
-     * Supprime un labyrinthe sauvegardé.
+     * Delete a saved maze by its name.
      * 
-     * @param mazeName Nom du labyrinthe à supprimer
-     * @return true si le labyrinthe a été supprimé, false sinon
+     * @param mazeName Name of the maze to delete
+     * @return     true if the maze was deleted, false if it didn't exist
      */
     public boolean deleteSavedMaze(String mazeName) {
         SavedMaze removed = savedMazes.remove(mazeName);
         if (removed != null) {
-            saveMazesToFile(); // Persiste les changements
+            saveMazesToFile(); 
             System.out.println("Labyrinthe supprimé: " + mazeName);
             return true;
         }

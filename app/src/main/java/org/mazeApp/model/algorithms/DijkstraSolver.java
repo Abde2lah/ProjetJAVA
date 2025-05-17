@@ -11,7 +11,7 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implémentation de l'algorithme de Dijkstra pour résoudre un labyrinthe
+ * Impléementation of dijkstra's algorithm to solve a maze.
  */
 public class DijkstraSolver {
 
@@ -26,7 +26,7 @@ public class DijkstraSolver {
     }
 
     /**
-     * Lance la résolution avec visualisation étape par étape
+     * Launch the Dijkstra algorithm with step-by-step visualization
      */
     public void visualize() {
         int start = mazeView.getStartIndex();
@@ -54,7 +54,7 @@ public class DijkstraSolver {
     }
 
     /**
-     * Retourne les étapes intermédiaires explorées par Dijkstra
+     * Return the steps taken by the Dijkstra algorithm
      */
     public ArrayList<ArrayList<Integer>> getDijkstraSteps(int start, int goal) {
         int vertexCount = model.getVertexNb();
@@ -80,7 +80,7 @@ public class DijkstraSolver {
             if (visited[current]) continue;
             visited[current] = true;
 
-            // Enregistrer chemin partiel pour animation
+            // Save the current path
             ArrayList<Integer> currentPath = reconstructPath(prev, current);
             steps.add(currentPath);
 
@@ -97,12 +97,12 @@ public class DijkstraSolver {
                 }
             }
         }
-
+        System.out.println("Path found : " + reconstructPath(prev, goal));
         return steps;
     }
 
     /**
-     * Reconstitue un chemin depuis le tableau des précédents
+     * Reconstitute the path from the start to the goal using the previous nodes
      */
     private ArrayList<Integer> reconstructPath(int[] prev, int current) {
         ArrayList<Integer> path = new ArrayList<>();
@@ -114,7 +114,7 @@ public class DijkstraSolver {
     }
 
     /**
-     * Classe représentant un nœud avec sa distance minimale
+     * Class representing a node in the priority queue
      */
     private static class Node {
         int vertex;

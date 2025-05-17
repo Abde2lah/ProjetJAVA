@@ -22,7 +22,7 @@ public class Main extends Application {
         // Setup of the windows
         Image icon = new Image("file:src/main/resources/icone.png");
         primaryStage.getIcons().add(icon);
-        primaryStage.setTitle("Visualisation de Labyrinthe");
+        primaryStage.setTitle("CYNAPSE");
         
         // Create a graph 5x5 by default with a seed of 42
         this.graph = new Graph(42, 5);
@@ -31,8 +31,8 @@ public class Main extends Application {
         AlgorithmController controller = new AlgorithmController(this.graph);
 
         // Organize the layout with specific spacing
-        HBox root = new HBox(30); // Augmenter l'espacement horizontal
-        root.setAlignment(Pos.CENTER); // Centrer les éléments horizontalement
+        HBox root = new HBox(30); 
+        root.setAlignment(Pos.CENTER); 
         
         root.getChildren().addAll(
             controller.getInputContainer(),
@@ -44,7 +44,7 @@ public class Main extends Application {
         // Add style to the root container
         root.setStyle("-fx-padding: 15; -fx-background-color:rgb(253, 255, 237);");
         
-        // Create the scene and set it to the stage - augmenter la taille
+        // Create the scene and set it to the stage 
         Scene scene = new Scene(root, 1200, 600);
         primaryStage.setScene(scene);
         primaryStage.show();

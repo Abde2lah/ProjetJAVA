@@ -20,9 +20,8 @@ import javafx.scene.control.Button;
 import javafx.util.Duration;
 
 /**
- * Contrôleur dédié aux algorithmes de
- *  parcours et génération de labyrinthe
- * Hérite de MazeController pour avoir accès aux modèles et vues
+    *Controller for the algorithms
+    * This class is responsible for managing the algorithm buttons and their actions
  */
 public class AlgorithmController extends MainControlleur {
     
@@ -38,7 +37,7 @@ public class AlgorithmController extends MainControlleur {
     private Button RandomButton;
     
     /**
-     * Constructeur qui appelle le constructeur parent
+     * Constructor which initializes the algorithm controller
      */
     public AlgorithmController(Graph graph) {
         super(graph);
@@ -47,7 +46,7 @@ public class AlgorithmController extends MainControlleur {
     }
     
     /**
-     * Initialise les boutons pour les algorithmes
+     * Initialize the algorithm buttons
      */
     private void initializeAlgorithmButtons() {
         // Create algorithm buttons
@@ -87,7 +86,7 @@ public class AlgorithmController extends MainControlleur {
     }
     
     /**
-     * Configure les actions des boutons d'algorithmes
+     * Set up the actions for the algorithm buttons
      */
     private void setupAlgorithmButtonActions() {
         
@@ -103,7 +102,7 @@ public class AlgorithmController extends MainControlleur {
         // Action to solve the maze with OnlyLeft
         this.LeftButton.setOnAction(e -> executeOnlyLeftlgorithm());
         
-        // Autres actions à implémenter
+        // Other algorithm actions
         this.BFSButton.setOnAction(e -> {
             
 
@@ -144,8 +143,8 @@ public class AlgorithmController extends MainControlleur {
             dijkstraSolver.visualize();
         });
 
-        this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
-        this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
+        this.PrimButton.setOnAction(e -> System.out.println("Prim non created"));
+        this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non created"));
     }
     
     /**
@@ -208,7 +207,7 @@ public class AlgorithmController extends MainControlleur {
     }
 
     /**
-     * Implémentation de l'animation de génération du labyrinthe
+     * Implémentation of the maze generation animation
      */
     public void animateMazeGeneration() {
         try {
@@ -216,12 +215,12 @@ public class AlgorithmController extends MainControlleur {
             int columns = getColumnValue();
             int seed = getSeedValue();
 
-            System.out.println("Animation du labyrinthe " + rows + "x" + columns + " avec seed " + seed);
+            System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed);
 
-            // Créer un graphe vide
+            // Create an empty graph
             Graph animatedGraph = Graph.emptyGraph(rows, columns);
             
-            // Récupérer les étapes de génération en fonction de l'algorithme actuel
+            // Recup the current generator
             ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
             
             MazeView animatedMazeView = new MazeView(animatedGraph, getGraphView());
@@ -245,7 +244,7 @@ public class AlgorithmController extends MainControlleur {
 
             timeline.play();
         } catch (NumberFormatException e) {
-            System.out.println("Erreur : entrez des valeurs valides pour lignes/colonnes/seed.");
+            System.out.println("Error parsing input values: " + e.getMessage());
         }
     }
 }

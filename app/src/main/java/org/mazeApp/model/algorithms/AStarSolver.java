@@ -11,7 +11,7 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implémentation de l'algorithme A* pour résoudre un labyrinthe
+ * Implementation of the A* algorithm for solving a maze
  */
 public class AStarSolver {
 
@@ -20,7 +20,7 @@ public class AStarSolver {
     private MazeView mazeView;
 
     /**
-     * Constructeur
+     * Constructor for AStarSolver
      */
     public AStarSolver(Graph model, GraphView graphView, MazeView mazeView) {
         this.model = model;
@@ -29,7 +29,7 @@ public class AStarSolver {
     }
 
     /**
-     * Lance la résolution du labyrinthe avec animation
+     * Launch the A* algorithm with step-by-step visualization
      */
     public void visualize() {
         int start = mazeView.getStartIndex();
@@ -55,13 +55,13 @@ public class AStarSolver {
     }
 
     /**
-     * Retourne les étapes de l'algorithme A* sous forme de chemins partiels
+     * Return the steps taken by the A* algorithm
      */
     public ArrayList<ArrayList<Integer>> getAStarSteps(int start, int goal) {
         int vertexCount = model.getVertexNb();
         ArrayList<ArrayList<Edges>> adj = model.getGraphMaze();
 
-        // Initialisation
+        // Initialization
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingInt(n -> n.fScore));
         boolean[] visited = new boolean[vertexCount];
         int[] cameFrom = new int[vertexCount];
@@ -85,7 +85,7 @@ public class AStarSolver {
             if (visited[current]) continue;
             visited[current] = true;
 
-            // Reconstituer le chemin jusqu'à présent
+            // Reconstitute the path
             ArrayList<Integer> currentPath = reconstructPath(cameFrom, current);
             steps.add(currentPath);
 
@@ -103,12 +103,13 @@ public class AStarSolver {
                 }
             }
         }
+        System.out.println("Path found : " + reconstructPath(cameFrom, goal));
 
         return steps;
     }
 
     /**
-     * Heuristique basée sur la distance de Manhattan
+     * Heuristic function for A* algorithm based on Manhattan distance
      */
     private int heuristic(int a, int b) {
         int columns = model.getColumns();
@@ -120,7 +121,7 @@ public class AStarSolver {
     }
 
     /**
-     * Reconstitue le chemin partiel en remontant le tableau cameFrom
+     * Reconstitute a path from the cameFrom array
      */
     private ArrayList<Integer> reconstructPath(int[] cameFrom, int current) {
         ArrayList<Integer> path = new ArrayList<>();
@@ -132,7 +133,7 @@ public class AStarSolver {
     }
 
     /**
-     * Classe interne représentant un nœud avec fScore
+     * Internal class representing a node in the priority queue
      */
     private static class Node {
         int vertex;

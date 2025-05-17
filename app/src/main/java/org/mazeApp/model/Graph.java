@@ -8,10 +8,10 @@ import org.mazeApp.model.generator.KruskalGenerator;
 import org.mazeApp.model.generator.MazeGenerator;
 
 /**
- * Représentation d'un labyrinthe sous forme de graphe.
- * Utilise une liste d'adjacence pour modéliser les connexions entre cellules.
- * Le graphe est acyclique et planaire (aucune arête croisée).
- * 
+
+ * Representation of a graph using an adjacency list.
+ * This class represents a graph using an adjacency list, where each vertex
+ * is represented by an index and its neighbors are stored in an ArrayList.
  * Authors: Felipe Zani, Jeremy Perbost
  */
 public class Graph {
@@ -25,18 +25,18 @@ public class Graph {
     private static MazeGenerator currentGenerator = new KruskalGenerator();
 
     /**
-     * Retourne la liste des étapes de génération (pour l'animation).
+     * Return the generation steps of the maze.
      */
     public ArrayList<Edges> getGenerationSteps() {
         return generationSteps;
     }
 
     /**
-     * Constructeur principal utilisant un algorithme de Kruskal modifié.
+     * Main constructor for a rectangular grid maze with kruskal generator.
      * 
-     * @param seed Graine de génération aléatoire
-     * @param rows Nombre de lignes dans la grille
-     * @param columns Nombre de colonnes dans la grille
+     * @param seed 
+     * @param rows
+     * @param columns 
      */
     public Graph(int seed, int rows, int columns) {
         int totalVertices = rows * columns;
@@ -63,24 +63,24 @@ public class Graph {
     }
 
     /**
-     * Constructeur simplifié pour créer un labyrinthe carré.
+     * Constructor for a square grid maze.
      * 
-     * @param seed Graine de génération aléatoire
-     * @param size Taille d'un côté de la grille (taille totale = size * size)
+     * @param seed 
+     * @param size 
      */
     public Graph(int seed, int size) {
         this(seed, size, size);
     }
 
     /**
-     * Factory method pour créer un graphe vide (sans génération).
+     * Factory method to create an empty graph.
      */
     public static Graph emptyGraph(int rows, int columns) {
         return new Graph(true, rows, columns);
     }
 
     /**
-     * Constructeur interne utilisé pour créer un graphe vide sans génération.
+     * Intern Constructor for empty graph.
      */
     private Graph(boolean empty, int rows, int columns) {
         int totalVertices = rows * columns;
@@ -92,14 +92,14 @@ public class Graph {
         this.generationSteps = new ArrayList<>();
         initializeGraph(totalVertices);
         
-        // Ne génère pas le labyrinthe si empty est true
+        // Don't generate the maze if empty is true
         if (!empty) {
             generateGridMaze(0, rows, columns);
         }
     }
 
     /**
-     * Initialise un graphe vide (liste d'adjacence).
+     * Initialize the graph with empty adjacency lists.
      */
     private void initializeGraph(int totalVertices) {
         for (int i = 0; i < totalVertices; i++) {
@@ -108,17 +108,17 @@ public class Graph {
     }
 
     /**
-     * Génère un labyrinthe planaire (sans croisements).
+     * Generate a maze using the current generator.
      */
     private void generateGridMaze(int seed, int rows, int columns) {
         generationSteps = currentGenerator.generate(rows, columns, seed);
         
-        // Construire le graphe à partir des étapes
+        // Build the graph using the edges generated
         for (Edges edge : generationSteps) {
             addEdgeBidirectional(edge.getSource(), edge.getDestination());
         }
     }
-    // Ajoute une arête bidirectionnelle
+    // Add an edge to the graph
     private void addEdgeBidirectional(int source, int destination) {
         this.graphMaze.get(source).add(new Edges(source, destination));
         this.graphMaze.get(destination).add(new Edges(destination, source));
@@ -207,14 +207,14 @@ public class Graph {
     }
 
     /**
-     * Définit l'algorithme de génération à utiliser
+     * Défine the current generator
      */
     public static void setGenerator(MazeGenerator generator) {
         currentGenerator = generator;
     }
 
     /**
-     * Retourne le générateur courant
+     * Return the current generator
      */
     public static MazeGenerator getCurrentGenerator() {
         return currentGenerator;

@@ -45,7 +45,7 @@ public class MainControlleur {
     private VBox mazeContainer;
     private VBox algoButtonContainer;
 
-    // Ajouter un attribut pour suivre l'état de visibilité du graphe
+    // Add a boolean to check if the graph is visible
     private boolean graphVisible = true;
 
     public MainControlleur(Graph graph) {
@@ -108,7 +108,7 @@ public class MainControlleur {
         Text algoLabel = new Text("Algorithms");
         algoLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         
-        // Créer le bouton pour afficher/masquer le graphe
+        // Create the toggle button for graph visibility
         this.toggleGraphButton = new Button("Hide Graph");
         this.toggleGraphButton.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white;");
 
@@ -142,29 +142,29 @@ public class MainControlleur {
         // Style the input container
         inputContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
 
-        // Créer les RadioButtons pour le choix de l'algorithme
+        // Create radio buttons for algorithm selection
         javafx.scene.control.RadioButton kruskalRadio = new javafx.scene.control.RadioButton("Kruskal");
         javafx.scene.control.RadioButton dfsRadio = new javafx.scene.control.RadioButton("DFS");
         kruskalRadio.setSelected(true); // Par défaut
 
-        // Créer un groupe pour que seul un bouton puisse être sélectionné à la fois
+        // Create a ToggleGroup for the radio buttons
         javafx.scene.control.ToggleGroup algoGroup = new javafx.scene.control.ToggleGroup();
         kruskalRadio.setToggleGroup(algoGroup);
         dfsRadio.setToggleGroup(algoGroup);
 
-        // Ajouter un listener pour changer l'algorithme quand une option est sélectionnée
+        // Add action listeners to the radio buttons
         kruskalRadio.setOnAction(e -> Graph.setGenerator(new KruskalGenerator()));
         dfsRadio.setOnAction(e -> Graph.setGenerator(new DFSGenerator()));
 
-        // Créer un conteneur pour les RadioButtons
+        // Create a container for the radio buttons
         javafx.scene.layout.HBox radioBox = new javafx.scene.layout.HBox(10, kruskalRadio, dfsRadio);
         radioBox.setAlignment(javafx.geometry.Pos.CENTER);
 
-        // Ajouter le conteneur des RadioButtons à inputContainer
+        // Add the radio buttons to the input container
         inputContainer.getChildren().add(radioBox);
     }
 
-    // Getters pour que les classes filles puissent accéder aux attributs protégés
+    // Getters for the model and views
     protected Graph getModel() {
         return this.model;
     }
@@ -209,7 +209,7 @@ public class MainControlleur {
     }
 
     /**
-     * Sauvegarde un labyrinthe en utilisant le SaveManager
+     * Save the maze with the current settings.
      */
     private void saveMaze() {
         try {
@@ -229,30 +229,30 @@ public class MainControlleur {
     }
 
     /**
-     * Configure les containers d'interface utilisateur
+     * set up the containers for the graph and maze views.
      */
     private void setupContainers() {
-        // Créer des titres pour chaque conteneur
+        // Create titles for the graph and maze views
         Label graphTitle = new Label("Vue du Graphe");
         graphTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         Label mazeTitle = new Label("Vue du Labyrinthe");
         mazeTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         
         // Set up the graph and maze containers
-        this.graphContainer = new VBox(10); // Espacement vertical
-        this.mazeContainer = new VBox(10); // Espacement vertical
+        this.graphContainer = new VBox(10);
+        this.mazeContainer = new VBox(10); 
         
-        // Ajouter les titres et vues aux conteneurs
+        // Add the graph and maze views to their respective containers
         this.graphContainer.getChildren().addAll(graphTitle, this.graphView);
         this.mazeContainer.getChildren().addAll(mazeTitle, this.mazeView);
         
-        // Définir des tailles fixes pour les conteneurs
+        // Define the layout of the main container
         this.graphContainer.setPrefWidth(350);
         this.mazeContainer.setPrefWidth(350);
         this.graphContainer.setMinWidth(350);
         this.mazeContainer.setMinWidth(350);
         
-        // Empêcher la superposition en fixant des alignements
+        // Avoid resizing
         this.graphContainer.setAlignment(Pos.TOP_CENTER);
         this.mazeContainer.setAlignment(Pos.TOP_CENTER);
 
@@ -267,6 +267,20 @@ public class MainControlleur {
     private void setupButtonActions() {
         // Action for the generate button
         this.generateButton.setOnAction(e -> {
+            // Validate input values
+            if (this.rowInput.getText().isEmpty() || this.colInput.getText().isEmpty()) {
+                System.out.println("Error: Please enter valid dimensions.");
+                return;
+            }
+            else if (this.seedInput.getText().isEmpty()) {
+                System.out.println("Error: Please enter a valid seed.");
+                return;
+            }
+            //chose number lower than 25
+            if (Integer.parseInt(this.rowInput.getText()) > 25 || Integer.parseInt(this.colInput.getText()) > 25) {
+                System.out.println("Error: Dimensions must be less than 25.");
+                return;
+            }
             try {
                 int rows = Integer.parseInt(this.rowInput.getText());
                 int columns = Integer.parseInt(this.colInput.getText());
@@ -293,7 +307,7 @@ public class MainControlleur {
             showSavedMazesWindow();
         });
 
-        // Action pour le bouton de toggle du graphe
+        // Action for toggleGraphButton
         this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
         
         // À modifier - cette méthode n'est jamais appelée directement mais seulement via le bouton
@@ -312,12 +326,12 @@ public class MainControlleur {
      */
     private void showSavedMazesWindow() {
         saveView.showSavedMazesWindow((rows, columns, seed) -> {
-            // Met à jour les champs dans l'UI
+            // Put the values in the input fields
             this.rowInput.setText(String.valueOf(rows));
             this.colInput.setText(String.valueOf(columns));
             this.seedInput.setText(String.valueOf(seed));
             
-            // Génère le labyrinthe
+            // Create a new maze with the loaded values
             generateMaze(rows, columns, seed);
         });
     }
@@ -364,18 +378,18 @@ public class MainControlleur {
     }
 
     /**
-     * Bascule la visibilité du graphe
+     * Change the visibility of the graph.
      */
     private void toggleGraphVisibility() {
         graphVisible = !graphVisible;
         
         if (graphVisible) {
-            // Afficher le graphe
+            // Display the graph
             this.graphContainer.setVisible(true);
             this.graphContainer.setManaged(true);
             this.toggleGraphButton.setText("Masquer le graphe");
         } else {
-            // Masquer le graphe
+            // Hide the graph
             this.graphContainer.setVisible(false);
             this.graphContainer.setManaged(false);
             this.toggleGraphButton.setText("Afficher le graphe");

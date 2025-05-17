@@ -16,27 +16,27 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public class MazeView extends Pane {
-    // Constantes d'affichage
+    // Display constants
     private final double FIXED_WIDTH = 300;
     private final double FIXED_HEIGHT = 300;
     private final double padding = 2;
     private final double minWallThickness = 0.5;
 
-    // État du labyrinthe
+    // Maze status
     private Graph currentGraph;
     private int rows, columns;
     private int startIndex = -1, endIndex = -1;
     private boolean selectingStart = true, selectingEnd = true, bothPointsPlaced = false;
     private double hoveredX = -1, hoveredY = -1;
     
-    // Attributs pour l'édition de labyrinthe
+    // Maze attributes for editing
     private GraphView associatedGraphView;
     private double hoveredWallX1 = -1, hoveredWallY1 = -1, hoveredWallX2 = -1, hoveredWallY2 = -1;
     private boolean wallHoverActive = false;
 
     /**
-     * Constructeur avec graphe initial
-     * @param graph le graphe représentant le labyrinthe
+     * Constructor for the initial graph
+     * @param graph the graph representing the maze
      */
     public MazeView(Graph graph) {
         this.currentGraph = graph;
@@ -57,20 +57,20 @@ public class MazeView extends Pane {
     }
     
     /**
-     * Définit la vue graphe associée pour la synchronisation
+     * Define the associated graph view for synchronisation
      */
     public void setAssociatedGraphView(GraphView graphView) {
         this.associatedGraphView = graphView;
     }
 
-    // Initialise les propriétés visuelles de la vue
+    // Initialize visual properties of the view
     private void initializeView() {
         setPrefSize(FIXED_WIDTH, FIXED_HEIGHT);
         setMinSize(FIXED_WIDTH, FIXED_HEIGHT);
         setMaxSize(FIXED_WIDTH, FIXED_HEIGHT);
     }
 
-    // Configure les interactions souris : survol et clic
+    // Setup mouse interactions
     private void setupEventHandlers() {
         setOnMouseMoved(event -> {
             if (currentGraph == null) return;
@@ -79,13 +79,12 @@ public class MazeView extends Pane {
             double mouseX = event.getX();
             double mouseY = event.getY();
             
-            // Réinitialiser l'état du survol de mur
+            // Reset the hover
             wallHoverActive = false;
             
-            // Vérifier si la souris est sur un mur ou sur une position où un mur peut être modifié
             checkWallHover(mouseX, mouseY, cellSize);
             
-            // Code pour le survol des points de départ/arrivée
+            // Start and ending points hover
             if (!wallHoverActive && !bothPointsPlaced) {
                 double gridX = mouseX - padding;
                 double gridY = mouseY - padding;
@@ -104,24 +103,23 @@ public class MazeView extends Pane {
                     hoveredY = -1;
                 }
             } else {
-                // Si au-dessus d'un mur ou si les deux points sont placés, désactiver le survol
                 hoveredX = -1;
                 hoveredY = -1;
             }
             
-            // Changer le curseur selon le contexte
+            // Change the cursor depend of context
             if (wallHoverActive) {
-                setCursor(javafx.scene.Cursor.HAND); // Curseur "main" pour indiquer une action possible
+                setCursor(javafx.scene.Cursor.HAND); 
             } else if (hoveredX >= 0) {
-                setCursor(javafx.scene.Cursor.CROSSHAIR); // Pour sélection de point de départ/arrivée
+                setCursor(javafx.scene.Cursor.CROSSHAIR); 
             } else {
-                setCursor(javafx.scene.Cursor.DEFAULT); // Curseur normal dans les autres cas
+                setCursor(javafx.scene.Cursor.DEFAULT); 
             }
             
             draw();
         });
 
-        // Clic souris : choisir point de départ/arrivée ou modifier un mur
+        // Mouse click to put a wall of chose a special point
         setOnMouseClicked(event -> {
             if (currentGraph == null) return;
 
@@ -129,14 +127,13 @@ public class MazeView extends Pane {
             double mouseX = event.getX();
             double mouseY = event.getY();
 
-            // Détermine si le clic est proche d'un mur (lignes de grille)
+            // If it's near a wall
             if (isNearWall(mouseX, mouseY, cellSize)) {
                 System.out.println("Clic sur un mur détecté!");
                 handleWallClick(mouseX, mouseY, cellSize);
                 return;
             }
 
-            // Gestion du début et de l'arrivée (code existant)
             if (hoveredX < 0 || bothPointsPlaced) return;
             
             int col = (int) ((hoveredX - padding) / cellSize);
@@ -161,59 +158,50 @@ public class MazeView extends Pane {
     }
 
     /**
-     * Vérifie si les coordonnées de la souris sont près d'un mur ou emplacement de mur potentiel
+     * Verify the coordinates near of a wall
      */
     private boolean isNearWall(double mouseX, double mouseY, double cellSize) {
-        // Ajuste les coordonnées pour tenir compte du padding
         double gridX = mouseX - padding;
         double gridY = mouseY - padding;
         
-        // Vérifie la proximité des lignes verticales de la grille
+        // Vériify the proximity
         double distToVerticalGrid = gridX % cellSize;
         if (distToVerticalGrid < cellSize * 0.15 || distToVerticalGrid > cellSize * 0.85) {
-            // Calcule les coordonnées de la grille
+            // Calcul grid coordinates
             int gridCol = (int) Math.round(gridX / cellSize);
             int gridRow = (int) (gridY / cellSize);
             
-            // Vérifie si ce mur vertical est valide (pas les bords extérieurs du labyrinthe)
+            // Veirify if the wall is vertical
             if (gridCol > 0 && gridCol < columns && gridRow >= 0 && gridRow < rows) {
-                return true;  // Tous les murs intérieurs sont modifiables
+                return true;  // all the walls are updatables
             }
         }
         
-        // Vérifie la proximité des lignes horizontales de la grille
+        // Verify the proximity of a wall in the grid
         double distToHorizontalGrid = gridY % cellSize;
         if (distToHorizontalGrid < cellSize * 0.15 || distToHorizontalGrid > cellSize * 0.85) {
-            // Calcule les coordonnées de la grille
             int gridRow = (int) Math.round(gridY / cellSize);
             int gridCol = (int) (gridX / cellSize);
-            
-            // Vérifie si ce mur horizontal est valide (pas les bords extérieurs du labyrinthe)
             if (gridRow > 0 && gridRow < rows && gridCol >= 0 && gridCol < columns) {
-                return true;  // Tous les murs intérieurs sont modifiables
+                return true;  // All the horizontales walls are updatables
             }
         }
         
         return false;
     }
 
-    /**
-     * Vérifie si la souris est au-dessus d'un mur modifiable et configure les coordonnées du survol
-     */
     private void checkWallHover(double mouseX, double mouseY, double cellSize) {
-        // Coordonnées relatives à la grille
         double gridX = mouseX - padding;
         double gridY = mouseY - padding;
         
-        // Vérification des murs verticaux
+        // Verify the verticals walls
         double distToVerticalGrid = gridX % cellSize;
         if (distToVerticalGrid < cellSize * 0.15 || distToVerticalGrid > cellSize * 0.85) {
             int gridCol = (int) Math.round(gridX / cellSize);
             int gridRow = (int) (gridY / cellSize);
             
-            // Si c'est un mur intérieur (pas les bordures)
+            // Only for interior walls
             if (gridCol > 0 && gridCol < columns && gridRow >= 0 && gridRow < rows) {
-                // Coordonnées du mur pour l'affichage du survol
                 hoveredWallX1 = gridCol * cellSize + padding;
                 hoveredWallY1 = gridRow * cellSize + padding;
                 hoveredWallX2 = gridCol * cellSize + padding;
@@ -224,15 +212,15 @@ public class MazeView extends Pane {
             }
         }
         
-        // Vérification des murs horizontaux
+        // Vérify the horizontal walls
         double distToHorizontalGrid = gridY % cellSize;
         if (distToHorizontalGrid < cellSize * 0.15 || distToHorizontalGrid > cellSize * 0.85) {
             int gridRow = (int) Math.round(gridY / cellSize);
             int gridCol = (int) (gridX / cellSize);
             
-            // Si c'est un mur intérieur (pas les bordures)
+            // Interior wall only
             if (gridRow > 0 && gridRow < rows && gridCol >= 0 && gridCol < columns) {
-                // Coordonnées du mur pour l'affichage du survol
+                // Coordinates of a wall chosen
                 hoveredWallX1 = gridCol * cellSize + padding;
                 hoveredWallY1 = gridRow * cellSize + padding;
                 hoveredWallX2 = (gridCol + 1) * cellSize + padding;
@@ -243,12 +231,12 @@ public class MazeView extends Pane {
             }
         }
         
-        // Aucun mur survolé
+        // None walls hovered
         wallHoverActive = false;
     }
     
     /**
-     * Vérifie si deux cellules sont connectées
+     * Verify if two walls are connected
      */
     private boolean areConnected(int cell1, int cell2) {
         if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
@@ -266,13 +254,13 @@ public class MazeView extends Pane {
     }
 
     /**
-     * Gère le clic sur un mur
+     * Monitor a click on a wall
      */
     private void handleWallClick(double mouseX, double mouseY, double cellSize) {
         double gridX = mouseX - padding;
         double gridY = mouseY - padding;
         
-        // Détection du mur vertical
+        // Detect a vertical wall
         double distToVerticalGrid = gridX % cellSize;
         if (distToVerticalGrid < cellSize * 0.15 || distToVerticalGrid > cellSize * 0.85) {
             int gridCol = (int) Math.round(gridX / cellSize);
@@ -282,12 +270,12 @@ public class MazeView extends Pane {
                 int cell1 = gridRow * columns + (gridCol - 1);
                 int cell2 = gridRow * columns + gridCol;
                 
-                // Basculer la présence du mur
+                // Toggle the wall
                 toggleWall(cell1, cell2);
             }
         }
         
-        // Détection du mur horizontal
+        // Detection of an horizontal wall
         double distToHorizontalGrid = gridY % cellSize;
         if (distToHorizontalGrid < cellSize * 0.15 || distToHorizontalGrid > cellSize * 0.85) {
             int gridRow = (int) Math.round(gridY / cellSize);
@@ -297,23 +285,23 @@ public class MazeView extends Pane {
                 int cell1 = (gridRow - 1) * columns + gridCol;
                 int cell2 = gridRow * columns + gridCol;
                 
-                // Basculer la présence du mur
+                // Toggle a wall presence
                 toggleWall(cell1, cell2);
             }
         }
     }
 
     /**
-     * Ajoute ou supprime un mur entre deux cellules
+     * Add or delete a wall
      */
     private void toggleWall(int cell1, int cell2) {
         if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
             cell2 < 0 || cell2 >= currentGraph.getVertexNb()) {
-            return; // Cellules invalides
+            return; 
         }
         
         if (areConnected(cell1, cell2)) {
-            // Si connectées, supprimer la connexion (ajouter un mur)
+            // If connected, delete the connection on the graph
             for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(cell1))) {
                 if (edge.getDestination() == cell2) {
                     currentGraph.getGraphMaze().get(cell1).remove(edge);
@@ -328,24 +316,24 @@ public class MazeView extends Pane {
             
             System.out.println("Mur ajouté entre " + cell1 + " et " + cell2);
         } else {
-            // Si non connectées, ajouter une connexion (supprimer un mur)
+            //  If non connected, add a connection)
             currentGraph.getGraphMaze().get(cell1).add(new Edges(cell1, cell2));
             currentGraph.getGraphMaze().get(cell2).add(new Edges(cell2, cell1));
             
             System.out.println("Mur supprimé entre " + cell1 + " et " + cell2);
         }
         
-        // Redessiner le labyrinthe
+        // Re-draw the maze
         draw();
         
-        // Mettre à jour la vue du graphe si disponible
+        // Improve the maze view 
         if (associatedGraphView != null) {
             associatedGraphView.draw(currentGraph);
         }
     }
     
     /**
-     * Dessine le labyrinthe actuel
+     * Draw the current graph
      */
     public void draw() {
         getChildren().clear();
@@ -367,7 +355,7 @@ public class MazeView extends Pane {
         drawSpecialPoints(cellSize);
     }
 
-    // Initialise tous les murs à "présents"
+    // Initialize all the presents walls 
     private void initializeWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -381,7 +369,7 @@ public class MazeView extends Pane {
         }
     }
 
-    // Supprime les murs correspondant aux connexions du graphe
+    // Delete the walls and the connexions on the graphs
     private void removeWallsBasedOnEdges(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         for (int i = 0; i < currentGraph.getGraphMaze().size(); i++) {
             for (Edges edge : currentGraph.getGraphMaze().get(i)) {
@@ -404,7 +392,7 @@ public class MazeView extends Pane {
         }
     }
 
-    // Dessine le fond du labyrinthe (rectangle blanc)
+    // Draw the white background of the maze
     private void drawBackground() {
         double availableWidth = FIXED_WIDTH - (2 * padding);
         double availableHeight = FIXED_HEIGHT - (2 * padding);
@@ -414,7 +402,7 @@ public class MazeView extends Pane {
         getChildren().add(background);
     }
 
-    // Dessine les murs du labyrinthe
+    // Draw the walls of the maze
     private void drawWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls,
                            double cellSize, double wallThickness) {
         for (int i = 0; i <= rows; i++) {
@@ -449,11 +437,11 @@ public class MazeView extends Pane {
             }
         }
         
-        // Ajouter à la fin de la méthode pour dessiner le survol de mur
+        // Aadd the hover on a wall
         if (wallHoverActive) {
             Line hoverLine = new Line(hoveredWallX1, hoveredWallY1, hoveredWallX2, hoveredWallY2);
             
-            // Déterminer si c'est un mur horizontal ou vertical
+            // Détermination if the wall is vertical or horizontal
             boolean isVertical = Math.abs(hoveredWallX1 - hoveredWallX2) < 0.01;
             
             int cell1, cell2;
@@ -471,14 +459,14 @@ public class MazeView extends Pane {
             
             boolean wallExists = !areConnected(cell1, cell2);
             
-            hoverLine.setStrokeWidth(wallThickness * 2);  // Plus épais pour être visible
+            hoverLine.setStrokeWidth(wallThickness * 2); 
             hoverLine.setStroke(wallExists ? Color.RED : Color.GREEN);
             hoverLine.setOpacity(0.7);
             getChildren().add(hoverLine);
         }
     }
 
-    // Dessine les points de départ, d'arrivée et le survol
+    // Draw the hover and special points on the maze
     private void drawSpecialPoints(double cellSize) {
         double pointRadius = Math.max(0.5, cellSize / 4);
         if (startIndex >= 0) {
@@ -510,7 +498,7 @@ public class MazeView extends Pane {
         }
     }
 
-    // Calcule la taille d'une cellule en fonction de la grille et de l'espace
+    // Calcul the size of a cell
     private double calculateCellSize() {
         if (currentGraph == null) return 0;
 
@@ -524,7 +512,7 @@ public class MazeView extends Pane {
     }
 
     /**
-     * Trace un chemin sur le labyrinthe à partir d'une liste d'indices
+     * Draw a path on the maze with a list of steps
      */
     public void drawPath(ArrayList<Integer> path) {
         if (path == null || path.isEmpty() || currentGraph == null) return;
@@ -554,7 +542,7 @@ public class MazeView extends Pane {
     }
     
     /**
-     * Visualise les étapes de résolution d'un algorithme
+     * Visualize step resolution
      */
     public void visualiseStep(ArrayList<ArrayList<Integer>> steps) {
         if (steps.isEmpty()) {
@@ -572,7 +560,7 @@ public class MazeView extends Pane {
         for (int i = 0; i < steps.size(); i++) {
             final ArrayList<Integer> stepPath = steps.get(i);
 
-            // Ajouter segments et sommets du chemin précédent
+            // Add vertex and edge of previous maze
             if (i > 0) {
                 ArrayList<Integer> previousPath = steps.get(i - 1);
                 for (int j = 0; j < previousPath.size() - 1; j++) {
@@ -581,12 +569,12 @@ public class MazeView extends Pane {
                 visitedVertices.addAll(previousPath);
             }
 
-            // Snapshots pour le lambda
+            // Snapshots for the lambda
             final ArrayList<int[]> segmentsSnapshot = new ArrayList<>(visitedSegments);
             final HashSet<Integer> verticesSnapshot = new HashSet<>(visitedVertices);
 
             KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                draw(); // Redessine le labyrinthe de base
+                draw(); // Re-draw the maze
                 
                 if (associatedGraphView != null) {
                     associatedGraphView.draw(currentGraph);
@@ -595,7 +583,7 @@ public class MazeView extends Pane {
                 double cellSize = calculateCellSize();
                 double pathThickness = Math.max(0.5, cellSize * 0.1);
 
-                // 💚 Segments visités
+                // Visited edges
                 for (int[] segment : segmentsSnapshot) {
                     int from = segment[0], to = segment[1];
 
@@ -615,14 +603,14 @@ public class MazeView extends Pane {
                     getChildren().add(line);
                 }
 
-                // 💚 Sommets visités
+                // green visited vextex
                 if (associatedGraphView != null) {
                     for (int index : verticesSnapshot) {
                         associatedGraphView.drawHighlightedVertices(index, currentGraph, Color.LIGHTGREEN);
                     }
                 }
 
-                // 🔴 Chemin rouge actuel
+                // Red current path
                 drawPath(stepPath);
                 if (associatedGraphView != null) {
                     associatedGraphView.drawHighlightedVertices(stepPath, currentGraph, Color.RED);
@@ -640,7 +628,7 @@ public class MazeView extends Pane {
     }
 
     /**
-     * Réinitialise les points de départ et d'arrivée
+     * Reset Start and end points
      */
     public void resetStartEndPoints() {
         startIndex = -1;

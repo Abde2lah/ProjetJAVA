@@ -1,8 +1,5 @@
 package org.mazeApp.view;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import org.mazeApp.model.SaveManager;
 
 import javafx.geometry.Pos;
@@ -16,7 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Vue dédiée à l'interface de sauvegarde et chargement des labyrinthes
+ * View dedicated of the loading and saving maze 
  */
 public class SaveView {
     
@@ -27,9 +24,9 @@ public class SaveView {
     }
     
     /**
-     * Affiche une fenêtre de sélection des labyrinthes sauvegardés
+     * Show a windows with mazes
      * 
-     * @param onLoadAction Action à exécuter lorsqu'un labyrinthe est chargé (reçoit rows, columns, seed)
+     * @param onLoadAction Action to execute to collect maze's informations
      */
     public void showSavedMazesWindow(TriConsumer<Integer, Integer, Integer> onLoadAction) {
         // Create a new stage (window)
@@ -39,7 +36,7 @@ public class SaveView {
         // Create a ListView to display the saved mazes
         ListView<String> mazeListView = new ListView<>();
         
-        // Récupère les labyrinthes sauvegardés depuis SaveManager
+        // Collect the saved mazes
         for (String mazeName : saveManager.getAllSavedMazes().keySet()) {
             SaveManager.SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
             mazeListView.getItems().add(
@@ -52,7 +49,7 @@ public class SaveView {
         Button loadButton = createLoadButton(mazeListView, savedMazesStage, onLoadAction);
         Button deleteButton = createDeleteButton(mazeListView);
         
-        // Création d'un conteneur horizontal pour les boutons
+        // Create a container for the buttons
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(loadButton, deleteButton);
@@ -68,7 +65,7 @@ public class SaveView {
     }
     
     /**
-     * Crée le bouton pour charger un labyrinthe
+     * Create the button to load a maze
      */
     private Button createLoadButton(ListView<String> mazeListView, Stage stage, 
                                   TriConsumer<Integer, Integer, Integer> onLoadAction) {
@@ -82,7 +79,7 @@ public class SaveView {
                 String mazeName = selectedMaze.split(" \\| ")[0].split(": ")[1];
                 SaveManager.SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
                 
-                // Exécute la callback avec les paramètres du labyrinthe
+                // Exécute the callback with maze's settings
                 onLoadAction.accept(savedMaze.getRows(), savedMaze.getColumns(), savedMaze.getSeed());
                 System.out.println("Loaded maze: " + mazeName);
                 stage.close();
@@ -95,7 +92,7 @@ public class SaveView {
     }
     
     /**
-     * Crée le bouton pour supprimer un labyrinthe
+     * Create a button to delete a maze
      */
     private Button createDeleteButton(ListView<String> mazeListView) {
         Button deleteButton = new Button("Delete Selected Maze");
@@ -107,15 +104,15 @@ public class SaveView {
             if (selectedMaze != null) {
                 String mazeName = selectedMaze.split(" \\| ")[0].split(": ")[1];
                 
-                // Affiche une confirmation avant la suppression
+                // Show a confirmation before the suppression
                 Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
-                confirmAlert.setTitle("Confirmation de suppression");
+                confirmAlert.setTitle("Deleting confirmation");
                 confirmAlert.setHeaderText(null);
-                confirmAlert.setContentText("Êtes-vous sûr de vouloir supprimer ce labyrinthe ?");
+                confirmAlert.setContentText("Are you sure you want to delete this maze");
                 
                 if (confirmAlert.showAndWait().get().getButtonData().isDefaultButton()) {
                     if (saveManager.deleteSavedMaze(mazeName)) {
-                        // Rafraîchit la liste après suppression
+                        // Refresh the list after deleting
                         mazeListView.getItems().remove(mazeListView.getSelectionModel().getSelectedIndex());
                         System.out.println("Maze deleted: " + mazeName);
                     }
@@ -129,7 +126,7 @@ public class SaveView {
     }
     
     /**
-     * Affiche une alerte de type warning
+     * Warning alert display
      */
     private void showWarningAlert(String title, String content) {
         Alert alert = new Alert(AlertType.WARNING);
@@ -140,7 +137,7 @@ public class SaveView {
     }
     
     /**
-     * Interface fonctionnelle pour une fonction qui prend trois arguments
+     * Fonctional interface 
      */
     @FunctionalInterface
     public interface TriConsumer<T, U, V> {

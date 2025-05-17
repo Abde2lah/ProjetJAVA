@@ -7,10 +7,6 @@ import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.view.MazeView;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
-
 public class RandomSolver {
 
     private ArrayList<ArrayList<Edges>> graphMaze;
@@ -30,8 +26,8 @@ public class RandomSolver {
     }
 
     /**
-     * Résout le labyrinthe par une marche aléatoire avec trace des étapes pour l'animation.
-     */
+    Solve the maze using a random walk algorithm.
+    */
     public ArrayList<ArrayList<Integer>> solveRandomWalkSteps() {
         Random rand = new Random();
         boolean[] visited = new boolean[vertexCount];
@@ -40,7 +36,7 @@ public class RandomSolver {
         ArrayList<Integer> path = new ArrayList<>();
         path.add(start);
         visited[start] = true;
-        allSteps.add(new ArrayList<>(path)); // Ajouter la première étape
+        allSteps.add(new ArrayList<>(path)); // Add the first step
 
         while (!path.isEmpty()) {
             int current = path.get(path.size() - 1);
@@ -67,25 +63,24 @@ public class RandomSolver {
                 allSteps.add(new ArrayList<>(path)); 
             }
         }
-
-        return allSteps; // Peut être vide si aucun chemin
+        return allSteps; // Can be empty if no path found
     }
 
     /**
-     * Visualise la marche aléatoire avec animation.
+     * Visualize the random walk algorithm step by step.
      */
     public void visualize() {
         if (start < 0 || goal < 0) {
-            System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+            System.out.println("Please define a start and end point.");
             return;
         }
         long startTime = System.currentTimeMillis();
         ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("Durée de l'algorithme Random Walk : " + duration + " ms");
+        System.out.println("Algorithm duration of Random Walk : " + duration + " ms");
+        //Take the last step
+        System.out.println("Path found: " + steps.get(steps.size() - 1));
         mazeView.visualiseStep(steps);
     }
-
-
 }
