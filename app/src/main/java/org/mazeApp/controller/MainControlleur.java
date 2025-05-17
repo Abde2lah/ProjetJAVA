@@ -66,6 +66,10 @@ public class MainControlleur {
         this.graphView.draw(model);
         this.mazeView.draw();
 
+        // Dans votre classe principale
+        mazeView.setAssociatedGraphView(graphView);
+        graphView.setAssociatedMazeView(mazeView);
+
         // Initialiser le gestionnaire de sauvegarde
         this.saveManager = new SaveManager();
         this.saveView = new SaveView(saveManager);
@@ -361,6 +365,7 @@ public class MainControlleur {
     public void refreshViews() {
         this.graphView.draw(model);
         this.mazeView.draw();
+
     }
 
     /**
