@@ -1,8 +1,5 @@
 package org.mazeApp.controller;
 
-import java.util.ArrayList;
-
-import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.SaveManager;
 import org.mazeApp.model.generator.DFSGenerator;
@@ -11,20 +8,12 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 import org.mazeApp.view.SaveView;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Duration;
 
 
 /**
@@ -86,11 +75,17 @@ public class MainControlleur {
     private void initializeUIComponents() {
         // Create labels and input fields
         Text rowLabel = new Text("Number of rows:");
-        this.rowInput = new TextField();  // Default value
+        this.rowInput = new TextField();
+        this.rowInput.setText("5");
+
         Text colLabel = new Text("Number of columns:");
-        this.colInput = new TextField();  // Default value
+        this.colInput = new TextField();
+        this.colInput.setText("5");
+        
         Text seedLabel = new Text("Seed:");
-        this.seedInput = new TextField();  // Default value
+        this.seedInput = new TextField();
+        this.seedInput.setText("42");
+
 
         // Create buttons
         this.clearButton = new Button("Clear");

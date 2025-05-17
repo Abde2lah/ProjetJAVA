@@ -7,16 +7,12 @@ import org.mazeApp.model.Graph;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
-
 /**
  * Cette classe contient l'implémentation de l'algorithme de parcours en profondeur (DFS)
  * pour résoudre un labyrinthe
  */
 public class DFSsolver {
-    
+
     /**
      * Classe interne pour représenter une étape du parcours DFS
      */
@@ -28,23 +24,23 @@ public class DFSsolver {
             this.current = current;
             this.pathSoFar = new ArrayList<>(path);
         }
-        
+
         public int getCurrent() {
             return current;
         }
-        
+
         public ArrayList<Integer> getPathSoFar() {
             return pathSoFar;
         }
     }
-    
+
     private Graph model;
     private GraphView graphView;
     private MazeView mazeView;
-    
+
     /**
      * Constructeur
-     * 
+     *
      * @param model Le graphe à parcourir
      * @param graphView La vue du graphe pour la visualisation
      * @param mazeView La vue du labyrinthe pour la visualisation
@@ -54,7 +50,7 @@ public class DFSsolver {
         this.graphView = graphView;
         this.mazeView = mazeView;
     }
-    
+
     /**
      * Exécute l'algorithme DFS avec visualisation animée
      */
@@ -73,43 +69,19 @@ public class DFSsolver {
             return;
         }
 
-        animateSteps(steps);
-    }
-    
-    /**
-     * Anime les étapes du parcours DFS
-     * 
-     * @param steps Les étapes du parcours à animer
-     */
-    private void animateSteps(ArrayList<DFSStep> steps) {
-        mazeView.draw();
-        Timeline timeline = new Timeline();
-        int delay = 100;
-
-        for (int i = 0; i < steps.size(); i++) {
-            final DFSStep step = steps.get(i);
-            KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                graphView.highlightVertex(step.getCurrent(), model);
-                mazeView.drawPath(step.getPathSoFar());
-            });
-            timeline.getKeyFrames().add(frame);
+        // Convertir les étapes en liste de chemins intermédiaires
+        ArrayList<ArrayList<Integer>> convertedSteps = new ArrayList<>();
+        for (DFSStep step : steps) {
+            convertedSteps.add(step.getPathSoFar());
         }
 
-        timeline.setOnFinished(e -> {
-            // Quand l'animation est terminée, dessiner le chemin sur le labyrinthe
-            mazeView.draw();
-            ArrayList<Integer> finalPath = steps.get(steps.size() - 1).getPathSoFar();
-            mazeView.drawPath(finalPath);
-            System.out.println("Chemin trouvé de longueur " + finalPath.size());
-        });
-
-        timeline.play();
+        // Utiliser l'animation centralisée de la vue
+        mazeView.visualiseStep(convertedSteps);
     }
-
 
     /**
      * Génère les étapes du parcours DFS
-     * 
+     *
      * @param start Indice du sommet de départ
      * @param end Indice du sommet d'arrivée
      * @return Liste des étapes du parcours
@@ -124,7 +96,7 @@ public class DFSsolver {
 
     /**
      * DFS récursif avec enregistrement des étapes
-     * 
+     *
      * @param current Sommet courant
      * @param target Sommet cible
      * @param visited Tableau des sommets visités
@@ -133,7 +105,7 @@ public class DFSsolver {
      * @return true si un chemin est trouvé, false sinon
      */
     private boolean dfsWithSteps(int current, int target, boolean[] visited,
-                               ArrayList<Integer> path, ArrayList<DFSStep> steps) {
+                                 ArrayList<Integer> path, ArrayList<DFSStep> steps) {
         visited[current] = true;
         path.add(current);
         steps.add(new DFSStep(current, path)); // enregistre l'étape
@@ -152,10 +124,10 @@ public class DFSsolver {
         path.remove(path.size() - 1); // backtracking
         return false;
     }
-    
+
     /**
      * Trouve un chemin entre deux points sans visualisation
-     * 
+     *
      * @param start Indice du sommet de départ
      * @param end Indice du sommet d'arrivée
      * @return Liste des sommets constituant le chemin, ou null si aucun chemin n'existe

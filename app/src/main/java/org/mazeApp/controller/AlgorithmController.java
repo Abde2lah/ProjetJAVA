@@ -6,10 +6,9 @@ import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.algorithms.BFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver;
-import org.mazeApp.model.algorithms.RandomSolver;
-import org.mazeApp.model.algorithms.OnlyRightSolver;
 import org.mazeApp.model.algorithms.OnlyLeftSolver;
-import org.mazeApp.model.algorithms.DFSsolver.DFSStep;
+import org.mazeApp.model.algorithms.OnlyRightSolver;
+import org.mazeApp.model.algorithms.RandomSolver;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
@@ -19,7 +18,8 @@ import javafx.scene.control.Button;
 import javafx.util.Duration;
 
 /**
- * Contrôleur dédié aux algorithmes de parcours et génération de labyrinthe
+ * Contrôleur dédié aux algorithmes de
+ *  parcours et génération de labyrinthe
  * Hérite de MazeController pour avoir accès aux modèles et vues
  */
 public class AlgorithmController extends MainControlleur {
