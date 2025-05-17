@@ -7,6 +7,8 @@ import org.mazeApp.model.Graph;
 import org.mazeApp.model.algorithms.BFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver;
 import org.mazeApp.model.algorithms.RandomSolver;
+import org.mazeApp.model.algorithms.OnlyRightSolver;
+import org.mazeApp.model.algorithms.OnlyLeftSolver;
 import org.mazeApp.model.algorithms.DFSsolver.DFSStep;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
@@ -89,10 +91,15 @@ public class AlgorithmController extends MainControlleur {
         
         // Action to solve the maze with DFS
         this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
-
+        
         // Action to solve the maze with Random
         this.RandomButton.setOnAction(e -> executeRandomAlgorithm());
         
+        // Action to solve the maze with OnlyRight
+        this.RightButton.setOnAction(e -> executeOnlyRightlgorithm());
+        
+        // Action to solve the maze with OnlyLeft
+        this.LeftButton.setOnAction(e -> executeOnlyLeftlgorithm());
         
         // Autres actions à implémenter
         this.BFSButton.setOnAction(e -> {
@@ -122,8 +129,6 @@ public class AlgorithmController extends MainControlleur {
         this.DijkstraButton.setOnAction(e -> System.out.println("Dijkstra non implémenté"));
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
         this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
-        this.RightButton.setOnAction(e -> System.out.println("Right non implémenté"));
-        this.LeftButton.setOnAction(e -> System.out.println("Left non implémenté"));
     }
     
     /**
@@ -142,6 +147,20 @@ public class AlgorithmController extends MainControlleur {
         MazeView mazeView = getMazeView();
         RandomSolver randomSolver = new RandomSolver(model, mazeView);
         randomSolver.visualize();
+    }
+
+    private void executeOnlyRightlgorithm() {
+        Graph model = getModel();
+        MazeView mazeView = getMazeView();
+        OnlyRightSolver OnlyRightSolver = new OnlyRightSolver(model, mazeView);
+        OnlyRightSolver.visualize();
+    }
+    
+    private void executeOnlyLeftlgorithm() {
+        Graph model = getModel();
+        MazeView mazeView = getMazeView();
+        OnlyLeftSolver OnlyLeftSolver = new OnlyLeftSolver(model, mazeView);
+        OnlyLeftSolver.visualize();
     }
     
 
