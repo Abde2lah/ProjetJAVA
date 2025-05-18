@@ -152,10 +152,11 @@ public class GeneratorControlleur {
         this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
         // Button for animating the maze generation
         this.animateGenerationButton.setOnAction(e -> animateMazeGeneration());
-        // Slider for speed of generation
-        this.SpeedGenerationCursor.setOnMouseDragged(e -> {
-            delay = (int) SpeedGenerationCursor.getValue();
-            SpeedGenerationLabel.setText("delay :"+delay+" ms");
+        
+        // Correction: utiliser valueProperty().addListener pour mettre à jour le label en temps réel
+        this.SpeedGenerationCursor.valueProperty().addListener((observable, oldValue, newValue) -> {
+            delay = newValue.intValue();
+            SpeedGenerationLabel.setText("Delay: " + delay + " ms");
         });
     }
     /**
@@ -194,13 +195,16 @@ public class GeneratorControlleur {
             int rows = getRowValue();
             int columns = getColumnValue();
             int seed = getSeedValue();
-            if (verification(rows, columns, seed)==false) {
+            
+            if (!verification(rows, columns, seed)) {
                 return;
             }
-            System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed);
+            
+            System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed + " (delay: " + delay + "ms)");
             
             // Create an empty graph
             Graph animatedGraph = Graph.emptyGraph(rows, columns);
+            animatedGraph.setSeed(seed);  // Définir la graine pour la cohérence
             
             // Récupérer les étapes de génération
             ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
@@ -215,18 +219,21 @@ public class GeneratorControlleur {
             
             // Créer la timeline pour l'animation
             Timeline timeline = new Timeline();
-            // Ajouter chaque étape à la timeline
+            
+            // Ajouter chaque étape à la timeline avec le délai approprié
             for (int i = 0; i < steps.size(); i++) {
                 final int index = i;
                 KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                    Edges edge = steps.get(index);
-                    animatedGraph.addEdge(edge.getSource(), edge.getDestination());
-                    animatedMazeView.draw();
+                    if (index < steps.size()) {  // Vérification de sécurité
+                        Edges edge = steps.get(index);
+                        animatedGraph.addEdge(edge.getSource(), edge.getDestination());
+                        animatedMazeView.draw();
+                    }
                 });
                 timeline.getKeyFrames().add(frame);
             }
             
-            // Ajouter un événement à la fin de l'animation pour afficher un message
+            // Ajouter un événement à la fin de l'animation
             timeline.setOnFinished(e -> System.out.println("Animation terminée"));
             
             // Lancer l'animation
@@ -234,6 +241,9 @@ public class GeneratorControlleur {
             
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     /**
@@ -248,41 +258,64 @@ public class GeneratorControlleur {
     /**
      * Save the current maze
      */
-    private void saveMaze() {
+    public void saveMaze() {
         try {
-            int rows = getRowValue();
-            int columns = getColumnValue();
-            int seed = getSeedValue();
-
-            String mazeName = saveManager.saveMaze(rows, columns, seed);
+            // Sauvegarder le labyrinthe avec sa structure complète
+            Graph currentGraph = mainController.getModel();
+            
+            // Vérification que le modèle existe
+            if (currentGraph == null) {
+                System.out.println("Impossible de sauvegarder : aucun labyrinthe n'est généré.");
+                return;
+            }
+            
+            String mazeName = saveManager.saveMaze(currentGraph);
+            
             if (mazeName == null) {
                 System.out.println("Ce labyrinthe existe déjà dans la liste sauvegardée.");
             } else {
                 System.out.println("Labyrinthe sauvegardé sous: " + mazeName);
             }
-        } catch (NumberFormatException ex) {
-            System.out.println("Erreur: Veuillez entrer des valeurs numériques valides.");
+        } catch (Exception ex) {
+            System.out.println("Erreur lors de la sauvegarde: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
     
     /**
      * Load a saved maze
      */
-    private void loadMaze() {
+    public void loadMaze() {
         if (!saveManager.hasSavedMazes()) {
-            System.out.println("No saved mazes available.");
+            System.out.println("Aucun labyrinthe sauvegardé disponible.");
             return;
         }
         
-        // Afficher la fenêtre des labyrinthes sauvegardés
-        saveView.showSavedMazesWindow((rows, columns, seed) -> {
-            // Mettre les valeurs dans les champs d'entrée
-            this.rowInput.setText(String.valueOf(rows));
-            this.colInput.setText(String.valueOf(columns));
-            this.seedInput.setText(String.valueOf(seed));
+        // Afficher la fenêtre des labyrinthes sauvegardés avec la nouvelle méthode
+        saveView.showSavedMazesWindowEx((graph) -> {
+            // Vérification que le graphe n'est pas null
+            if (graph == null) {
+                System.out.println("Erreur: le graphe chargé est null.");
+                return;
+            }
             
-            // Générer un nouveau labyrinthe avec les valeurs chargées
-            generateMaze();
+            // Mise à jour du modèle
+            mainController.setModel(graph);
+            
+            // Mise à jour des champs d'entrée
+            this.rowInput.setText(String.valueOf(graph.getRows()));
+            this.colInput.setText(String.valueOf(graph.getColumns()));
+            this.seedInput.setText(String.valueOf(graph.getSeed()));
+            
+            // Création d'une nouvelle vue de labyrinthe
+            MazeView mazeView = new MazeView(graph, mainController.getGraphView());
+            mainController.setMazeView(mazeView);
+            
+            // Mise à jour du conteneur
+            mainController.updateMazeViewInContainer(mazeView);
+            
+            // Rafraîchissement des vues
+            mainController.refreshViews();
         });
     }
     

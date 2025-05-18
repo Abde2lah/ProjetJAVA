@@ -23,6 +23,7 @@ public class Graph {
     private ArrayList<ArrayList<Edges>> graphMaze;
     private ArrayList<Edges> generationSteps;
     private static MazeGenerator currentGenerator = new KruskalGenerator();
+    private int seed;
 
     /**
      * Return the generation steps of the maze.
@@ -34,9 +35,9 @@ public class Graph {
     /**
      * Main constructor for a rectangular grid maze with kruskal generator.
      * 
-     * @param seed 
-     * @param rows
-     * @param columns 
+     * @param seed The seed for random generation
+     * @param rows Number of rows in the grid
+     * @param columns Number of columns in the grid
      */
     public Graph(int seed, int rows, int columns) {
         int totalVertices = rows * columns;
@@ -47,6 +48,7 @@ public class Graph {
         this.edgeCount = 0;
         this.graphMaze = new ArrayList<>();
         this.generationSteps = new ArrayList<>();
+        this.seed = seed; // Stockage de la graine
 
         initializeGraph(totalVertices);
         generateGridMaze(seed, rows, columns);
@@ -90,11 +92,13 @@ public class Graph {
         this.edgeCount = 0;
         this.graphMaze = new ArrayList<>();
         this.generationSteps = new ArrayList<>();
+        this.seed = 0; // Valeur par défaut pour un graphe vide
+        
         initializeGraph(totalVertices);
         
         // Don't generate the maze if empty is true
         if (!empty) {
-            generateGridMaze(0, rows, columns);
+            generateGridMaze(this.seed, rows, columns);
         }
     }
 
@@ -220,4 +224,22 @@ public class Graph {
         return currentGenerator;
     }
 
+    /**
+     * Get the seed value used for generating this maze.
+     * 
+     * @return The seed value
+     */
+    public int getSeed() {
+        return this.seed;
+    }
+
+    /**
+     * Set a new seed value for this maze.
+     * Note: This does not regenerate the maze automatically.
+     * 
+     * @param seed The new seed value
+     */
+    public void setSeed(int seed) {
+        this.seed = seed;
+    }
 }

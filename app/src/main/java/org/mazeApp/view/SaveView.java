@@ -1,6 +1,8 @@
 package org.mazeApp.view;
 
+import org.mazeApp.model.Graph;
 import org.mazeApp.model.SaveManager;
+import org.mazeApp.model.SaveManager.SavedMaze;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,78 +15,76 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * View dedicated of the loading and saving maze 
+ * Save class for the maze application.
+ * This class is responsible for displaying the saved mazes and providing options to load or delete them.
  */
 public class SaveView {
-    
     private SaveManager saveManager;
-    
     public SaveView(SaveManager saveManager) {
         this.saveManager = saveManager;
     }
-    
     /**
-     * Show a windows with mazes
+     * Display a window with saved mazes
      * 
-     * @param onLoadAction Action to execute to collect maze's informations
+     * @param onLoadGraphAction Callback to execute when a maze is loaded
      */
-    public void showSavedMazesWindow(TriConsumer<Integer, Integer, Integer> onLoadAction) {
-        // Create a new stage (window)
+    public void showSavedMazesWindowEx(GraphConsumer onLoadGraphAction) {
         Stage savedMazesStage = new Stage();
-        savedMazesStage.setTitle("Saved Mazes");
-        
-        // Create a ListView to display the saved mazes
+        savedMazesStage.setTitle("Labyrinthes sauvegardés");
+        // ListView for displaying saved mazes
         ListView<String> mazeListView = new ListView<>();
-        
-        // Collect the saved mazes
+        //get all saved mazes
         for (String mazeName : saveManager.getAllSavedMazes().keySet()) {
-            SaveManager.SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
-            mazeListView.getItems().add(
-                String.format("Name: %s | Seed: %d | Rows: %d | Columns: %d",
-                    mazeName, savedMaze.getSeed(), savedMaze.getRows(), savedMaze.getColumns())
-            );
+            SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
+            String displayText = String.format("Nom: %s | Graine: %d | Lignes: %d | Colonnes: %d", mazeName, savedMaze.getSeed(), savedMaze.getRows(), savedMaze.getColumns());
+            mazeListView.getItems().add(displayText);
         }
-        
-        // Create load and delete buttons
-        Button loadButton = createLoadButton(mazeListView, savedMazesStage, onLoadAction);
+        Button loadButton = createLoadGraphButton(mazeListView, savedMazesStage, onLoadGraphAction);
         Button deleteButton = createDeleteButton(mazeListView);
-        
-        // Create a container for the buttons
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(loadButton, deleteButton);
-        
-        // Create a VBox layout and add the ListView and buttons
         VBox layout = new VBox(10, mazeListView, buttonBox);
         layout.setStyle("-fx-padding: 10;");
-        
-        // Set up the scene and show the stage
         Scene scene = new Scene(layout, 500, 500);
         savedMazesStage.setScene(scene);
         savedMazesStage.show();
     }
-    
     /**
-     * Create the button to load a maze
+     * Creates a button to load a maze from the list
+     * @param mazeListView The ListView containing the saved mazes
+     * @param stage The stage to close after loading the maze
+     * @param onLoadGraphAction The action to perform after loading the maze
+     * @return The load button
      */
-    private Button createLoadButton(ListView<String> mazeListView, Stage stage, 
-                                  TriConsumer<Integer, Integer, Integer> onLoadAction) {
-        Button loadButton = new Button("Load Selected Maze");
+    private Button createLoadGraphButton(ListView<String> mazeListView, Stage stage, 
+                                      GraphConsumer onLoadGraphAction) {
+        Button loadButton = new Button("Charger le labyrinthe sélectionné");
         loadButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
-        loadButton.setPrefWidth(150);
+        loadButton.setPrefWidth(200);
         
         loadButton.setOnAction(e -> {
-            String selectedMaze = mazeListView.getSelectionModel().getSelectedItem();
-            if (selectedMaze != null) {
-                String mazeName = selectedMaze.split(" \\| ")[0].split(": ")[1];
-                SaveManager.SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
-                
-                // Exécute the callback with maze's settings
-                onLoadAction.accept(savedMaze.getRows(), savedMaze.getColumns(), savedMaze.getSeed());
-                System.out.println("Loaded maze: " + mazeName);
-                stage.close();
+            String selectedItem = mazeListView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                try {
+                    // We extract the maze name from the selected item
+                    String mazeName = selectedItem.split(" \\| ")[0].split(": ")[1];
+                    // And we load the maze
+                    Graph graph = saveManager.buildGraph(mazeName);
+                    if (graph != null) {
+                        // Exécution du callback avec le graphe complet
+                        onLoadGraphAction.accept(graph);
+                        System.out.println("Labyrinthe chargé: " + mazeName);
+                        stage.close();
+                    } else {
+                        showWarningAlert("Erreur", "Impossible de charger le labyrinthe.");
+                    }
+                } catch (Exception ex) {
+                    showWarningAlert("Erreur", "Problème lors du chargement du labyrinthe: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
             } else {
-                showWarningAlert("No Selection", "Please select a maze to load.");
+                showWarningAlert("Aucune sélection", "Veuillez sélectionner un labyrinthe à charger.");
             }
         });
         
@@ -92,33 +92,37 @@ public class SaveView {
     }
     
     /**
-     * Create a button to delete a maze
+     * This method creates a button to delete a maze from the list.
+     * @param mazeListView The ListView containing the saved mazes
+     * @return The delete button
      */
     private Button createDeleteButton(ListView<String> mazeListView) {
-        Button deleteButton = new Button("Delete Selected Maze");
+        Button deleteButton = new Button("Supprimer le labyrinthe sélectionné");
         deleteButton.setStyle("-fx-background-color: #F44336; -fx-text-fill: white;");
-        deleteButton.setPrefWidth(150);
+        deleteButton.setPrefWidth(200);
         
         deleteButton.setOnAction(e -> {
-            String selectedMaze = mazeListView.getSelectionModel().getSelectedItem();
-            if (selectedMaze != null) {
-                String mazeName = selectedMaze.split(" \\| ")[0].split(": ")[1];
-                
-                // Show a confirmation before the suppression
-                Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
-                confirmAlert.setTitle("Deleting confirmation");
-                confirmAlert.setHeaderText(null);
-                confirmAlert.setContentText("Are you sure you want to delete this maze");
-                
-                if (confirmAlert.showAndWait().get().getButtonData().isDefaultButton()) {
-                    if (saveManager.deleteSavedMaze(mazeName)) {
-                        // Refresh the list after deleting
-                        mazeListView.getItems().remove(mazeListView.getSelectionModel().getSelectedIndex());
-                        System.out.println("Maze deleted: " + mazeName);
+            String selectedItem = mazeListView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                try {
+                    String mazeName = selectedItem.split(" \\| ")[0].split(": ")[1];
+                    Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
+                    confirmAlert.setTitle("Confirmation de suppression");
+                    confirmAlert.setHeaderText(null);
+                    confirmAlert.setContentText("Êtes-vous sûr de vouloir supprimer ce labyrinthe ?");
+                    if (confirmAlert.showAndWait().get().getButtonData().isDefaultButton()) {
+                        if (saveManager.deleteSavedMaze(mazeName)) {
+                            // Refresh the ListView
+                            mazeListView.getItems().remove(mazeListView.getSelectionModel().getSelectedIndex());
+                            System.out.println("Labyrinthe supprimé: " + mazeName);
+                        }
                     }
+                } catch (Exception ex) {
+                    showWarningAlert("Erreur", "Problème lors de la suppression: " + ex.getMessage());
+                    ex.printStackTrace();
                 }
             } else {
-                showWarningAlert("No Selection", "Please select a maze to delete.");
+                showWarningAlert("Aucune sélection", "Veuillez sélectionner un labyrinthe à supprimer.");
             }
         });
         
@@ -126,7 +130,7 @@ public class SaveView {
     }
     
     /**
-     * Warning alert display
+     * Display a warning alert with the given title and content.
      */
     private void showWarningAlert(String title, String content) {
         Alert alert = new Alert(AlertType.WARNING);
@@ -134,13 +138,17 @@ public class SaveView {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-    
+    }    
     /**
-     * Fonctional interface 
+     * Warning ! This is a functional interface
+     * Explaination:
+        * This interface is used to define a callback that accepts a Graph object.
+        * It is used in the context of loading a graph from a saved maze.
+        * The interface is functional because it contains only one abstract method.
+        * This allows it to be used as a target for lambda expressions or method references.
      */
     @FunctionalInterface
-    public interface TriConsumer<T, U, V> {
-        void accept(T t, U u, V v);
+    public interface GraphConsumer {
+        void accept(Graph graph);
     }
 }
