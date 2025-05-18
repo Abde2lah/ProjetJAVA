@@ -2,6 +2,7 @@ package org.mazeApp.controller;
 
 import java.util.ArrayList;
 
+import org.mazeApp.Main;
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.algorithms.AStarSolver;
@@ -17,13 +18,17 @@ import org.mazeApp.view.MazeView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 /**
-    *Controller for the algorithms
-    * This class is responsible for managing the algorithm buttons and their actions
+ * Controller for the algorithms
+ * This class is responsible for managing the algorithm buttons and their actions
  */
-public class AlgorithmController extends MainControlleur {
+public class AlgorithmController{
+    
+    // Référence au contrôleur principal
+    private MainControlleur mainController;
     
     // Boutons spécifiques aux algorithmes
     private Button DFSButton;
@@ -35,12 +40,13 @@ public class AlgorithmController extends MainControlleur {
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
-    
+    private VBox AlgoContainer;
+
     /**
      * Constructor which initializes the algorithm controller
      */
-    public AlgorithmController(Graph graph) {
-        super(graph);
+    public AlgorithmController(Graph graph, MainControlleur mainController) {
+        this.mainController = mainController;
         initializeAlgorithmButtons();
         setupAlgorithmButtonActions();
     }
@@ -71,8 +77,16 @@ public class AlgorithmController extends MainControlleur {
         this.LeftButton.setPrefSize(100, 30);
         this.RandomButton.setPrefSize(100, 30);
         
-        // Add buttons to the algo container from parent
-        getAlgoButtonContainer().getChildren().addAll(
+        // Create a VBox to hold the buttons
+        this.AlgoContainer = new VBox(10);
+        this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
+        
+        // Add a title to the algorithm container
+        javafx.scene.text.Text algoTitle = new javafx.scene.text.Text("Algorithmes");
+        algoTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        this.AlgoContainer.getChildren().add(algoTitle);
+        
+        this.AlgoContainer.getChildren().addAll(
             this.DFSButton,
             this.BFSButton,
             this.AStarButton,
@@ -89,7 +103,6 @@ public class AlgorithmController extends MainControlleur {
      * Set up the actions for the algorithm buttons
      */
     private void setupAlgorithmButtonActions() {
-        
         // Action to solve the maze with DFS
         this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
         
@@ -104,106 +117,103 @@ public class AlgorithmController extends MainControlleur {
         
         // Other algorithm actions
         this.BFSButton.setOnAction(e -> {
-            
-
             int colInputVal;
             int rowInputVal;
-            MazeView mazeView = getMazeView();
+            MazeView mazeView = mainController.getMazeView();
 
-            try{
-                colInputVal = getColumnValue();
-                rowInputVal = getRowValue();
+            try {
+                colInputVal = mainController.getColumnValue();
+                rowInputVal = mainController.getRowValue();
+            } catch(Exception err) {
+                err.printStackTrace();
+                return;
+            }
 
-            }catch(Exception err){err.printStackTrace(); return;}
+            boolean isOperationAllowed = (colInputVal > 0 && colInputVal < 31);
+            isOperationAllowed = (isOperationAllowed && (rowInputVal > 0 && rowInputVal < 31));
 
-            
-        
-           boolean isOperationAllowed =  (colInputVal>0 && colInputVal<31) ? true : false; 
-            isOperationAllowed = (isOperationAllowed &&(rowInputVal>0 && rowInputVal<31))? true : false;
-
-            if(isOperationAllowed){
+            if(isOperationAllowed) {
                 ArrayList<Integer> path = executeBFSAlgorithm();
                 mazeView.drawPath(path);  
             }   
         });
+        
         this.AStarButton.setOnAction(e -> {
-            GraphView graphView = getGraphView();
-            MazeView mazeView = getMazeView();
-            Graph model = getModel();
+            GraphView graphView = mainController.getGraphView();
+            MazeView mazeView = mainController.getMazeView();
+            Graph model = mainController.getModel();
             AStarSolver aStarSolver = new AStarSolver(model, graphView, mazeView);
             aStarSolver.visualize();
         });
 
         this.DijkstraButton.setOnAction(e -> {
-            Graph model = getModel();
-            MazeView mazeView = getMazeView();
-            GraphView graphView = getGraphView();
+            Graph model = mainController.getModel();
+            MazeView mazeView = mainController.getMazeView();
+            GraphView graphView = mainController.getGraphView();
 
             DijkstraSolver dijkstraSolver = new DijkstraSolver(model, graphView, mazeView);
             dijkstraSolver.visualize();
         });
 
-        this.PrimButton.setOnAction(e -> System.out.println("Prim non created"));
-        this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non created"));
+        this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
+        this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
     }
     
     /**
      * Exécute l'algorithme DFS avec visualisation
      */
     private void executeDFSAlgorithm() {
-        GraphView graphView = getGraphView();
-        MazeView mazeView = getMazeView();
-        Graph model = getModel();
+        GraphView graphView = mainController.getGraphView();
+        MazeView mazeView = mainController.getMazeView();
+        Graph model = mainController.getModel();
         DFSsolver dfsSolver = new DFSsolver(model, graphView, mazeView);
         dfsSolver.visualize();
     }
 
     private void executeRandomAlgorithm() {
-        Graph model = getModel();
-        MazeView mazeView = getMazeView();
+        Graph model = mainController.getModel();
+        MazeView mazeView = mainController.getMazeView();
         RandomSolver randomSolver = new RandomSolver(model, mazeView);
         randomSolver.visualize();
     }
 
     private void executeOnlyRightlgorithm() {
-        Graph model = getModel();
-        MazeView mazeView = getMazeView();
-        OnlyRightSolver OnlyRightSolver = new OnlyRightSolver(model, mazeView);
-        OnlyRightSolver.visualize();
+        Graph model = mainController.getModel();
+        MazeView mazeView = mainController.getMazeView();
+        OnlyRightSolver onlyRightSolver = new OnlyRightSolver(model, mazeView);
+        onlyRightSolver.visualize();
     }
     
     private void executeOnlyLeftlgorithm() {
-        Graph model = getModel();
-        MazeView mazeView = getMazeView();
-        OnlyLeftSolver OnlyLeftSolver = new OnlyLeftSolver(model, mazeView);
-        OnlyLeftSolver.visualize();
+        Graph model = mainController.getModel();
+        MazeView mazeView = mainController.getMazeView();
+        OnlyLeftSolver onlyLeftSolver = new OnlyLeftSolver(model, mazeView);
+        onlyLeftSolver.visualize();
     }
 
     /**
      * Executes BFS Algorithm in the graph
      */
-    private ArrayList<Integer> executeBFSAlgorithm(){
+    private ArrayList<Integer> executeBFSAlgorithm() {
+        Graph model = mainController.getModel();
+        int verticesNb = model.getVertexNb();
+        int startingPoint = mainController.getMazeView().getStartIndex();
+        int endingPoint = mainController.getMazeView().getEndIndex();
 
-        int verticesNb = getModel().getVertexNb();
-        int startingPoint = getMazeView().getStartIndex() ;
-        int endingPoint =  getMazeView().getEndIndex();
+        ArrayList<ArrayList<Edges>> graphAdjList = model.getGraphMaze();
 
-        ArrayList<ArrayList<Edges>> graphAdjList =  getModel().getGraphMaze();
-
-        if( verticesNb < 0 ){
+        if (verticesNb < 0) {
             System.out.println("Graph has invalid number of Vertices");
-            
+            return new ArrayList<>();
         }
 
         if (startingPoint < 0 || endingPoint < 0) {
             System.out.println("Input valid coordinates for starting and ending points");
-            
+            return new ArrayList<>();
         }
 
         BFSsolver bfsSolver = new BFSsolver(verticesNb);
-        ArrayList<Integer >steps = bfsSolver.visualize(startingPoint,endingPoint,graphAdjList);
-
-        return steps;
+        return bfsSolver.visualize(startingPoint, endingPoint, graphAdjList);
     }
 
     /**
@@ -211,9 +221,14 @@ public class AlgorithmController extends MainControlleur {
      */
     public void animateMazeGeneration() {
         try {
-            int rows = getRowValue();
-            int columns = getColumnValue();
-            int seed = getSeedValue();
+            int rows = mainController.getRowValue();
+            int columns = mainController.getColumnValue();
+            int seed = mainController.getSeedValue();
+
+            if (rows <= 0 || columns <= 0) {
+                System.out.println("Error: Please enter valid dimensions.");
+                return;
+            }
 
             System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed);
 
@@ -223,11 +238,11 @@ public class AlgorithmController extends MainControlleur {
             // Recup the current generator
             ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
             
-            MazeView animatedMazeView = new MazeView(animatedGraph, getGraphView());
+            MazeView animatedMazeView = new MazeView(animatedGraph, mainController.getGraphView());
 
-            setModel(animatedGraph);
-            setMazeView(animatedMazeView);
-            updateMazeViewInContainer(animatedMazeView);
+            mainController.setModel(animatedGraph);
+            mainController.setMazeView(animatedMazeView);
+            mainController.updateMazeViewInContainer(animatedMazeView);
 
             Timeline timeline = new Timeline();
             int delay = 50;
@@ -246,5 +261,12 @@ public class AlgorithmController extends MainControlleur {
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Get the algorithm buttons container
+     */
+    public VBox getAlgoContainer() {
+        return this.AlgoContainer;
     }
 }

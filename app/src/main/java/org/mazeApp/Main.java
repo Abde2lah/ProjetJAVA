@@ -1,51 +1,55 @@
 package org.mazeApp;
 
-import org.mazeApp.controller.AlgorithmController;
+import org.mazeApp.controller.MainControlleur;
 import org.mazeApp.model.Graph;
 
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+/**
+ * Point d'entrée principal de l'application.
+ */
 public class Main extends Application {
 
-    public Graph graph;
-    
+    /**
+     * La méthode start est le point d'entrée des applications JavaFX.
+     * @param primaryStage La scène principale de l'application
+     * @author Jeremy, Felipe, Abdellah, Sharov, Melanie
+     */
     @Override
     public void start(Stage primaryStage) {
-        // Setup of the windows
-        Image icon = new Image("file:src/main/resources/icone.png");
-        primaryStage.getIcons().add(icon);
-        primaryStage.setTitle("CYNAPSE");
-        
-        // Create a graph 5x5 by default with a seed of 42
-        this.graph = new Graph(42, 5);
-        
-        // Create the controller
-        AlgorithmController controller = new AlgorithmController(this.graph);
-
-        // Organize the layout with specific spacing
-        HBox root = new HBox(30); 
-        root.setAlignment(Pos.CENTER); 
-        
-        root.getChildren().addAll(
-            controller.getInputContainer(),
-            controller.getGraphContainer(), 
-            controller.getMazeContainer(),
-            controller.getAlgoButtonContainer() 
-        );
-        
-        // Add style to the root container
-        root.setStyle("-fx-padding: 15; -fx-background-color:rgb(253, 255, 237);");
-        
-        // Create the scene and set it to the stage 
-        Scene scene = new Scene(root, 1200, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        try {
+            // Configuration de la fenêtre
+            primaryStage.setTitle("CYNAPSE");
+            
+            // Chargement de l'icône
+            Image icon = new Image("file:src/main/resources/icone.png");
+            primaryStage.getIcons().add(icon);
+            
+            // Création du modèle et du contrôleur principal
+            Graph graph = new Graph(42, 5, 5);
+            MainControlleur mainController = new MainControlleur(graph);
+            
+            // Création de la scène avec la vue du contrôleur principal
+            Scene scene = new Scene(mainController.getView(), 1200, 600);
+            primaryStage.setScene(scene);
+            primaryStage.setMinWidth(1100);
+            primaryStage.setMinHeight(550);
+            
+            // Affichage de la fenêtre
+            primaryStage.show();
+            
+        } catch (Exception e) {
+            System.err.println("Erreur au démarrage: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+    
+    /**
+     * Point d'entrée du programme
+     */
     public static void main(String[] args) {
         launch(args);
     }

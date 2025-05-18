@@ -126,10 +126,7 @@ public class GraphView extends Pane {
             
             double mouseX = event.getX();
             double mouseY = event.getY();
-            
-            // En mode création d'arête - code inchangé
             if (edgeCreationMode) {
-                // ...
                 return;
             }
             
