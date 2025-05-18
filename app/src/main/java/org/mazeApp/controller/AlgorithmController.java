@@ -44,6 +44,7 @@ public class AlgorithmController{
     private Button RandomButton;
     private Label SpeedAnimationLabel;
     private Slider SpeedAnimationCursor;
+    private int delay = 50;
     private VBox AlgoContainer;
 
     /**
@@ -69,8 +70,8 @@ public class AlgorithmController{
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.SpeedAnimationLabel = new Label("Speed"+"0");
-        this.SpeedAnimationCursor= new Slider(0, 100, 50);
+        this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
+        this.SpeedAnimationCursor= new Slider(0, 100, 1);
         // Give the same size to algo buttons
         this.DFSButton.setPrefSize(100, 30);
         this.BFSButton.setPrefSize(100, 30);
@@ -83,7 +84,7 @@ public class AlgorithmController{
         this.RandomButton.setPrefSize(100, 30);
         this.SpeedAnimationCursor.setPrefSize(100, 30);
         //styles for the animation label: 
-        this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
@@ -166,6 +167,12 @@ public class AlgorithmController{
 
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
         this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
+        this.SpeedAnimationCursor.setOnMouseDragged(e -> {
+            int delay = (int) SpeedAnimationCursor.getValue();
+            SpeedAnimationLabel.setText("delay animation : " + delay+ " ms");
+            mainController.getMazeView().setDelayResolverAnimation(delay);
+
+        });
     }
     
     /**

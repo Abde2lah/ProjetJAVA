@@ -50,7 +50,6 @@ public class AStarSolver {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         System.out.println("A* algorithm duration: " + duration + " ms");
-
         mazeView.visualiseStep(steps);
     }
 

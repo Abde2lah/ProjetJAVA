@@ -87,7 +87,7 @@ public class GeneratorControlleur {
         this.toggleGraphButton = new Button("Hide Graph");
         this.SpeedGenerationCursor = new Slider(1, 100, 5);
         this.SpeedGenerationLabel = new Label("Speed (delay each iteration) : "+delay+" ms");
-        this.SpeedGenerationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        this.SpeedGenerationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         // Style of the buttons
         this.toggleGraphButton.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white;");
         this.saveButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
@@ -155,7 +155,7 @@ public class GeneratorControlleur {
         // Slider for speed of generation
         this.SpeedGenerationCursor.setOnMouseDragged(e -> {
             delay = (int) SpeedGenerationCursor.getValue();
-            SpeedGenerationLabel.setText("Speed (delay each iteration) : "+delay+" ms");
+            SpeedGenerationLabel.setText("delay :"+delay+" ms");
         });
     }
     /**

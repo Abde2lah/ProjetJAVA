@@ -33,7 +33,7 @@ public class MazeView extends Pane {
     private GraphView associatedGraphView;
     private double hoveredWallX1 = -1, hoveredWallY1 = -1, hoveredWallX2 = -1, hoveredWallY2 = -1;
     private boolean wallHoverActive = false;
-
+    private int delay = 100; // Delay for animation
     /**
      * Constructor for the initial graph
      * @param graph the graph representing the maze
@@ -551,7 +551,6 @@ public class MazeView extends Pane {
         }
 
         Timeline timeline = new Timeline();
-        int delay = 100;
 
         // Stocke les segments et sommets visités
         ArrayList<int[]> visitedSegments = new ArrayList<>();
@@ -645,5 +644,12 @@ public class MazeView extends Pane {
 
     public int getEndIndex() {
         return endIndex;
+    }
+    /**
+     * Set the delay for the animation resolver
+     * @param delay
+     */
+    public void setDelayResolverAnimation(int delay) {
+        this.delay = delay;
     }
 }
