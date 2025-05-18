@@ -1,5 +1,8 @@
 package org.mazeApp.controller;
 
+import java.util.ArrayList;
+
+import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.SaveManager;
 import org.mazeApp.model.generator.DFSGenerator;
@@ -7,13 +10,19 @@ import org.mazeApp.model.generator.KruskalGenerator;
 import org.mazeApp.view.MazeView;
 import org.mazeApp.view.SaveView;
 
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 
 /**
@@ -33,12 +42,16 @@ public class GeneratorControlleur {
     private Button loadButton;
     private Button animateGenerationButton;
     private Button toggleGraphButton;
+    private Slider SpeedGenerationCursor;
+    private Label SpeedGenerationLabel;
     private VBox generationContainer;
     private SaveManager saveManager;
     private SaveView saveView;
-
+    private int delay = 5; // Delay in milliseconds for animation
     /**
      * Constructor for the generator controller
+     * @param graph The graph model to be used in the application
+     * @param mainController The main controller of the application 
      */
     public GeneratorControlleur(Graph graph, MainControlleur mainController) {
         this.mainController = mainController;
@@ -72,13 +85,15 @@ public class GeneratorControlleur {
         this.loadButton = new Button("Load Maze");
         this.animateGenerationButton = new Button("Step by step");
         this.toggleGraphButton = new Button("Hide Graph");
-        
-        // Styliser les boutons
+        this.SpeedGenerationCursor = new Slider(1, 100, 5);
+        this.SpeedGenerationLabel = new Label("Speed (delay each iteration) : "+delay+" ms");
+        this.SpeedGenerationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        // Style of the buttons
         this.toggleGraphButton.setStyle("-fx-background-color: #9C27B0; -fx-text-fill: white;");
         this.saveButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         this.loadButton.setStyle("-fx-background-color: #FFC107; -fx-text-fill: black;");
 
-        // Définir les dimensions des champs et boutons
+        // Set the preferred size of the buttons
         this.rowInput.setPrefSize(100, 30);
         this.colInput.setPrefSize(100, 30);
         this.seedInput.setPrefSize(100, 30);
@@ -87,6 +102,7 @@ public class GeneratorControlleur {
         this.saveButton.setPrefSize(100, 30);
         this.loadButton.setPrefSize(100, 30);
         this.animateGenerationButton.setPrefSize(100, 30);
+        this.SpeedGenerationCursor.setPrefSize(100, 30);
         RadioButton kruskalRadio = new RadioButton("Kruskal");
         RadioButton dfsRadio = new RadioButton("DFS");
         kruskalRadio.setSelected(true);
@@ -114,7 +130,9 @@ public class GeneratorControlleur {
             this.saveButton,
             this.loadButton,
             this.toggleGraphButton,
-            this.animateGenerationButton
+            this.animateGenerationButton, 
+            this.SpeedGenerationLabel,
+            this.SpeedGenerationCursor
         );
     }
     
@@ -133,9 +151,11 @@ public class GeneratorControlleur {
         // Button for toggling the graph visibility
         this.toggleGraphButton.setOnAction(e -> toggleGraphVisibility());
         // Button for animating the maze generation
-        this.animateGenerationButton.setOnAction(e -> {
-            AlgorithmController algoController = new AlgorithmController(mainController.getModel(), mainController);
-            algoController.animateMazeGeneration();
+        this.animateGenerationButton.setOnAction(e -> animateMazeGeneration());
+        // Slider for speed of generation
+        this.SpeedGenerationCursor.setOnMouseDragged(e -> {
+            delay = (int) SpeedGenerationCursor.getValue();
+            SpeedGenerationLabel.setText("Speed (delay each iteration) : "+delay+" ms");
         });
     }
     /**
@@ -146,16 +166,7 @@ public class GeneratorControlleur {
             int rows = getRowValue();
             int columns = getColumnValue();
             int seed = getSeedValue();
-            if (rows <= 0 || columns <= 0) {
-                System.out.println("Error: Please enter valid dimensions.");
-                return;
-            }
-            if (rows > 25 || columns > 25) {
-                System.out.println("Error: Dimensions must be less than 25.");
-                return;
-            }
-            if (rows < 2 || columns < 2) {
-                System.out.println("Error: Dimensions must be at least 2x2.");
+            if (verification(rows, columns, seed)==false) {
                 return;
             }
             System.out.println("Generating a " + rows + "x" + columns + " maze with seed " + seed);
@@ -169,15 +180,62 @@ public class GeneratorControlleur {
             mainController.setMazeView(newMazeView);
             //update the maze view in the container
             mainController.updateMazeViewInContainer(newMazeView);
-
-            // Rafraîchir les vues
             mainController.refreshViews();
-            
         } catch (NumberFormatException ex) {
             System.out.println("Error: Please enter valid numbers.");
         }
     }
-    
+    /**
+     * Implémentation de l'animation de génération du labyrinthe
+     */
+    public void animateMazeGeneration() {
+        try {
+            // Récupérer les valeurs numériques à partir des champs texte
+            int rows = getRowValue();
+            int columns = getColumnValue();
+            int seed = getSeedValue();
+            if (verification(rows, columns, seed)==false) {
+                return;
+            }
+            System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed);
+            
+            // Create an empty graph
+            Graph animatedGraph = Graph.emptyGraph(rows, columns);
+            
+            // Récupérer les étapes de génération
+            ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
+            
+            // Créer une nouvelle vue de labyrinthe
+            MazeView animatedMazeView = new MazeView(animatedGraph, mainController.getGraphView());
+            
+            // Mettre à jour le modèle et la vue
+            mainController.setModel(animatedGraph);
+            mainController.setMazeView(animatedMazeView);
+            mainController.updateMazeViewInContainer(animatedMazeView);
+            
+            // Créer la timeline pour l'animation
+            Timeline timeline = new Timeline();
+            // Ajouter chaque étape à la timeline
+            for (int i = 0; i < steps.size(); i++) {
+                final int index = i;
+                KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
+                    Edges edge = steps.get(index);
+                    animatedGraph.addEdge(edge.getSource(), edge.getDestination());
+                    animatedMazeView.draw();
+                });
+                timeline.getKeyFrames().add(frame);
+            }
+            
+            // Ajouter un événement à la fin de l'animation pour afficher un message
+            timeline.setOnFinished(e -> System.out.println("Animation terminée"));
+            
+            // Lancer l'animation
+            timeline.play();
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing input values: " + e.getMessage());
+        }
+    }
     /**
      * Clear the current maze
      */
@@ -282,4 +340,26 @@ public class GeneratorControlleur {
     public VBox getGenerationContainer() {
         return this.generationContainer;
     }
+    /**
+     * Verification of the maze generation
+     * @param rows The number of rows in the maze
+     * @param columns The number of columns in the maze
+     * @param seed The seed for the random number generator
+     */
+    public boolean verification(int rows, int columns, int seed) {
+        if (rows <= 0 || columns <= 0) {
+            System.out.println("Error: Please enter valid dimensions.");
+            return false;
+        }
+        if (rows > 500 || columns > 500) {
+            System.out.println("Error: Dimensions must be less than 500.");
+            return false;
+        }
+        if (rows < 2 || columns < 2) {
+            System.out.println("Error: Dimensions must be at least 2x2.");
+            return false;
+        }
+        return true;
+    }
+
 }

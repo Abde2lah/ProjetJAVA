@@ -2,7 +2,6 @@ package org.mazeApp.controller;
 
 import java.util.ArrayList;
 
-import org.mazeApp.Main;
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.algorithms.AStarSolver;
@@ -17,7 +16,10 @@ import org.mazeApp.view.MazeView;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -40,6 +42,8 @@ public class AlgorithmController{
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
+    private Label SpeedAnimationLabel;
+    private Slider SpeedAnimationCursor;
     private VBox AlgoContainer;
 
     /**
@@ -65,7 +69,8 @@ public class AlgorithmController{
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        
+        this.SpeedAnimationLabel = new Label("Speed"+"0");
+        this.SpeedAnimationCursor= new Slider(0, 100, 50);
         // Give the same size to algo buttons
         this.DFSButton.setPrefSize(100, 30);
         this.BFSButton.setPrefSize(100, 30);
@@ -76,7 +81,9 @@ public class AlgorithmController{
         this.RightButton.setPrefSize(100, 30);
         this.LeftButton.setPrefSize(100, 30);
         this.RandomButton.setPrefSize(100, 30);
-        
+        this.SpeedAnimationCursor.setPrefSize(100, 30);
+        //styles for the animation label: 
+        this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
@@ -95,7 +102,9 @@ public class AlgorithmController{
             this.KruskalButton,
             this.RightButton,
             this.LeftButton,
-            this.RandomButton
+            this.RandomButton, 
+            this.SpeedAnimationLabel,
+            this.SpeedAnimationCursor
         );
     }
     
@@ -176,7 +185,6 @@ public class AlgorithmController{
         RandomSolver randomSolver = new RandomSolver(model, mazeView);
         randomSolver.visualize();
     }
-
     private void executeOnlyRightlgorithm() {
         Graph model = mainController.getModel();
         MazeView mazeView = mainController.getMazeView();
@@ -216,52 +224,7 @@ public class AlgorithmController{
         return bfsSolver.visualize(startingPoint, endingPoint, graphAdjList);
     }
 
-    /**
-     * Implémentation of the maze generation animation
-     */
-    public void animateMazeGeneration() {
-        try {
-            int rows = mainController.getRowValue();
-            int columns = mainController.getColumnValue();
-            int seed = mainController.getSeedValue();
 
-            if (rows <= 0 || columns <= 0) {
-                System.out.println("Error: Please enter valid dimensions.");
-                return;
-            }
-
-            System.out.println("Maze animation " + rows + "x" + columns + " with seed " + seed);
-
-            // Create an empty graph
-            Graph animatedGraph = Graph.emptyGraph(rows, columns);
-            
-            // Recup the current generator
-            ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
-            
-            MazeView animatedMazeView = new MazeView(animatedGraph, mainController.getGraphView());
-
-            mainController.setModel(animatedGraph);
-            mainController.setMazeView(animatedMazeView);
-            mainController.updateMazeViewInContainer(animatedMazeView);
-
-            Timeline timeline = new Timeline();
-            int delay = 50;
-
-            for (int i = 0; i < steps.size(); i++) {
-                final int index = i;
-                KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                    Edges edge = steps.get(index);
-                    animatedGraph.addEdge(edge.getSource(), edge.getDestination());
-                    animatedMazeView.draw();
-                });
-                timeline.getKeyFrames().add(frame);
-            }
-
-            timeline.play();
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing input values: " + e.getMessage());
-        }
-    }
     
     /**
      * Get the algorithm buttons container
