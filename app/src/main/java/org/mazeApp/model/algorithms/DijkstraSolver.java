@@ -33,7 +33,7 @@ public class DijkstraSolver {
         int end = mazeView.getEndIndex();
 
         if (start < 0 || end < 0) {
-            System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+            System.out.println("Please define a start and a end point");
             return;
         }
 
@@ -45,12 +45,12 @@ public class DijkstraSolver {
         long duration = endTime - startTime;         
 
         if (steps.isEmpty()) {
-            System.out.println("Aucun chemin trouvé.");
+            System.out.println("No path found");
             return;
         }
 
         mazeView.visualiseStep(steps);
-        System.out.println("Durée de l'algorithme Dijkstra : " + duration + " ms");
+        System.out.println("Dijkstra algorithm duration: " + duration + " ms");
     }
 
     /**

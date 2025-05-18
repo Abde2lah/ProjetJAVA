@@ -36,7 +36,7 @@ public class AStarSolver {
         int end = mazeView.getEndIndex();
 
         if (start < 0 || end < 0) {
-            System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+            System.out.println("Please define a Start and e end point");
             return;
         }
 
@@ -44,12 +44,12 @@ public class AStarSolver {
         ArrayList<ArrayList<Integer>> steps = getAStarSteps(start, end);
 
         if (steps.isEmpty()) {
-            System.out.println("Aucun chemin trouvé.");
+            System.out.println("No path found");
             return;
         }
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("Durée de l'algorithme A* : " + duration + " ms");
+        System.out.println("A* algorithm duration: " + duration + " ms");
 
         mazeView.visualiseStep(steps);
     }

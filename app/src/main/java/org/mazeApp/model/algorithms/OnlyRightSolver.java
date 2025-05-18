@@ -159,7 +159,7 @@ public class OnlyRightSolver {
         
         // Verify if the start and goal points are valid
         if (start < 0 || goal < 0 || start >= vertexCount || goal >= vertexCount) {
-            System.out.println("Points de départ ou d'arrivée invalides.");
+            System.out.println("Start and end point not defined");
             return new ArrayList<>();
         }
         

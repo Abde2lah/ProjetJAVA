@@ -1,10 +1,7 @@
 package org.mazeApp;
 
 import org.mazeApp.controller.AlgorithmController;
-import org.mazeApp.controller.MainControlleur;
 import org.mazeApp.model.Graph;
-import org.mazeApp.view.GraphView;
-import org.mazeApp.view.MazeView;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;

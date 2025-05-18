@@ -33,7 +33,7 @@ public class DFSsolver {
         int end = mazeView.getEndIndex();
 
         if (start < 0 || end < 0) {
-            System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+            System.out.println("Please define a Start and a end point");
             return;
         }
 
@@ -47,11 +47,11 @@ public class DFSsolver {
         long duration = endTime - startTime;
 
         if (steps.isEmpty()) {
-            System.out.println("Aucun chemin trouvé.");
+            System.out.println("No path found");
             return;
         }
 
-        System.out.println("Durée de l'algorithme DFS : " + duration + " ms");
+        System.out.println("DFS algorithm duration : " + duration + " ms");
         mazeView.visualiseStep(steps);
     }
 

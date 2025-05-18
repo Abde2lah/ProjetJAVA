@@ -157,7 +157,7 @@ public class OnlyLeftSolver {
         this.start = mazeView.getStartIndex();
         this.goal = mazeView.getEndIndex();
         if (start < 0 || goal < 0 || start >= vertexCount || goal >= vertexCount) {
-            System.out.println("Points de départ ou d'arrivée invalides.");
+            System.out.println("Start and end point non defined");
             return new ArrayList<>();
         }
         
@@ -169,7 +169,7 @@ public class OnlyLeftSolver {
 
         long endTime = System.currentTimeMillis(); 
         long duration = endTime - startTime; 
-        System.out.println("Durée de l'algorithme OnlyLeftSolver : " + duration + " ms");
+        System.out.println("Only left Solver algorithm duration : " + duration + " ms");
         
         Stack<Integer> stack = new Stack<>();
         stack.push(start);
@@ -264,7 +264,7 @@ public class OnlyLeftSolver {
     public void visualize() {
         // Veirification of initialization
         if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
-            System.out.println("Veuillez définir un point de départ et un point d'arrivée.");
+            System.out.println("Please define a start and a end point");
             return;
         }
 
@@ -273,12 +273,12 @@ public class OnlyLeftSolver {
         ArrayList<ArrayList<Integer>> steps = solveLeftSteps();
         
         if (steps.isEmpty()) {
-            System.out.println("Impossible de résoudre le labyrinthe.");
+            System.out.println("Impossible to solve the maze");
             return;
         }
         long endTime = System.currentTimeMillis();   
         long duration = endTime - startTime;
-        System.out.println("Durée de l'algorithme OnlyLeftSolver : " + duration + " ms");
+        System.out.println("nlyLeftSolver algorithm duration : " + duration + " ms");
         
         mazeView.visualiseStep(steps);
     }
