@@ -29,7 +29,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.mazeApp.Main"
+    mainClass = "org.mazeApp.Launcher"
 }
 
 javafx{
