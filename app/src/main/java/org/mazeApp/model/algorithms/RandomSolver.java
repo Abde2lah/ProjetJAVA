@@ -20,15 +20,20 @@ public class RandomSolver {
         this.graph = graph;
         this.vertexCount = graph.getVertexNb();
         this.graphMaze = graph.getGraphMaze();
-        this.start = mazeView.getStartIndex();
-        this.goal = mazeView.getEndIndex();
         this.mazeView = mazeView;
+        this.start = mazeView != null ? mazeView.getStartIndex() : -1;
+        this.goal = mazeView != null ? mazeView.getEndIndex() : -1;
     }
 
     /**
     Solve the maze using a random walk algorithm.
     */
     public ArrayList<ArrayList<Integer>> solveRandomWalkSteps() {
+        if (mazeView != null) {
+            this.start = mazeView.getStartIndex();
+            this.goal = mazeView.getEndIndex();
+        }
+
         Random rand = new Random();
         boolean[] visited = new boolean[vertexCount];
         ArrayList<ArrayList<Integer>> allSteps = new ArrayList<>();
@@ -70,10 +75,16 @@ public class RandomSolver {
      * Visualize the random walk algorithm step by step.
      */
     public void visualize() {
-        if (start < 0 || goal < 0) {
+        if (mazeView == null) {
+            System.out.println("Visualisation non disponible en mode terminal.");
+            return;
+        }
+
+        if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
             System.out.println("Please define a start and end point.");
             return;
         }
+
         long startTime = System.currentTimeMillis();
         ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
         long endTime = System.currentTimeMillis();
@@ -82,5 +93,14 @@ public class RandomSolver {
         //Take the last step
         System.out.println("Path found: " + steps.get(steps.size() - 1));
         mazeView.visualiseStep(steps);
+    }
+
+    public RandomSolver(Graph graph, int start, int end) {
+        this.graph = graph;
+        this.graphMaze = graph.getGraphMaze();
+        this.vertexCount = graph.getVertexNb();
+        this.mazeView = null;
+        this.start = start;
+        this.goal = end;
     }
 }
