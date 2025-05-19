@@ -43,7 +43,9 @@ public class TerminalView {
             System.out.print("Enter seed: ");
             seed = Integer.parseInt(scanner.nextLine());
             graph = new Graph(seed, rows, cols);
-            graph.getAllNeighbours();
+
+            // Display initial maze structure before solving
+            printAsciiMazeOnly(graph, rows, cols);
 
             System.out.print("Enter start index: ");
             int start = Integer.parseInt(scanner.nextLine());
@@ -179,6 +181,40 @@ public class TerminalView {
         }
 
         // bottom border
+        for (int c = 0; c < cols; c++) {
+            System.out.print("+----");
+        }
+        System.out.println("+");
+    }
+
+    public static void printAsciiMazeOnly(Graph graph, int rows, int cols) {
+        var maze = graph.getGraphMaze();
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                int idx = r * cols + c;
+                System.out.print("+");
+                boolean topOpen = false;
+                for (Edges e : maze.get(idx)) {
+                    if (e.getDestination() == idx - cols) topOpen = true;
+                }
+                System.out.print(topOpen ? "    " : "----");
+            }
+            System.out.println("+");
+
+            for (int c = 0; c < cols; c++) {
+                int idx = r * cols + c;
+                boolean leftOpen = false;
+                for (Edges e : maze.get(idx)) {
+                    if (e.getDestination() == idx - 1) leftOpen = true;
+                }
+                System.out.print(leftOpen ? " " : "|");
+                String cell = String.format("%2d ", idx);
+                System.out.print(cell);
+            }
+            System.out.println("|");
+        }
+
         for (int c = 0; c < cols; c++) {
             System.out.print("+----");
         }
