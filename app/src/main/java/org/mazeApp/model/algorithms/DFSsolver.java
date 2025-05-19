@@ -1,6 +1,7 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
@@ -8,27 +9,35 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
-    Implementation of the DFS algorithm to solve a maze.
+ * Implementation of the DFS algorithm to solve a maze.
  */
-public class DFSsolver {
-
-    private Graph model;
-    private GraphView graphView;
-    private MazeView mazeView;
+public class DFSsolver extends AbstractMazeSolver {
 
     /**
-     * DFS solver constructor
+     * Constructeur par défaut pour la factory
+     */
+    public DFSsolver() {
+        super();
+    }
+
+    /**
+     * Constructeur avec paramètres
      */
     public DFSsolver(Graph model, GraphView graphView, MazeView mazeView) {
-        this.model = model;
-        this.graphView = graphView;
-        this.mazeView = mazeView;
+        super();
+        setup(model, graphView, mazeView);
     }
 
     /**
      * Launches the maze solving with step-by-step visualization
      */
+    @Override
     public void visualize() {
+        if (mazeView == null) {
+            System.out.println("MazeView is null. Cannot visualize.");
+            return;
+        }
+
         int start = mazeView.getStartIndex();
         int end = mazeView.getEndIndex();
 
@@ -37,22 +46,20 @@ public class DFSsolver {
             return;
         }
 
-        // time begin
-        long startTime = System.currentTimeMillis();
+        // Utiliser measureExecutionTime pour calculer le temps d'exécution
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
+            
+            if (steps.isEmpty()) {
+                System.out.println("No path found");
+                this.finalPath = new ArrayList<>();
+            } else {
+                this.finalPath = steps.get(steps.size() - 1);
+                mazeView.visualiseStep(steps);
+            }
+        });
 
-        ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
-
-        // Time end
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-
-        if (steps.isEmpty()) {
-            System.out.println("No path found");
-            return;
-        }
-
-        System.out.println("DFS algorithm duration : " + duration + " ms");
-        mazeView.visualiseStep(steps);
+        System.out.println("DFS algorithm duration : " + getExecutionTime() + " ms");
     }
 
     /**
@@ -90,15 +97,29 @@ public class DFSsolver {
         }
 
         path.remove(path.size() - 1); // backtracking
+        steps.add(new ArrayList<>(path)); // Save the backtracking step
         return false;
     }
 
     /**
      * Find the path from start to end without visualizing the steps
      */
+    @Override
     public ArrayList<Integer> findPath(int start, int end) {
-        ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
-        if (steps.isEmpty()) return null;
-        return steps.get(steps.size() - 1);
+        if (model == null) {
+            System.out.println("Graph model is null. Cannot find path.");
+            return new ArrayList<>();
+        }
+        
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
+            if (!steps.isEmpty()) {
+                this.finalPath = steps.get(steps.size() - 1);
+            } else {
+                this.finalPath = new ArrayList<>();
+            }
+        });
+        
+        return new ArrayList<>(finalPath);
     }
 }

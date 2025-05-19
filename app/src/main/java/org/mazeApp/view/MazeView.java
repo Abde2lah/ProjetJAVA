@@ -37,6 +37,11 @@ public class MazeView extends Pane {
     private double hoveredWallX1 = -1, hoveredWallY1 = -1, hoveredWallX2 = -1, hoveredWallY2 = -1;
     private boolean wallHoverActive = false;
     private int delay = 100; // Delay for animation
+
+    // Ajouter ces attributs à la classe
+    private boolean animationPaused = false;
+    private Timeline currentAnimation = null;
+
     /**
      * Constructor for the initial graph
      * @param graph the graph representing the maze
@@ -706,5 +711,43 @@ public class MazeView extends Pane {
      */
     public void setDelayResolverAnimation(int delay) {
         this.delay = delay;
+    }
+
+    /**
+     * Set the animation paused or resumed
+     * @param paused true to pause the animation, false to resume
+     */
+    public void setAnimationPaused(boolean paused) {
+        this.animationPaused = paused;
+        
+        if (currentAnimation != null) {
+            if (paused) {
+                // Pause the animation
+                currentAnimation.pause();
+                System.out.println("Animation mise en pause dans MazeView");
+            } else {
+                // Resume the animation
+                currentAnimation.play();
+                System.out.println("Animation reprise dans MazeView");
+            }
+        }
+    }
+    
+    /**
+     * Check if the animation is currently running
+     * @return true if an animation is in progress, false otherwise
+     */
+    public boolean isAnimationRunning() {
+        return currentAnimation != null && 
+               (currentAnimation.getStatus() == javafx.animation.Animation.Status.RUNNING || 
+                currentAnimation.getStatus() == javafx.animation.Animation.Status.PAUSED);
+    }
+    
+    /**
+     * Check if the animation is currently paused
+     * @return true if the animation is paused, false otherwise
+     */
+    public boolean isAnimationPaused() {
+        return animationPaused;
     }
 }

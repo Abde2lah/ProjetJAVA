@@ -1,46 +1,52 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.model.MazeSolver;
+import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
-public class OnlyRightSolver {
+public class OnlyRightSolver extends AbstractMazeSolver {
 
-    private ArrayList<ArrayList<Edges>> graphMaze;
-    private Graph graph;
-    private MazeView mazeView; // peut être null pour le terminal
-    private int start;
-    private int goal;
-    private int vertexCount;
     private int columns;
     private int rows;
 
-    // UI constructor
-    public OnlyRightSolver(Graph graph, MazeView mazeView) {
-        this.graph = graph;
-        this.graphMaze = graph.getGraphMaze();
-        this.vertexCount = graph.getVertexNb();
-        this.columns = graph.getColumns();
-        this.rows = graph.getRows();
-        this.mazeView = mazeView;
-        this.start = mazeView != null ? mazeView.getStartIndex() : -1;
-        this.goal = mazeView != null ? mazeView.getEndIndex() : -1;
+    // Constructeur par défaut pour la factory
+    public OnlyRightSolver() {
+        super();
     }
 
-    // Terminal constructor
-    public OnlyRightSolver(Graph graph, int start, int end) {
-        this.graph = graph;
-        this.graphMaze = graph.getGraphMaze();
-        this.vertexCount = graph.getVertexNb();
-        this.columns = graph.getColumns();
-        this.rows = graph.getRows();
-        this.mazeView = null;
-        this.start = start;
-        this.goal = end;
+    // Constructeur avec paramètres
+    public OnlyRightSolver(Graph graph, MazeView mazeView) {
+        super();
+        setup(graph, null, mazeView);
     }
+
+    // Constructeur pour terminal
+    public OnlyRightSolver(Graph graph, int start, int end) {
+        super();
+        setup(graph, null, null);
+        // Stocker les indices de départ et d'arrivée
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView) {
+        super.setup(graph, graphView, mazeView);
+        if (graph != null) {
+            this.columns = graph.getColumns();
+            this.rows = graph.getRows();
+        }
+        return this;
+    }
+
+    private int start = -1;
+    private int end = -1;
 
     private enum Direction {
         RIGHT(0), DOWN(1), LEFT(2), UP(3);
@@ -90,6 +96,7 @@ public class OnlyRightSolver {
     }
 
     private int tryMove(int current, boolean[] visited, Direction direction) {
+        ArrayList<ArrayList<Edges>> graphMaze = model.getGraphMaze();
         if (current < 0 || current >= graphMaze.size()) return -1;
         for (Edges edge : graphMaze.get(current)) {
             int neighbor = edge.getDestination();
@@ -99,12 +106,13 @@ public class OnlyRightSolver {
     }
 
     public ArrayList<ArrayList<Integer>> solveRightSteps() {
-        if (mazeView != null) {
-            this.start = mazeView.getStartIndex();
-            this.goal = mazeView.getEndIndex();
-        }
+        // Utiliser les valeurs de MazeView si disponibles
+        int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
+        int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
+        
+        int vertexCount = model.getVertexNb();
 
-        if (start < 0 || goal < 0 || start >= vertexCount || goal >= vertexCount) {
+        if (startIdx < 0 || goalIdx < 0 || startIdx >= vertexCount || goalIdx >= vertexCount) {
             System.out.println("Start and end point not defined");
             return new ArrayList<>();
         }
@@ -112,18 +120,18 @@ public class OnlyRightSolver {
         boolean[] visited = new boolean[vertexCount];
         ArrayList<ArrayList<Integer>> allSteps = new ArrayList<>();
         Stack<Integer> stack = new Stack<>();
-        stack.push(start);
-        visited[start] = true;
+        stack.push(startIdx);
+        visited[startIdx] = true;
 
         ArrayList<Integer> path = new ArrayList<>();
-        path.add(start);
+        path.add(startIdx);
         allSteps.add(new ArrayList<>(path));
 
         Direction facing = Direction.RIGHT;
 
         while (!stack.isEmpty()) {
             int current = stack.peek();
-            if (current == goal) break;
+            if (current == goalIdx) break;
 
             Direction rightDirection = facing.turnRight();
             Direction forwardDirection = facing;
@@ -172,10 +180,18 @@ public class OnlyRightSolver {
             }
         }
 
-        System.out.println("Path found: " + path);
+        if (!stack.isEmpty() && stack.peek() == goalIdx) {
+            // Sauvegarde du chemin final pour référence future
+            this.finalPath = new ArrayList<>(path);
+        } else {
+            this.finalPath = new ArrayList<>();
+        }
+
+        System.out.println("Path found: " + this.finalPath);
         return allSteps;
     }
 
+    @Override
     public void visualize() {
         if (mazeView == null) {
             System.out.println("Visualisation non disponible en mode terminal.");
@@ -187,15 +203,32 @@ public class OnlyRightSolver {
             return;
         }
 
-        long startTime = System.currentTimeMillis();
-        ArrayList<ArrayList<Integer>> steps = solveRightSteps();
-        if (steps.isEmpty()) {
-            System.out.println("Impossible to solve the maze.");
-            return;
-        }
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        System.out.println("Duration of Right walk solver : " + duration + " ms");
-        mazeView.visualiseStep(steps);
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveRightSteps();
+            if (steps.isEmpty()) {
+                System.out.println("Impossible to solve the maze.");
+                return;
+            }
+            mazeView.visualiseStep(steps);
+        });
+
+        System.out.println("Duration of Right walk solver : " + getExecutionTime() + " ms");
+    }
+
+    @Override
+    public List<Integer> findPath(int start, int end) {
+        this.start = start;
+        this.end = end;
+        
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveRightSteps();
+            if (!steps.isEmpty() && !steps.get(steps.size() - 1).isEmpty()) {
+                this.finalPath = steps.get(steps.size() - 1);
+            } else {
+                this.finalPath = new ArrayList<>();
+            }
+        });
+        
+        return new ArrayList<>(this.finalPath);
     }
 }

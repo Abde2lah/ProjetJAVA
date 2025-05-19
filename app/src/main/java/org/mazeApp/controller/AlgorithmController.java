@@ -1,9 +1,11 @@
 package org.mazeApp.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.model.MazeSolver;
 import org.mazeApp.model.algorithms.AStarSolver;
 import org.mazeApp.model.algorithms.BFSsolver;
 import org.mazeApp.model.algorithms.DFSsolver;
@@ -22,12 +24,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.scene.paint.Color;
 
 /**
  * Controller for the algorithms
  * This class is responsible for managing the algorithm buttons and their actions
  */
-public class AlgorithmController{
+public class AlgorithmController {
     
     // Référence au contrôleur principal
     private MainControlleur mainController;
@@ -42,10 +45,14 @@ public class AlgorithmController{
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
+    private Button PauseButton;         // Bouton pour mettre en pause/reprendre l'animation
     private Label SpeedAnimationLabel;
+    private Label TimeExecutionLabel;   // Label pour le temps d'exécution
+    private Label PathLengthLabel;      // Label pour la longueur du chemin
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
+    private boolean animationPaused = false;  // État de pause de l'animation
 
     /**
      * Constructor which initializes the algorithm controller
@@ -54,6 +61,7 @@ public class AlgorithmController{
         this.mainController = mainController;
         initializeAlgorithmButtons();
         setupAlgorithmButtonActions();
+        setupAllButtons();
     }
     
     /**
@@ -70,8 +78,12 @@ public class AlgorithmController{
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
+        this.PauseButton = new Button("⏸️ Pause");  // Nouveau bouton pour pause/reprise
+        this.TimeExecutionLabel = new Label("Temps : 0 ms");
+        this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
         this.SpeedAnimationCursor= new Slider(0, 100, 1);
+        
         // Give the same size to algo buttons
         this.DFSButton.setPrefSize(100, 30);
         this.BFSButton.setPrefSize(100, 30);
@@ -82,9 +94,17 @@ public class AlgorithmController{
         this.RightButton.setPrefSize(100, 30);
         this.LeftButton.setPrefSize(100, 30);
         this.RandomButton.setPrefSize(100, 30);
+        this.PauseButton.setPrefSize(100, 30);
         this.SpeedAnimationCursor.setPrefSize(100, 30);
+        
         //styles for the animation label: 
         this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+        this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+        this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+        
+        // Style pour le bouton pause
+        this.PauseButton.setStyle("-fx-background-color: #FF5722; -fx-text-fill: white;");
+        
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
@@ -103,7 +123,10 @@ public class AlgorithmController{
             this.KruskalButton,
             this.RightButton,
             this.LeftButton,
-            this.RandomButton, 
+            this.RandomButton,
+            this.PauseButton,         // Ajout du bouton pause
+            this.TimeExecutionLabel,  // Ajout du label pour le temps d'exécution
+            this.PathLengthLabel,     // Ajout du label pour la longueur du chemin
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
         );
@@ -113,131 +136,156 @@ public class AlgorithmController{
      * Set up the actions for the algorithm buttons
      */
     private void setupAlgorithmButtonActions() {
-        // Action to solve the maze with DFS
-        this.DFSButton.setOnAction(e -> executeDFSAlgorithm());
-        
-        // Action to solve the maze with Random
-        this.RandomButton.setOnAction(e -> executeRandomAlgorithm());
-        
-        // Action to solve the maze with OnlyRight
-        this.RightButton.setOnAction(e -> executeOnlyRightlgorithm());
-        
-        // Action to solve the maze with OnlyLeft
-        this.LeftButton.setOnAction(e -> executeOnlyLeftlgorithm());
-        
-        // Other algorithm actions
-        this.BFSButton.setOnAction(e -> {
-            int colInputVal;
-            int rowInputVal;
+        // Bouton pour mettre en pause/reprendre l'animation
+        this.PauseButton.setOnAction(e -> {
             MazeView mazeView = mainController.getMazeView();
-
-            try {
-                colInputVal = mainController.getColumnValue();
-                rowInputVal = mainController.getRowValue();
-            } catch(Exception err) {
-                err.printStackTrace();
-                return;
+            if (mazeView != null) {
+                animationPaused = !animationPaused;
+                mazeView.setAnimationPaused(animationPaused);
+                
+                if (animationPaused) {
+                    PauseButton.setText("▶️ Reprendre");
+                } else {
+                    PauseButton.setText("⏸️ Pause");
+                }
             }
-
-            boolean isOperationAllowed = (colInputVal > 0 && colInputVal < 31);
-            isOperationAllowed = (isOperationAllowed && (rowInputVal > 0 && rowInputVal < 31));
-
-            if(isOperationAllowed) {
-                ArrayList<Integer> path = executeBFSAlgorithm();
-                mazeView.drawPath(path);  
-            }   
         });
         
-        this.AStarButton.setOnAction(e -> {
-            GraphView graphView = mainController.getGraphView();
-            MazeView mazeView = mainController.getMazeView();
-            mazeView.draw();
-            Graph model = mainController.getModel();
-            AStarSolver aStarSolver = new AStarSolver(model, graphView, mazeView);
-            aStarSolver.visualize();
-        });
-
-        this.DijkstraButton.setOnAction(e -> {
-            Graph model = mainController.getModel();
-            MazeView mazeView = mainController.getMazeView();
-            mazeView.draw();
-            GraphView graphView = mainController.getGraphView();
-
-            DijkstraSolver dijkstraSolver = new DijkstraSolver(model, graphView, mazeView);
-            dijkstraSolver.visualize();
-        });
-
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
         this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
+        
         this.SpeedAnimationCursor.setOnMouseDragged(e -> {
             int delay = (int) SpeedAnimationCursor.getValue();
-            SpeedAnimationLabel.setText("delay animation : " + delay+ " ms");
+            SpeedAnimationLabel.setText("Speed : " + delay + " ms");
             mainController.getMazeView().setDelayResolverAnimation(delay);
-
         });
     }
     
     /**
-     * Exécute l'algorithme DFS avec visualisation
+     * Met en place un timer pour vérifier la fin de l'animation et mettre à jour la longueur du chemin
      */
-    private void executeDFSAlgorithm() {
-        GraphView graphView = mainController.getGraphView();
-        MazeView mazeView = mainController.getMazeView();
-        Graph model = mainController.getModel();
-        mazeView.draw();
-        DFSsolver dfsSolver = new DFSsolver(model, graphView, mazeView);
-        dfsSolver.visualize();
-    }
-
-    private void executeRandomAlgorithm() {
-        Graph model = mainController.getModel();
-        MazeView mazeView = mainController.getMazeView();
-        mazeView.draw();
-        RandomSolver randomSolver = new RandomSolver(model, mazeView);
-        randomSolver.visualize();
-    }
-    private void executeOnlyRightlgorithm() {
-        Graph model = mainController.getModel();
-        MazeView mazeView = mainController.getMazeView();
-        mazeView.draw();
-        OnlyRightSolver onlyRightSolver = new OnlyRightSolver(model, mazeView);
-        onlyRightSolver.visualize();
+    private void setupAnimationListener() {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            MazeView mazeView = mainController.getMazeView();
+            
+            // Si l'animation est terminée ou si la MazeView n'est pas en train d'animer
+            if (mazeView != null && !mazeView.isAnimationRunning()) {
+                // Tenter de trouver le chemin pour mettre à jour la longueur
+                Graph model = mainController.getModel();
+                int start = mazeView.getStartIndex();
+                int end = mazeView.getEndIndex();
+                
+                // Utiliser DFS qui est plus simple pour trouver le chemin final
+                DFSsolver dfsSolver = new DFSsolver(model, null, null);
+                List<Integer> path = dfsSolver.findPath(start, end);
+                updatePathLengthLabel(path);
+                
+                // Arrêter le timer
+                ((Timeline)event.getSource()).stop();
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
     
-    private void executeOnlyLeftlgorithm() {
-        Graph model = mainController.getModel();
-        MazeView mazeView = mainController.getMazeView();
-        mazeView.draw();
-        OnlyLeftSolver onlyLeftSolver = new OnlyLeftSolver(model, mazeView);
-        onlyLeftSolver.visualize();
-    }
-
     /**
-     * Executes BFS Algorithm in the graph
+     * Met à jour le label de temps d'exécution
+     * @param durationMs Durée en millisecondes
      */
-    private ArrayList<Integer> executeBFSAlgorithm() {
+    private void updateTimeExecutionLabel(long durationMs) {
+        TimeExecutionLabel.setText("Temps : " + durationMs + " ms");
+    }
+    
+    /**
+     * Met à jour le label de longueur du chemin
+     * @param path Chemin trouvé
+     */
+    private void updatePathLengthLabel(List<Integer> path) {
+        int length = (path != null) ? path.size() : 0;
+        PathLengthLabel.setText("Longueur : " + length + " cases");
+    }
+    
+    /**
+     * Crée et configure un solveur du type spécifié
+     * @param solverType Type de solveur à créer
+     * @return Solveur configuré
+     */
+    private MazeSolver createSolver(String solverType) {
         Graph model = mainController.getModel();
-        int verticesNb = model.getVertexNb();
-        int startingPoint = mainController.getMazeView().getStartIndex();
-        int endingPoint = mainController.getMazeView().getEndIndex();
-
-        ArrayList<ArrayList<Edges>> graphAdjList = model.getGraphMaze();
-
-        if (verticesNb < 0) {
-            System.out.println("Graph has invalid number of Vertices");
-            return new ArrayList<>();
+        GraphView graphView = mainController.getGraphView();
+        MazeView mazeView = mainController.getMazeView();
+        
+        MazeSolver solver;
+        
+        switch (solverType) {
+            case "DFS":
+                solver = new DFSsolver();
+                break;
+            case "BFS":
+                solver = new BFSsolver(model.getVertexNb());
+                break;
+            case "AStar":
+                solver = new AStarSolver();
+                break;
+            case "Dijkstra":
+                solver = new DijkstraSolver();
+                break;
+            case "Random":
+                solver = new RandomSolver();
+                break;
+            case "Right":
+                solver = new OnlyRightSolver();
+                break;
+            case "Left":
+                solver = new OnlyLeftSolver();
+                break;
+            default:
+                throw new IllegalArgumentException("Type de solveur inconnu: " + solverType);
         }
-
-        if (startingPoint < 0 || endingPoint < 0) {
-            System.out.println("Input valid coordinates for starting and ending points");
-            return new ArrayList<>();
-        }
-
-        BFSsolver bfsSolver = new BFSsolver(verticesNb);
-        return bfsSolver.visualize(startingPoint, endingPoint, graphAdjList);
+        
+        return solver.setup(model, graphView, mazeView);
     }
 
+    // Template commun pour tous les boutons d'algorithme
+    private void setupAlgorithmButton(Button button, String solverType) {
+        button.setOnAction(e -> {
+            try {
+                MazeSolver solver = createSolver(solverType);
+                
+                // Exécuter l'algorithme et mesurer le temps
+                long startTime = System.currentTimeMillis();
+                
+                // Trouver le chemin d'abord (pour avoir la longueur)
+                MazeView mazeView = mainController.getMazeView();
+                List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
+                updatePathLengthLabel(path);
+                
+                // Lancer la visualisation
+                solver.visualize();
+                
+                // Mettre à jour le temps d'exécution
+                long endTime = System.currentTimeMillis();
+                updateTimeExecutionLabel(endTime - startTime);
+                
+                // Surveillance de fin d'animation si nécessaire
+                setupAnimationListener();
+            } catch (Exception ex) {
+                System.err.println("Erreur lors de l'exécution de " + solverType + ": " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+    }
 
+    // Initialisation de tous les boutons d'algorithme
+    private void setupAllButtons() {
+        setupAlgorithmButton(DFSButton, "DFS");
+        setupAlgorithmButton(BFSButton, "BFS");
+        setupAlgorithmButton(AStarButton, "AStar");
+        setupAlgorithmButton(DijkstraButton, "Dijkstra");
+        setupAlgorithmButton(RandomButton, "Random");
+        setupAlgorithmButton(RightButton, "Right");
+        setupAlgorithmButton(LeftButton, "Left");
+    }
     
     /**
      * Get the algorithm buttons container

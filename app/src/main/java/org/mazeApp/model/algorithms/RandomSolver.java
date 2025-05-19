@@ -1,52 +1,63 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
-public class RandomSolver {
+public class RandomSolver extends AbstractMazeSolver {
 
-    private ArrayList<ArrayList<Edges>> graphMaze;
-    private Graph graph;
-    private MazeView mazeView;
-    private int start;
-    private int goal;
-    private int vertexCount;
+    private int start = -1;
+    private int end = -1;
 
+    // Constructeur par défaut pour la factory
+    public RandomSolver() {
+        super();
+    }
+
+    // Constructeur avec paramètres
     public RandomSolver(Graph graph, MazeView mazeView) {
-        this.graph = graph;
-        this.vertexCount = graph.getVertexNb();
-        this.graphMaze = graph.getGraphMaze();
-        this.mazeView = mazeView;
-        this.start = mazeView != null ? mazeView.getStartIndex() : -1;
-        this.goal = mazeView != null ? mazeView.getEndIndex() : -1;
+        super();
+        setup(graph, null, mazeView);
+    }
+
+    // Constructeur pour terminal
+    public RandomSolver(Graph graph, int start, int end) {
+        super();
+        setup(graph, null, null);
+        this.start = start;
+        this.end = end;
     }
 
     /**
-    Solve the maze using a random walk algorithm.
-    */
+     * Solve the maze using a random walk algorithm.
+     */
     public ArrayList<ArrayList<Integer>> solveRandomWalkSteps() {
-        if (mazeView != null) {
-            this.start = mazeView.getStartIndex();
-            this.goal = mazeView.getEndIndex();
-        }
+        // Utiliser les valeurs de MazeView si disponibles
+        int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
+        int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
+        
+        int vertexCount = model.getVertexNb();
+        ArrayList<ArrayList<Edges>> graphMaze = model.getGraphMaze();
 
         Random rand = new Random();
         boolean[] visited = new boolean[vertexCount];
         ArrayList<ArrayList<Integer>> allSteps = new ArrayList<>();
 
         ArrayList<Integer> path = new ArrayList<>();
-        path.add(start);
-        visited[start] = true;
+        path.add(startIdx);
+        visited[startIdx] = true;
         allSteps.add(new ArrayList<>(path)); // Add the first step
 
         while (!path.isEmpty()) {
             int current = path.get(path.size() - 1);
 
-            if (current == goal) {
+            if (current == goalIdx) {
+                this.finalPath = new ArrayList<>(path);
                 return allSteps;
             }
 
@@ -68,12 +79,13 @@ public class RandomSolver {
                 allSteps.add(new ArrayList<>(path)); 
             }
         }
-        return allSteps; // Can be empty if no path found
+        
+        // Aucun chemin trouvé
+        this.finalPath = new ArrayList<>();
+        return allSteps;
     }
 
-    /**
-     * Visualize the random walk algorithm step by step.
-     */
+    @Override
     public void visualize() {
         if (mazeView == null) {
             System.out.println("Visualisation non disponible en mode terminal.");
@@ -85,22 +97,29 @@ public class RandomSolver {
             return;
         }
 
-        long startTime = System.currentTimeMillis();
-        ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        System.out.println("Algorithm duration of Random Walk : " + duration + " ms");
-        //Take the last step
-        System.out.println("Path found: " + steps.get(steps.size() - 1));
-        mazeView.visualiseStep(steps);
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
+            mazeView.visualiseStep(steps);
+        });
+        
+        System.out.println("Algorithm duration of Random Walk : " + getExecutionTime() + " ms");
+        System.out.println("Path found: " + getFinalPath());
     }
 
-    public RandomSolver(Graph graph, int start, int end) {
-        this.graph = graph;
-        this.graphMaze = graph.getGraphMaze();
-        this.vertexCount = graph.getVertexNb();
-        this.mazeView = null;
+    @Override
+    public List<Integer> findPath(int start, int end) {
         this.start = start;
-        this.goal = end;
+        this.end = end;
+        
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveRandomWalkSteps();
+            if (!steps.isEmpty() && steps.get(steps.size() - 1).contains(end)) {
+                this.finalPath = steps.get(steps.size() - 1);
+            } else {
+                this.finalPath = new ArrayList<>();
+            }
+        });
+        
+        return new ArrayList<>(this.finalPath);
     }
 }
