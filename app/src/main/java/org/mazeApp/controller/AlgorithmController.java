@@ -45,14 +45,14 @@ public class AlgorithmController {
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
-    private Button PauseButton;         // Bouton pour mettre en pause/reprendre l'animation
+    private Button StopButton;         // Remplace le bouton pause par un bouton d'arrêt
     private Label SpeedAnimationLabel;
     private Label TimeExecutionLabel;   // Label pour le temps d'exécution
     private Label PathLengthLabel;      // Label pour la longueur du chemin
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
-    private boolean animationPaused = false;  // État de pause de l'animation
+    private Timeline animationTimeline;
 
     /**
      * Constructor which initializes the algorithm controller
@@ -78,7 +78,7 @@ public class AlgorithmController {
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.PauseButton = new Button("⏸️ Pause");  // Nouveau bouton pour pause/reprise
+        this.StopButton = new Button("⏹️ Arrêter");  // Nouveau bouton pour arrêter l'animation
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
@@ -94,7 +94,7 @@ public class AlgorithmController {
         this.RightButton.setPrefSize(100, 30);
         this.LeftButton.setPrefSize(100, 30);
         this.RandomButton.setPrefSize(100, 30);
-        this.PauseButton.setPrefSize(100, 30);
+        this.StopButton.setPrefSize(100, 30);
         this.SpeedAnimationCursor.setPrefSize(100, 30);
         
         //styles for the animation label: 
@@ -102,8 +102,8 @@ public class AlgorithmController {
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         
-        // Style pour le bouton pause
-        this.PauseButton.setStyle("-fx-background-color: #FF5722; -fx-text-fill: white;");
+        // Style pour le bouton d'arrêt (fond rouge)
+        this.StopButton.setStyle("-fx-background-color: #D32F2F; -fx-text-fill: white;");
         
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
@@ -124,9 +124,9 @@ public class AlgorithmController {
             this.RightButton,
             this.LeftButton,
             this.RandomButton,
-            this.PauseButton,         // Ajout du bouton pause
-            this.TimeExecutionLabel,  // Ajout du label pour le temps d'exécution
-            this.PathLengthLabel,     // Ajout du label pour la longueur du chemin
+            this.StopButton,          // Remplacement du bouton pause par le bouton d'arrêt
+            this.TimeExecutionLabel,  
+            this.PathLengthLabel,    
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
         );
@@ -136,19 +136,10 @@ public class AlgorithmController {
      * Set up the actions for the algorithm buttons
      */
     private void setupAlgorithmButtonActions() {
-        // Bouton pour mettre en pause/reprendre l'animation
-        this.PauseButton.setOnAction(e -> {
-            MazeView mazeView = mainController.getMazeView();
-            if (mazeView != null) {
-                animationPaused = !animationPaused;
-                mazeView.setAnimationPaused(animationPaused);
-                
-                if (animationPaused) {
-                    PauseButton.setText("▶️ Reprendre");
-                } else {
-                    PauseButton.setText("⏸️ Pause");
-                }
-            }
+        // Bouton pour arrêter l'animation en cours
+        this.StopButton.setOnAction(e -> {
+            clearPreviousAnimation();
+            System.out.println("Animation arrêtée");
         });
         
         this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
@@ -165,7 +156,12 @@ public class AlgorithmController {
      * Met en place un timer pour vérifier la fin de l'animation et mettre à jour la longueur du chemin
      */
     private void setupAnimationListener() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+        // Arrêter la timeline existante si elle existe
+        if (this.animationTimeline != null) {
+            this.animationTimeline.stop();
+        }
+        
+        this.animationTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             MazeView mazeView = mainController.getMazeView();
             
             // Si l'animation est terminée ou si la MazeView n'est pas en train d'animer
@@ -181,11 +177,11 @@ public class AlgorithmController {
                 updatePathLengthLabel(path);
                 
                 // Arrêter le timer
-                ((Timeline)event.getSource()).stop();
+                this.animationTimeline.stop();
             }
         }));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        this.animationTimeline.setCycleCount(Timeline.INDEFINITE);
+        this.animationTimeline.play();
     }
     
     /**
@@ -250,13 +246,19 @@ public class AlgorithmController {
     private void setupAlgorithmButton(Button button, String solverType) {
         button.setOnAction(e -> {
             try {
+                // Effacer l'animation précédente
+                clearPreviousAnimation();
+                
                 MazeSolver solver = createSolver(solverType);
                 
                 // Exécuter l'algorithme et mesurer le temps
                 long startTime = System.currentTimeMillis();
                 
-                // Trouver le chemin d'abord (pour avoir la longueur)
+                // S'assurer que la vue est à jour avant de lancer l'algorithme
                 MazeView mazeView = mainController.getMazeView();
+                mazeView.refresh();
+                
+                // Trouver le chemin d'abord (pour avoir la longueur)
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 updatePathLengthLabel(path);
                 
@@ -292,5 +294,31 @@ public class AlgorithmController {
      */
     public VBox getAlgoContainer() {
         return this.AlgoContainer;
+    }
+    
+    /**
+     * Nettoie l'affichage des animations précédentes
+     */
+    private void clearPreviousAnimation() {
+        MazeView mazeView = mainController.getMazeView();
+        if (mazeView != null) {
+            // Arrêter toute animation en cours
+            if (this.animationTimeline != null) {
+                this.animationTimeline.stop();
+            }
+            
+            // Arrêter l'animation dans le MazeView
+            mazeView.stopAnimation();
+            
+            // Réinitialiser l'affichage
+            mazeView.clearAnimations();
+            
+            // Forcer la mise à jour de l'affichage
+            mazeView.draw();
+            
+            // Réinitialiser les labels
+            updateTimeExecutionLabel(0);
+            updatePathLengthLabel(null);
+        }
     }
 }

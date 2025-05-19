@@ -42,6 +42,11 @@ public class MazeView extends Pane {
     private boolean animationPaused = false;
     private Timeline currentAnimation = null;
 
+    // Add missing declarations for animation state management
+    private Map<Integer, Circle> vertexCircles = new HashMap<>();
+    private Map<Pair<Integer, Integer>, Line> edgeLines = new HashMap<>();
+    private Map<Pair<Integer, Integer>, Integer> edgeStates = new HashMap<>();
+
     /**
      * Constructor for the initial graph
      * @param graph the graph representing the maze
@@ -558,6 +563,9 @@ public class MazeView extends Pane {
             return;
         }
     
+        // Redessiner d'abord le labyrinthe pour qu'il soit à jour
+        draw();
+        
         // Structure de données pour suivre l'état des arêtes
         // Map<arête (paire de sommets), état>
         // État: null = non visité, 1 = en cours de visite, 2 = visité précédemment
@@ -637,42 +645,6 @@ public class MazeView extends Pane {
                         line.setVisible(true);
                     }
                 }
-                
-                // // Mettre à jour l'état des sommets / ajouter des sommets dans l'animations (à décommenter si nécessaire)
-
-                // if (associatedGraphView != null) {
-                //     // Réinitialiser la visibilité des sommets
-                //     for (Circle circle : vertexCircles.values()) {
-                //         circle.setVisible(false);
-                //     }
-                    
-                //     // Afficher les sommets du chemin actuel
-                //     for (Integer vertex : path) {
-                //         Circle circle = vertexCircles.get(vertex);
-                //         if (circle != null) {
-                //             circle.setFill(Color.RED);
-                //             circle.setVisible(true);
-                //         }
-                //     }
-                    
-                //     // Afficher les sommets visités précédemment
-                //     for (Pair<Integer, Integer> edge : edgeStates.keySet()) {
-                //         if (edgeStates.get(edge) == 2) {
-                //             Circle circle1 = vertexCircles.get(edge.getKey());
-                //             Circle circle2 = vertexCircles.get(edge.getValue());
-                            
-                //             if (circle1 != null && !path.contains(edge.getKey())) {
-                //                 circle1.setFill(Color.LIGHTGREEN);
-                //                 circle1.setVisible(true);
-                //             }
-                            
-                //             if (circle2 != null && !path.contains(edge.getValue())) {
-                //                 circle2.setFill(Color.LIGHTGREEN);
-                //                 circle2.setVisible(true);
-                //             }
-                //         }
-                //     }
-                // }
             });
             
             timeline.getKeyFrames().add(frame);
@@ -682,6 +654,9 @@ public class MazeView extends Pane {
             System.out.println("Chemin trouvé de longueur " + steps.get(steps.size() - 1).size());
         });
 
+        // Conserver une référence à cette timeline
+        this.currentAnimation = timeline;
+        
         System.out.println("Timeline démarrée");
         timeline.play();
     }
@@ -749,5 +724,77 @@ public class MazeView extends Pane {
      */
     public boolean isAnimationPaused() {
         return animationPaused;
+    }
+    
+    /**
+     * Efface toutes les animations et réinitialise l'affichage
+     */
+    public void clearAnimations() {
+        // Arrêter toute Timeline en cours
+        if (currentAnimation != null) {
+            currentAnimation.stop();
+            currentAnimation = null;
+        }
+        
+        // Réinitialiser la vue graphique
+        for (Circle circle : vertexCircles.values()) {
+            circle.setFill(Color.WHITE);  // Couleur par défaut
+            circle.setVisible(false);     // Cacher tous les cercles
+        }
+        
+        // Réinitialiser les arêtes
+        for (Line line : edgeLines.values()) {
+            line.setStroke(Color.BLACK);  // Couleur par défaut
+            line.setStrokeWidth(1.0);     // Largeur par défaut
+        }
+        
+        // Effacer les états des arêtes
+        edgeStates.clear();
+        
+        // Afficher uniquement les points de départ et d'arrivée
+        if (startIndex >= 0 && vertexCircles.containsKey(startIndex)) {
+            Circle startCircle = vertexCircles.get(startIndex);
+            startCircle.setFill(Color.GREEN);
+            startCircle.setVisible(true);
+        }
+        
+        if (endIndex >= 0 && vertexCircles.containsKey(endIndex)) {
+            Circle endCircle = vertexCircles.get(endIndex);
+            endCircle.setFill(Color.RED);
+            endCircle.setVisible(true);
+        }
+        
+        // Rafraîchir l'affichage
+        requestLayout();
+    }
+
+    /**
+     * Arrête complètement l'animation en cours
+     */
+    public void stopAnimation() {
+        // Arrêter l'animation en cours
+        if (currentAnimation != null) {
+            currentAnimation.stop();
+            currentAnimation = null;
+        }
+        
+        // Nettoyer les états
+        animationPaused = false;
+        
+        // Redessiner le labyrinthe
+        draw();
+    }
+
+    /**
+     * Force le rafraîchissement complet de la vue
+     */
+    public void refresh() {
+        // Redessiner le labyrinthe
+        draw();
+        
+        // Si un graphe associé existe, le redessiner aussi
+        if (associatedGraphView != null) {
+            associatedGraphView.draw(currentGraph);
+        }
     }
 }
