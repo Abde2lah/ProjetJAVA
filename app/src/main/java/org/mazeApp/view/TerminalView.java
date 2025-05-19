@@ -67,7 +67,7 @@ public class TerminalView {
             switch (choice) {
                 case "1": {
                     BFSsolver bfs = new BFSsolver(graph.getVertexNb());
-                    path = bfs.visualize(start, end, graph.getGraphMaze());
+                    //path = bfs.visualize(start, end, graph.getGraphMaze());
                     break;
                 }
                 case "2": {

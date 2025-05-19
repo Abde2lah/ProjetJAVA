@@ -3,6 +3,7 @@ package org.mazeApp.model.algorithms;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import org.mazeApp.model.Edges;
@@ -11,24 +12,31 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Impléementation of dijkstra's algorithm to solve a maze.
+ * Implémentation of Dijkstra's algorithm to solve a maze.
  */
-public class DijkstraSolver {
+public class DijkstraSolver extends AbstractMazeSolver {
 
-    private Graph model;
-    private GraphView graphView;
-    private MazeView mazeView;
+    // Constructeur par défaut pour la factory
+    public DijkstraSolver() {
+        super();
+    }
 
+    // Constructeur avec paramètres
     public DijkstraSolver(Graph model, GraphView graphView, MazeView mazeView) {
-        this.model = model;
-        this.graphView = graphView;
-        this.mazeView = mazeView;
+        super();
+        setup(model, graphView, mazeView);
     }
 
     /**
      * Launch the Dijkstra algorithm with step-by-step visualization
      */
+    @Override
     public void visualize() {
+        if (mazeView == null) {
+            System.out.println("MazeView is null. Cannot visualize.");
+            return;
+        }
+        
         int start = mazeView.getStartIndex();
         int end = mazeView.getEndIndex();
 
@@ -37,20 +45,20 @@ public class DijkstraSolver {
             return;
         }
 
-        long startTime = System.currentTimeMillis();
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = getDijkstraSteps(start, end);
 
-        ArrayList<ArrayList<Integer>> steps = getDijkstraSteps(start, end);
+            if (steps.isEmpty()) {
+                System.out.println("No path found");
+                this.finalPath = new ArrayList<>();
+                return;
+            }
 
-        long endTime = System.currentTimeMillis();   
-        long duration = endTime - startTime;         
+            this.finalPath = steps.get(steps.size() - 1);
+            mazeView.visualiseStep(steps);
+        });
 
-        if (steps.isEmpty()) {
-            System.out.println("No path found");
-            return;
-        }
-
-        mazeView.visualiseStep(steps);
-        System.out.println("Dijkstra algorithm duration: " + duration + " ms");
+        System.out.println("Dijkstra algorithm duration: " + getExecutionTime() + " ms");
     }
 
     /**
@@ -97,7 +105,9 @@ public class DijkstraSolver {
                 }
             }
         }
-        System.out.println("Path found : " + reconstructPath(prev, goal));
+        
+        ArrayList<Integer> finalPath = reconstructPath(prev, goal);
+        System.out.println("Path found : " + finalPath);
         return steps;
     }
 
@@ -113,6 +123,25 @@ public class DijkstraSolver {
         return path;
     }
 
+    @Override
+    public List<Integer> findPath(int start, int end) {
+        if (model == null) {
+            System.out.println("Graph model is null. Cannot find path.");
+            return new ArrayList<>();
+        }
+        
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = getDijkstraSteps(start, end);
+            if (!steps.isEmpty()) {
+                this.finalPath = steps.get(steps.size() - 1);
+            } else {
+                this.finalPath = new ArrayList<>();
+            }
+        });
+        
+        return new ArrayList<>(this.finalPath);
+    }
+
     /**
      * Class representing a node in the priority queue
      */
@@ -126,4 +155,3 @@ public class DijkstraSolver {
         }
     }
 }
-
