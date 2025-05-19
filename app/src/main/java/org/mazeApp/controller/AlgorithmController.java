@@ -151,6 +151,7 @@ public class AlgorithmController{
         this.AStarButton.setOnAction(e -> {
             GraphView graphView = mainController.getGraphView();
             MazeView mazeView = mainController.getMazeView();
+            mazeView.draw();
             Graph model = mainController.getModel();
             AStarSolver aStarSolver = new AStarSolver(model, graphView, mazeView);
             aStarSolver.visualize();
@@ -159,6 +160,7 @@ public class AlgorithmController{
         this.DijkstraButton.setOnAction(e -> {
             Graph model = mainController.getModel();
             MazeView mazeView = mainController.getMazeView();
+            mazeView.draw();
             GraphView graphView = mainController.getGraphView();
 
             DijkstraSolver dijkstraSolver = new DijkstraSolver(model, graphView, mazeView);
@@ -182,6 +184,7 @@ public class AlgorithmController{
         GraphView graphView = mainController.getGraphView();
         MazeView mazeView = mainController.getMazeView();
         Graph model = mainController.getModel();
+        mazeView.draw();
         DFSsolver dfsSolver = new DFSsolver(model, graphView, mazeView);
         dfsSolver.visualize();
     }
@@ -189,12 +192,14 @@ public class AlgorithmController{
     private void executeRandomAlgorithm() {
         Graph model = mainController.getModel();
         MazeView mazeView = mainController.getMazeView();
+        mazeView.draw();
         RandomSolver randomSolver = new RandomSolver(model, mazeView);
         randomSolver.visualize();
     }
     private void executeOnlyRightlgorithm() {
         Graph model = mainController.getModel();
         MazeView mazeView = mainController.getMazeView();
+        mazeView.draw();
         OnlyRightSolver onlyRightSolver = new OnlyRightSolver(model, mazeView);
         onlyRightSolver.visualize();
     }
@@ -202,6 +207,7 @@ public class AlgorithmController{
     private void executeOnlyLeftlgorithm() {
         Graph model = mainController.getModel();
         MazeView mazeView = mainController.getMazeView();
+        mazeView.draw();
         OnlyLeftSolver onlyLeftSolver = new OnlyLeftSolver(model, mazeView);
         onlyLeftSolver.visualize();
     }

@@ -1,7 +1,9 @@
 package org.mazeApp.view;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
@@ -14,6 +16,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 public class MazeView extends Pane {
     // Display constants
@@ -549,80 +552,132 @@ public class MazeView extends Pane {
             System.out.println("Aucun chemin trouvé.");
             return;
         }
+    
+        // Structure de données pour suivre l'état des arêtes
+        // Map<arête (paire de sommets), état>
+        // État: null = non visité, 1 = en cours de visite, 2 = visité précédemment
+        Map<Pair<Integer, Integer>, Integer> edgeStates = new HashMap<>();
+        
+        // Pré-calculer la taille des cellules pour éviter de recalculer à chaque frame
+        double cellSize = calculateCellSize();
+        double pathThickness = Math.max(0.5, cellSize * 0.1);
+        
+        // Créer et stocker les objets graphiques à l'avance
+        Map<Pair<Integer, Integer>, Line> edgeLines = new HashMap<>();
+        // ajouter des sommets dans l'animations (à décommenter si nécessaire)
+        // Map<Integer, Circle> vertexCircles = new HashMap<>();
 
+        for (Edges edgeObj : currentGraph.getEdges()) {
+            int from = edgeObj.getSource();
+            int to = edgeObj.getDestination();
+        
+            int row1 = from / columns, col1 = from % columns;
+            int row2 = to / columns, col2 = to % columns;
+        
+            double x1 = col1 * cellSize + padding + cellSize / 2;
+            double y1 = row1 * cellSize + padding + cellSize / 2;
+            double x2 = col2 * cellSize + padding + cellSize / 2;
+            double y2 = row2 * cellSize + padding + cellSize / 2;
+        
+            Pair<Integer, Integer> edge = new Pair<>(Math.min(from, to), Math.max(from, to));
+            Line line = new Line(x1, y1, x2, y2);
+            line.setStrokeWidth(pathThickness);
+            line.setVisible(false);
+        
+            edgeLines.put(edge, line);
+            getChildren().add(line);
+        }
+        
+    
+        
+        // Créer la Timeline
         Timeline timeline = new Timeline();
-
-        // Stocke les segments et sommets visités
-        ArrayList<int[]> visitedSegments = new ArrayList<>();
-        HashSet<Integer> visitedVertices = new HashSet<>();
-
-        for (int i = 0; i < steps.size(); i++) {
-            final ArrayList<Integer> stepPath = steps.get(i);
-
-            // Add vertex and edge of previous maze
-            if (i > 0) {
-                ArrayList<Integer> previousPath = steps.get(i - 1);
-                for (int j = 0; j < previousPath.size() - 1; j++) {
-                    visitedSegments.add(new int[]{previousPath.get(j), previousPath.get(j + 1)});
-                }
-                visitedVertices.addAll(previousPath);
-            }
-
-            // Snapshots for the lambda
-            final ArrayList<int[]> segmentsSnapshot = new ArrayList<>(visitedSegments);
-            final HashSet<Integer> verticesSnapshot = new HashSet<>(visitedVertices);
-
-            KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                draw(); // Re-draw the maze
-                
-                if (associatedGraphView != null) {
-                    associatedGraphView.draw(currentGraph);
-                }
-
-                double cellSize = calculateCellSize();
-                double pathThickness = Math.max(0.5, cellSize * 0.1);
-
-                // Visited edges
-                for (int[] segment : segmentsSnapshot) {
-                    int from = segment[0], to = segment[1];
-
-                    int row1 = from / columns;
-                    int col1 = from % columns;
-                    int row2 = to / columns;
-                    int col2 = to % columns;
-
-                    Line line = new Line(
-                        col1 * cellSize + padding + cellSize / 2,
-                        row1 * cellSize + padding + cellSize / 2,
-                        col2 * cellSize + padding + cellSize / 2,
-                        row2 * cellSize + padding + cellSize / 2
-                    );
-                    line.setStroke(Color.LIGHTGREEN);
-                    line.setStrokeWidth(pathThickness);
-                    getChildren().add(line);
-                }
-
-                // green visited vextex
-                if (associatedGraphView != null) {
-                    for (int index : verticesSnapshot) {
-                        associatedGraphView.drawHighlightedVertices(index, currentGraph, Color.LIGHTGREEN);
+        
+        for (int step = 0; step < steps.size(); step++) {
+            ArrayList<Integer> currentPath = steps.get(step);
+            final int finalStep = step;
+            
+            KeyFrame frame = new KeyFrame(Duration.millis(step * delay), e -> {
+                // Dessiner le labyrinthe de base (une seule fois si c'est statique)
+                if (finalStep == 0) {
+                    if (associatedGraphView != null) {
+                        associatedGraphView.draw(currentGraph);
                     }
                 }
-
-                // Red current path
-                drawPath(stepPath);
-                if (associatedGraphView != null) {
-                    associatedGraphView.drawHighlightedVertices(stepPath, currentGraph, Color.RED);
+                
+                // Mettre à jour l'état des arêtes
+                // 1. Marquer toutes les arêtes actuellement à l'état 1 comme étant à l'état 2
+                for (Map.Entry<Pair<Integer, Integer>, Integer> entry : edgeStates.entrySet()) {
+                    if (entry.getValue() != null && entry.getValue() == 1) {
+                        edgeStates.put(entry.getKey(), 2);
+                        Line line = edgeLines.get(entry.getKey());
+                        if (line != null) {
+                            line.setStroke(Color.LIGHTGREEN);
+                            line.setVisible(true);
+                        }
+                    }
                 }
-            });
+                
+                // 2. Marquer les arêtes du chemin actuel comme étant à l'état 1
+                ArrayList<Integer> path = steps.get(finalStep);
+                for (int i = 0; i < path.size() - 1; i++) {
+                    int from = path.get(i);
+                    int to = path.get(i + 1);
+                    Pair<Integer, Integer> edge = new Pair<>(Math.min(from, to), Math.max(from, to));
+                    edgeStates.put(edge, 1);
+                    
+                    Line line = edgeLines.get(edge);
+                    if (line != null) {
+                        line.setStroke(Color.RED);
+                        line.setVisible(true);
+                    }
+                }
+                
+                // // Mettre à jour l'état des sommets / ajouter des sommets dans l'animations (à décommenter si nécessaire)
 
+                // if (associatedGraphView != null) {
+                //     // Réinitialiser la visibilité des sommets
+                //     for (Circle circle : vertexCircles.values()) {
+                //         circle.setVisible(false);
+                //     }
+                    
+                //     // Afficher les sommets du chemin actuel
+                //     for (Integer vertex : path) {
+                //         Circle circle = vertexCircles.get(vertex);
+                //         if (circle != null) {
+                //             circle.setFill(Color.RED);
+                //             circle.setVisible(true);
+                //         }
+                //     }
+                    
+                //     // Afficher les sommets visités précédemment
+                //     for (Pair<Integer, Integer> edge : edgeStates.keySet()) {
+                //         if (edgeStates.get(edge) == 2) {
+                //             Circle circle1 = vertexCircles.get(edge.getKey());
+                //             Circle circle2 = vertexCircles.get(edge.getValue());
+                            
+                //             if (circle1 != null && !path.contains(edge.getKey())) {
+                //                 circle1.setFill(Color.LIGHTGREEN);
+                //                 circle1.setVisible(true);
+                //             }
+                            
+                //             if (circle2 != null && !path.contains(edge.getValue())) {
+                //                 circle2.setFill(Color.LIGHTGREEN);
+                //                 circle2.setVisible(true);
+                //             }
+                //         }
+                //     }
+                // }
+            });
+            
             timeline.getKeyFrames().add(frame);
         }
-
+        
         timeline.setOnFinished(e -> {
             System.out.println("Chemin trouvé de longueur " + steps.get(steps.size() - 1).size());
         });
 
+        System.out.println("Timeline démarrée");
         timeline.play();
     }
 

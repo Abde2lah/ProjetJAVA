@@ -242,4 +242,26 @@ public class Graph {
     public void setSeed(int seed) {
         this.seed = seed;
     }
+
+    /**
+     * Retourne toutes les arêtes du graphe, sans doublons (chaque arête une seule fois).
+     */
+    public ArrayList<Edges> getEdges() {
+        ArrayList<Edges> edgesList = new ArrayList<>();
+        boolean[][] seen = new boolean[vertexCount][vertexCount];
+
+        for (int u = 0; u < graphMaze.size(); u++) {
+            for (Edges edge : graphMaze.get(u)) {
+                int v = edge.getDestination();
+                if (!seen[u][v] && !seen[v][u]) {
+                    edgesList.add(edge);
+                    seen[u][v] = true;
+                    seen[v][u] = true;
+                }
+            }
+        }
+
+        return edgesList;
+    }
+
 }
