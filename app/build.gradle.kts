@@ -1,26 +1,28 @@
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
+    // Plugin pour construire une application Java CLI
     application
-    id("org.openjfx.javafxplugin") version "0.1.0"
 
+    // Plugin JavaFX officiel (version stable)
+    id("org.openjfx.javafxplugin") version "0.0.13"
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
+    // Utilise Maven Central pour les dépendances
     mavenCentral()
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
+    // Utilise JUnit Jupiter pour les tests
     testImplementation(libs.junit.jupiter)
 
+    // Runtime uniquement pour lancer les tests JUnit
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // This dependency is used by the application.
+    // Dépendance utilisée dans l'application
     implementation(libs.guava)
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
+// Configuration de la version de Java
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -28,15 +30,18 @@ java {
 }
 
 application {
-    // Define the main class for the application.
+    // Classe principale de l'application
     mainClass = "org.mazeApp.Launcher"
 }
 
-javafx{
-    modules("javafx.controls", "javafx.fxml")
+// Configuration du plugin JavaFX
+javafx {
+    version = "21"
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+

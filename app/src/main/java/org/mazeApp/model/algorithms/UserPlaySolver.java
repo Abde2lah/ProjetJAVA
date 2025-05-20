@@ -1,5 +1,6 @@
 package org.mazeApp.model.algorithms;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +11,8 @@ import org.mazeApp.view.MazeView;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -21,6 +24,9 @@ public class UserPlaySolver {
     private final Set<Integer> visited = new HashSet<>();
     private Label winLabel;
 
+    // MediaPlayer pour jouer le son de victoire
+    private MediaPlayer victoryPlayer;
+
     public UserPlaySolver(MazeView mazeView, Graph graph) {
         this.mazeView = mazeView;
         this.graph = graph;
@@ -31,6 +37,14 @@ public class UserPlaySolver {
         winLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel); // On ajoute le label une seule fois
+
+        // Initialisation du son de victoire
+        URL soundUrl = getClass().getResource("/Victory.wav");
+        if (soundUrl != null) {
+            Media media = new Media(soundUrl.toExternalForm());
+            victoryPlayer = new MediaPlayer(media);
+            victoryPlayer.setOnError(() -> System.out.println("❌ Erreur lecture son : " + victoryPlayer.getError()));
+        }
     }
 
     public void attachToScene() {
@@ -40,14 +54,13 @@ public class UserPlaySolver {
         mazeView.setFocusTraversable(true);
         mazeView.requestFocus();
 
-        // Initialisation du label GG
+        // Initialisation du label GG (encore une fois au cas où)
         winLabel = new Label("🏁 GG WELL PLAY");
         winLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: green; -fx-font-weight: bold;");
-        winLabel.setVisible(false); 
+        winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel);
         drawPlayer();
     }
-
 
     private void handleKeyPress(KeyEvent event) {
         if (currentIndex == mazeView.getEndIndex()) {
@@ -78,6 +91,7 @@ public class UserPlaySolver {
             if (currentIndex == mazeView.getEndIndex()) {
                 System.out.println("🏁 Vous avez atteint la sortie !");
                 showVictoryLabel();
+                playVictorySound();
             }
         }
     }
@@ -114,27 +128,32 @@ public class UserPlaySolver {
         mazeView.getChildren().add(playerCircle);
 
         if (currentIndex == mazeView.getEndIndex()) {
-            winLabel.setLayoutX(mazeView.getWidth() / 2 - 150); // Centré horizontalement
-            winLabel.setLayoutY(mazeView.getHeight() - 50);     // Tout en bas
+            winLabel.setLayoutX(mazeView.getWidth() / 2 - 150);
+            winLabel.setLayoutY(mazeView.getHeight() - 50);
             winLabel.setVisible(true);
             if (!mazeView.getChildren().contains(winLabel)) {
                 mazeView.getChildren().add(winLabel);
             }
         } else {
-            winLabel.setVisible(false); // Cache le label si on repart
+            winLabel.setVisible(false);
         }
-
     }
-
-
 
     // Affiche le message de victoire
     private void showVictoryLabel() {
         double centerX = mazeView.getWidth() / 2;
         double centerY = mazeView.getHeight() / 2;
 
-        winLabel.setLayoutX(centerX - 150); // position ajustée
+        winLabel.setLayoutX(centerX - 150);
         winLabel.setLayoutY(centerY - 20);
         winLabel.setVisible(true);
+    }
+
+    // Joue le son de victoire
+    private void playVictorySound() {
+        if (victoryPlayer != null) {
+            victoryPlayer.stop(); // Redémarre proprement le son
+            victoryPlayer.play();
+        }
     }
 }
