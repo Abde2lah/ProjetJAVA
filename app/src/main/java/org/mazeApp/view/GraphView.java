@@ -9,7 +9,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 
 public class GraphView extends Pane {
     // Constantes et propriétés
@@ -498,7 +497,6 @@ public class GraphView extends Pane {
         double vertexRadius = calculateVertexRadius(cellSize);
         double lineWidth = calculateLineWidth(cellSize);
 
-        drawBackground(); // fond blanc
         drawEdges(graph, columns, cellSize, lineWidth); // d'abord les arêtes
         drawVertices(totalVertices, columns, cellSize, vertexRadius); // puis les sommets
     }
@@ -506,17 +504,6 @@ public class GraphView extends Pane {
     /**
      * Dessine le fond blanc du graphe avec un léger contour
      */
-    private void drawBackground() {
-        Rectangle background = new Rectangle(
-            padding, padding,
-            FIXED_WIDTH - (2 * padding),
-            FIXED_HEIGHT - (2 * padding)
-        );
-        background.setFill(Color.WHITE);
-        background.setStroke(Color.LIGHTGRAY);
-        background.setStrokeWidth(1);
-        getChildren().add(background);
-    }
 
     /**
      * Dessine les arêtes (connexions) du graphe.
