@@ -13,6 +13,7 @@ import org.mazeApp.model.algorithms.DijkstraSolver;
 import org.mazeApp.model.algorithms.OnlyLeftSolver;
 import org.mazeApp.model.algorithms.OnlyRightSolver;
 import org.mazeApp.model.algorithms.RandomSolver;
+import org.mazeApp.model.algorithms.UserPlaySolver;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
@@ -40,8 +41,7 @@ public class AlgorithmController {
     private Button BFSButton;
     private Button AStarButton;
     private Button DijkstraButton;
-    private Button PrimButton;
-    private Button KruskalButton;
+    private Button UserPlayButton;
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
@@ -73,12 +73,11 @@ public class AlgorithmController {
         this.BFSButton = new Button("BFS");
         this.AStarButton = new Button("A*");
         this.DijkstraButton = new Button("Dijkstra");
-        this.PrimButton = new Button("Prim");
-        this.KruskalButton = new Button("Kruskal");
+        this.UserPlayButton = new Button("User");
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.StopButton = new Button("⏹️ Arrêter");  // Nouveau bouton pour arrêter l'animation
+        this.StopButton = new Button("Arrêter");  
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
@@ -89,8 +88,7 @@ public class AlgorithmController {
         this.BFSButton.setPrefSize(100, 30);
         this.AStarButton.setPrefSize(100, 30);
         this.DijkstraButton.setPrefSize(100, 30);
-        this.PrimButton.setPrefSize(100, 30);
-        this.KruskalButton.setPrefSize(100, 30);
+        this.UserPlayButton.setPrefSize(100, 30);
         this.RightButton.setPrefSize(100, 30);
         this.LeftButton.setPrefSize(100, 30);
         this.RandomButton.setPrefSize(100, 30);
@@ -119,8 +117,7 @@ public class AlgorithmController {
             this.BFSButton,
             this.AStarButton,
             this.DijkstraButton,
-            this.PrimButton,
-            this.KruskalButton,
+            this.UserPlayButton,
             this.RightButton,
             this.LeftButton,
             this.RandomButton,
@@ -142,9 +139,24 @@ public class AlgorithmController {
             System.out.println("Animation arrêtée");
         });
         
-        this.PrimButton.setOnAction(e -> System.out.println("Prim non implémenté"));
-        this.KruskalButton.setOnAction(e -> System.out.println("Kruskal non implémenté"));
-        
+        //let the users solve by himself the maze
+        this.UserPlayButton.setOnAction(e -> {
+            clearPreviousAnimation();  // Nettoyer toute animation précédente
+            System.out.println("Mode utilisateur activé : utilisez les flèches du clavier pour résoudre le labyrinthe.");
+
+            MazeView mazeView = mainController.getMazeView();
+            Graph graph = mainController.getCurrentGraph();
+
+            if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
+                System.out.println("Veuillez d'abord définir les points de départ et d'arrivée.");
+                return;
+            }
+
+            // Activer le mode de résolution manuelle
+            UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
+            userSolver.attachToScene();
+        });
+
         this.SpeedAnimationCursor.setOnMouseDragged(e -> {
             int delay = (int) SpeedAnimationCursor.getValue();
             SpeedAnimationLabel.setText("Speed : " + delay + " ms");

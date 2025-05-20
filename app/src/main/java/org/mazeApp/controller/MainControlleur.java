@@ -160,4 +160,8 @@ public class MainControlleur {
         mainView.setStyle("-fx-padding: 15; -fx-background-color: rgb(253, 255, 237);");
         return mainView;
     }
+    public Graph getCurrentGraph() {
+        return this.model;
+    }
+
 }
