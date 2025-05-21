@@ -48,12 +48,15 @@ public class Graph {
         this.edgeCount = 0;
         this.graphMaze = new ArrayList<>();
         this.generationSteps = new ArrayList<>();
-        this.seed = seed; // Stockage de la graine
+        this.seed = seed; 
 
         initializeGraph(totalVertices);
         generateGridMaze(seed, rows, columns);
     }
 
+    /**
+     * Permit to recup all the neighbors of an edge
+     */
     public void getAllNeighbours(){
         for(ArrayList<Edges> arrayEdges : graphMaze){
             for(Edges edge : arrayEdges){
@@ -76,13 +79,20 @@ public class Graph {
 
     /**
      * Factory method to create an empty graph.
+     * @param rows numbers of rows
+     * @param columns numbers of columns
+     * @return a new graph with news dimensions
      */
     public static Graph emptyGraph(int rows, int columns) {
         return new Graph(true, rows, columns);
     }
 
     /**
-     * Intern Constructor for empty graph.
+     * Factory method to create an empty graph.
+     * @param empty say if the grid is empty
+     * @param rows numbers of rows
+     * @param columns numbers of columns
+     * @return a new graph with news dimensions
      */
     private Graph(boolean empty, int rows, int columns) {
         int totalVertices = rows * columns;
@@ -104,6 +114,7 @@ public class Graph {
 
     /**
      * Initialize the graph with empty adjacency lists.
+     * @param totalVertices Total number of vertices on the graph
      */
     private void initializeGraph(int totalVertices) {
         for (int i = 0; i < totalVertices; i++) {
@@ -112,7 +123,11 @@ public class Graph {
     }
 
     /**
-     * Generate a maze using the current generator.
+     * Generate the grid maze 
+     * @param seed seed for the maze generation
+     * @param rows numbers of rows
+     * @param columns numbers of columns
+     * @return a new graph with news dimensions
      */
     private void generateGridMaze(int seed, int rows, int columns) {
         generationSteps = currentGenerator.generate(rows, columns, seed);
@@ -122,13 +137,20 @@ public class Graph {
             addEdgeBidirectional(edge.getSource(), edge.getDestination());
         }
     }
-    // Add an edge to the graph
+    /**
+     * Create an edge between two vertices
+     * @param destination end point
+     * @param source start point
+     */
     private void addEdgeBidirectional(int source, int destination) {
         this.graphMaze.get(source).add(new Edges(source, destination));
         this.graphMaze.get(destination).add(new Edges(destination, source));
         this.edgeCount++;
     }
-
+    /**
+     * Remove a vertex from the graph
+     * @param vertex vertex which can be remove
+     */
     public void removeVertex(int vertex) {
         int edgesToRemove = graphMaze.get(vertex).size();
         graphMaze.remove(vertex);
@@ -147,7 +169,9 @@ public class Graph {
             }
         }
     }
-
+    /**
+     * Clear the graph when asked
+     */
     public void clearGraph() {
         for (ArrayList<Edges> edges : graphMaze) {
             edges.clear();
@@ -155,27 +179,54 @@ public class Graph {
         edgeCount = 0;
     }
 
+    /**
+     * Guve the number of edges
+     * @return the edge count
+     */
     public int getEdgesNb() {
         return this.edgeCount;
     }
 
+    /**
+     * Give the number of vertex
+     * @return a new graph with news dimensions
+     */
     public int getVertexNb() {
         return this.vertexCount;
     }
 
+    /**
+     * Get the numbers of rows on the graph
+     * @return the number of rows
+     */
     public int getRows() {
         return this.rows;
     }
 
+    /**
+     * Get the numbers of columns on the graph
+     * @return the number of columns
+     */
     public int getColumns() {
         return this.columns;
     }
     
+    /**
+     * Add an edge between the source and the destination
+     * @param source 
+     * @param destination
+     */
     public void addEdge(int source, int destination) {
         this.graphMaze.get(source).add(new Edges(source, destination));
         this.graphMaze.get(destination).add(new Edges(destination, source));
         this.edgeCount++;
     }
+
+    /**
+     * Recup 
+     * @param ArrayList<Edges> list which contains the edges 
+     * @return the graph Maze
+     */
     public ArrayList<ArrayList<Edges>> getGraphMaze() {
         return this.graphMaze;
     }
@@ -184,19 +235,19 @@ public class Graph {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(String.format("Labyrinthe %dx%d\n", rows, columns));
-        sb.append(String.format("Nombre de sommets : %d\n", vertexCount));
-        sb.append(String.format("Nombre d’arêtes : %d\n\n", edgeCount));
-        sb.append("Structure du graphe :\n");
+        sb.append(String.format("Maze %dx%d\n", rows, columns));
+        sb.append(String.format("Vertex number: %d\n", vertexCount));
+        sb.append(String.format("Edge number : %d\n\n", edgeCount));
+        sb.append("Graph structure :\n");
         sb.append("---------------------\n");
 
         for (int i = 0; i < graphMaze.size(); i++) {
             int row = i / columns;
             int col = i % columns;
-            sb.append(String.format("Sommet %2d (%d,%d) : ", i, row, col));
+            sb.append(String.format("Vertices %2d (%d,%d) : ", i, row, col));
 
             if (graphMaze.get(i).isEmpty()) {
-                sb.append("(pas de connexion)");
+                sb.append("(no connection)");
             } else {
                 for (Edges edge : graphMaze.get(i)) {
                     int destRow = edge.getDestination() / columns;
@@ -212,6 +263,7 @@ public class Graph {
 
     /**
      * Défine the current generator
+     * @param generator
      */
     public static void setGenerator(MazeGenerator generator) {
         currentGenerator = generator;
@@ -219,6 +271,7 @@ public class Graph {
 
     /**
      * Return the current generator
+     * @return the current generator used for the maze
      */
     public static MazeGenerator getCurrentGenerator() {
         return currentGenerator;
@@ -244,7 +297,7 @@ public class Graph {
     }
 
     /**
-     * Retourne toutes les arêtes du graphe, sans doublons (chaque arête une seule fois).
+     * Return all the edges contains on the array list
      */
     public ArrayList<Edges> getEdges() {
         ArrayList<Edges> edgesList = new ArrayList<>();

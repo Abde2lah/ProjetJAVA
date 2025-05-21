@@ -1,50 +1,63 @@
 package org.mazeApp.model;
 
 import java.util.List;
-import org.mazeApp.model.Graph;
+
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Interface commune pour tous les algorithmes de résolution de labyrinthe
+ * Common interface for all maze solving algorithms.
+ * <p>
+ * This interface defines the required methods that any solver
+ * must implement, including basic execution, visualization,
+ * and setup.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
 public interface MazeSolver {
     /**
-     * Exécute l'algorithme et renvoie le chemin final
-     * @param start Point de départ
-     * @param end Point d'arrivée
-     * @return Le chemin trouvé, ou liste vide si aucun chemin
+     * Executes the maze solving algorithm and returns the resulting path.
+     *
+     * @param start the starting vertex index
+     * @param end the ending vertex index
+     * @return a list of vertex indices representing the path, or an empty list if no path was found
      */
     List<Integer> findPath(int start, int end);
     
     /**
-     * Exécute l'algorithme avec visualisation en temps réel
+     * Executes the algorithm and displays the solving process in real-time.
+     * This is typically used for animations or visual feedback.
      */
     void visualize();
 
     /**
-     * Exécute l'algorithme sans visualisation
+     * Executes the algorithm without animation or visual feedback.
+     * This is used for silent execution and performance measurement.
      */
     void nonAnimationVisualize();
     
     /**
-     * Récupère le temps d'exécution de l'algorithme
-     * @return Temps d'exécution en millisecondes
+     * Returns the time it took to execute the algorithm.
+     *
+     * @return execution time in milliseconds
      */
     long getExecutionTime();
     
     /**
-     * Récupère le chemin final trouvé
-     * @return Liste des sommets constituant le chemin
-     */
+     * Returns the final path that was found by the solver.
+     *
+     * @return a list of vertex indices representing the final path
+     */ 
     List<Integer> getFinalPath();
     
     /**
-     * Configure le solveur avec les éléments nécessaires
-     * @param graph Le graphe représentant le labyrinthe
-     * @param graphView La vue graphe pour visualisation
-     * @param mazeView La vue labyrinthe pour visualisation
-     * @return Le solveur lui-même (pour chaînage)
+     * Sets up the solver with the required graph and views for execution and visualization.
+     *
+     * @param graph the graph structure representing the maze
+     * @param graphView the view used for rendering the graph
+     * @param mazeView the view used for rendering the maze
+     * @return the initialized MazeSolver (this)
      */
     MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView);
 }
