@@ -107,6 +107,7 @@ public class GeneratorControlleur {
         this.saveButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         this.loadButton.setStyle("-fx-background-color: #FFC107; -fx-text-fill: black;");
 
+
         // Set the preferred size of the buttons
         this.rowInput.setPrefSize(100, 30);
         this.colInput.setPrefSize(100, 30);
@@ -201,6 +202,7 @@ public class GeneratorControlleur {
             // Create a new graph with the current settings
             Graph newModel = new Graph(seed, rows, columns);
             newModel.getAllNeighbours();
+
             // update the model in the main controller
             mainController.setModel(newModel);
             // Create a new maze view
@@ -305,6 +307,7 @@ public class GeneratorControlleur {
         } catch (Exception ex) {
             System.out.println("Error during the save" + ex.getMessage());
             ex.printStackTrace();
+
         }
     }
     

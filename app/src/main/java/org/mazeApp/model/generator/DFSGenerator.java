@@ -17,7 +17,7 @@ public class DFSGenerator extends MazeGenerator {
     }
   
     public DFSGenerator(){
-      this(true);
+      this(false);
     }
 
     @Override

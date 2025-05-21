@@ -133,6 +133,7 @@ public class MainControlleur {
         this.mazeContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
     }
 
+
     /**
      * Toggles the visibility of the graph container in the UI.
      *

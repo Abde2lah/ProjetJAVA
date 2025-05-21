@@ -70,6 +70,7 @@ public class AlgorithmController {
      */
     public AlgorithmController(Graph graph, MainControlleur mainController){
 
+
         this.mainController = mainController;
         initializeAlgorithmButtons();
         setupAlgorithmButtonActions();
@@ -167,6 +168,7 @@ public class AlgorithmController {
             UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
             userSolver.attachToScene();
         });
+
 
         this.SpeedAnimationCursor.setOnMouseDragged(e -> {
             int delay = (int) SpeedAnimationCursor.getValue();
@@ -267,6 +269,7 @@ public class AlgorithmController {
         
         return solver.setup(model, graphView, mazeView);
     }
+
 
     /**
      * Configures an individual algorithm button with its execution logic.

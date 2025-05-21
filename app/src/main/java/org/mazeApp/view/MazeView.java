@@ -705,6 +705,14 @@ public class MazeView extends Pane {
         draw();
     }
 
+    public boolean verifyStartEnd(){
+        if( startIndex == -1 || endIndex == -1 ){
+            System.out.println("vous devez mettre un point de départ et d'arrivée !");
+            return false;
+        }
+        return true;
+    }
+
     public int getStartIndex() {
         return startIndex;
     }
