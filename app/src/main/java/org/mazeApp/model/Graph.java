@@ -2,9 +2,8 @@ package org.mazeApp.model;
 
 import java.util.ArrayList;
 
-import org.mazeApp.model.generator.MazeGenerator;
-
 import org.mazeApp.model.generator.KruskalGenerator;
+import org.mazeApp.model.generator.MazeGenerator;
 
 
 /**

@@ -16,6 +16,20 @@ import org.mazeApp.model.algorithms.OnlyLeftSolver;
 import org.mazeApp.model.algorithms.OnlyRightSolver;
 import org.mazeApp.model.algorithms.RandomSolver;
 
+
+/**
+ * Provides a terminal-based interface for generating and solving mazes.
+ * <p>
+ * This class allows users to:
+ * <ul>
+ *     <li>Create a new maze by specifying dimensions and seed</li>
+ *     <li>Select and run various maze-solving algorithms</li>
+ *     <li>Visualize the maze and solution using ASCII art</li>
+ * </ul>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
+
 public class TerminalView {
 
     private static final Scanner scanner = new Scanner(System.in);
@@ -24,6 +38,15 @@ public class TerminalView {
     private static final String GREEN = "\u001B[32m";
     private static final String YELLOW = "\u001B[33m";
 
+    /**
+     * Entry point for the terminal interface.
+     * <p>
+     * Allows the user to create a maze and select a solving algorithm.
+     * The resulting path is visualized in the console using ASCII art.
+     * </p>
+     *
+     * @param args command-line arguments (unused)
+     */
     public static void main(String[] args) {
         System.out.println(" Terminal Maze Solver ");
 
@@ -145,6 +168,17 @@ public class TerminalView {
         }
     }
 
+
+    /**
+     * Prints an ASCII representation of the maze with the solution path highlighted.
+     *
+     * @param graph the maze graph
+     * @param rows the number of rows in the maze
+     * @param cols the number of columns in the maze
+     * @param path the list of vertex indices that form the path
+     * @param start the starting vertex index
+     * @param end the ending vertex index
+     */
     public static void printAsciiMaze(Graph graph, int rows, int cols, List<Integer> path, int start, int end) {
         Set<Integer> pathSet = new HashSet<>(path);
         var maze = graph.getGraphMaze();
@@ -187,6 +221,13 @@ public class TerminalView {
         System.out.println("+");
     }
 
+    /**
+     * Prints an ASCII representation of the maze without any solution path.
+     *
+     * @param graph the maze graph
+     * @param rows the number of rows in the maze
+     * @param cols the number of columns in the maze
+     */
     public static void printAsciiMazeOnly(Graph graph, int rows, int cols) {
         var maze = graph.getGraphMaze();
 
