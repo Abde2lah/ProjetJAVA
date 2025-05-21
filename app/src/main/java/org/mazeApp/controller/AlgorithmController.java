@@ -1,9 +1,19 @@
+/**
+ * Controller responsible for managing maze solving algorithms.
+ * <p>
+ * This class initializes and manages the buttons associated with different
+ * maze-solving algorithms, handles their execution and animation,
+ * and updates the user interface with execution time and path length.
+ * </p>
+ * 
+* @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
+
 package org.mazeApp.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.MazeSolver;
 import org.mazeApp.model.algorithms.AStarSolver;
@@ -19,13 +29,12 @@ import org.mazeApp.view.MazeView;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import javafx.scene.paint.Color;
 
 /**
  * Controller for the algorithms
@@ -33,10 +42,10 @@ import javafx.scene.paint.Color;
  */
 public class AlgorithmController {
     
-    // Référence au contrôleur principal
+    // Référence to the main controller
     private MainControlleur mainController;
     
-    // Boutons spécifiques aux algorithmes
+    // Buttons for the algos
     private Button DFSButton;
     private Button BFSButton;
     private Button AStarButton;
@@ -45,19 +54,24 @@ public class AlgorithmController {
     private Button RightButton;
     private Button LeftButton;
     private Button RandomButton;
-    private Button StopButton;         // Remplace le bouton pause par un bouton d'arrêt
+    private Button StopButton;         
     private Label SpeedAnimationLabel;
-    private Label TimeExecutionLabel;   // Label pour le temps d'exécution
-    private Label PathLengthLabel;      // Label pour la longueur du chemin
+    private Label TimeExecutionLabel;   
+    private Label PathLengthLabel;     
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
     private Timeline animationTimeline;
-
+    private CheckBox animationCBK;
     /**
-     * Constructor which initializes the algorithm controller
+     * Constructs an AlgorithmController with access to the graph and the main controller.
+     *
+     * @param graph the graph representing the maze structure
+     * @param mainController the main application controller
      */
-    public AlgorithmController(Graph graph, MainControlleur mainController) {
+    public AlgorithmController(Graph graph, MainControlleur mainController){
+
+
         this.mainController = mainController;
         initializeAlgorithmButtons();
         setupAlgorithmButtonActions();
@@ -65,7 +79,7 @@ public class AlgorithmController {
     }
     
     /**
-     * Initialize the algorithm buttons
+     * Initialize the algorithm buttons and their interactivity
      */
     private void initializeAlgorithmButtons() {
         // Create algorithm buttons
@@ -77,12 +91,13 @@ public class AlgorithmController {
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.StopButton = new Button("Arrêter");  
+        this.StopButton = new Button("Arrêter");
+        this.animationCBK = new CheckBox("Animation");
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
-        this.SpeedAnimationCursor= new Slider(0, 100, 1);
-        
+        this.SpeedAnimationCursor= new Slider(1, 100, 1);
+         
         // Give the same size to algo buttons
         this.DFSButton.setPrefSize(100, 30);
         this.BFSButton.setPrefSize(100, 30);
@@ -99,10 +114,14 @@ public class AlgorithmController {
         this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
-        
-        // Style pour le bouton d'arrêt (fond rouge)
+        //Style for the checkbox
+        this.animationCBK.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;"); 
+
+        // Styles for the stop buttons (in red)
         this.StopButton.setStyle("-fx-background-color: #D32F2F; -fx-text-fill: white;");
-        
+        //Sets initial visibility
+        this.SpeedAnimationLabel.setVisible(false);
+        this.SpeedAnimationCursor.setVisible(false);  
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
@@ -121,9 +140,10 @@ public class AlgorithmController {
             this.RightButton,
             this.LeftButton,
             this.RandomButton,
-            this.StopButton,          // Remplacement du bouton pause par le bouton d'arrêt
+            this.StopButton,          
             this.TimeExecutionLabel,  
             this.PathLengthLabel,    
+            this.animationCBK,
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
         );
@@ -133,7 +153,7 @@ public class AlgorithmController {
      * Set up the actions for the algorithm buttons
      */
     private void setupAlgorithmButtonActions() {
-        // Bouton pour arrêter l'animation en cours
+        // Button to stop the current animation
         this.StopButton.setOnAction(e -> {
             clearPreviousAnimation();
             System.out.println("Animation arrêtée");
@@ -141,21 +161,27 @@ public class AlgorithmController {
         
         //let the users solve by himself the maze
         this.UserPlayButton.setOnAction(e -> {
-            clearPreviousAnimation();  // Nettoyer toute animation précédente
-            System.out.println("Mode utilisateur activé : utilisez les flèches du clavier pour résoudre le labyrinthe.");
+            clearPreviousAnimation();  
+            System.out.println("Player mode activated : use ZQSD to solve the maze");
 
             MazeView mazeView = mainController.getMazeView();
             Graph graph = mainController.getCurrentGraph();
 
             if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
-                System.out.println("Veuillez d'abord définir les points de départ et d'arrivée.");
+                System.out.println("Please define Start and end point");
                 return;
             }
 
-            // Activer le mode de résolution manuelle
             UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
             userSolver.attachToScene();
         });
+    
+       //toggle animation speed modifiers visibility 
+        this.animationCBK.setOnAction(e->{
+            this.SpeedAnimationCursor.setVisible(animationCBK.isSelected());
+            this.SpeedAnimationLabel.setVisible(animationCBK.isSelected()); 
+        });
+
 
         this.SpeedAnimationCursor.setOnMouseDragged(e -> {
             int delay = (int) SpeedAnimationCursor.getValue();
@@ -165,10 +191,11 @@ public class AlgorithmController {
     }
     
     /**
-     * Met en place un timer pour vérifier la fin de l'animation et mettre à jour la longueur du chemin
+     * Starts a recurring timer to check if the animation has completed,
+     * and updates the path length label accordingly.
      */
     private void setupAnimationListener() {
-        // Arrêter la timeline existante si elle existe
+        // Stop the current timeline if it exists
         if (this.animationTimeline != null) {
             this.animationTimeline.stop();
         }
@@ -176,19 +203,19 @@ public class AlgorithmController {
         this.animationTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             MazeView mazeView = mainController.getMazeView();
             
-            // Si l'animation est terminée ou si la MazeView n'est pas en train d'animer
+
             if (mazeView != null && !mazeView.isAnimationRunning()) {
-                // Tenter de trouver le chemin pour mettre à jour la longueur
+                // Try to find the path and his height
                 Graph model = mainController.getModel();
                 int start = mazeView.getStartIndex();
                 int end = mazeView.getEndIndex();
                 
-                // Utiliser DFS qui est plus simple pour trouver le chemin final
+                // Use DFS to search easier the path
                 DFSsolver dfsSolver = new DFSsolver(model, null, null);
                 List<Integer> path = dfsSolver.findPath(start, end);
                 updatePathLengthLabel(path);
                 
-                // Arrêter le timer
+                // Stop the timer
                 this.animationTimeline.stop();
             }
         }));
@@ -197,26 +224,28 @@ public class AlgorithmController {
     }
     
     /**
-     * Met à jour le label de temps d'exécution
-     * @param durationMs Durée en millisecondes
+     * Update the execution time
+     * @param durationMs Duration in millisecondes
      */
     private void updateTimeExecutionLabel(long durationMs) {
         TimeExecutionLabel.setText("Temps : " + durationMs + " ms");
     }
     
     /**
-     * Met à jour le label de longueur du chemin
-     * @param path Chemin trouvé
+     * Update the path length
+     * @param path Path found which contains the nodes
      */
     private void updatePathLengthLabel(List<Integer> path) {
         int length = (path != null) ? path.size() : 0;
-        PathLengthLabel.setText("Longueur : " + length + " cases");
+        PathLengthLabel.setText("Length : " + length + " cases");
     }
     
     /**
-     * Crée et configure un solveur du type spécifié
-     * @param solverType Type de solveur à créer
-     * @return Solveur configuré
+     * Creates and initializes the solver instance based on the selected algorithm type.
+     *
+     * @param solverType the type of algorithm to be executed (e.g., "DFS", "AStar")
+     * @return the configured MazeSolver instance
+     * @throws IllegalArgumentException if the solverType is unknown
      */
     private MazeSolver createSolver(String solverType) {
         Graph model = mainController.getModel();
@@ -248,52 +277,56 @@ public class AlgorithmController {
                 solver = new OnlyLeftSolver();
                 break;
             default:
-                throw new IllegalArgumentException("Type de solveur inconnu: " + solverType);
+                throw new IllegalArgumentException("Unknonw solver type : " + solverType);
         }
         
         return solver.setup(model, graphView, mazeView);
     }
 
-    // Template commun pour tous les boutons d'algorithme
+
+    /**
+     * Configures an individual algorithm button with its execution logic.
+     *
+     * @param button the button to set up
+     * @param solverType the type of solver to associate with this button
+     */
     private void setupAlgorithmButton(Button button, String solverType) {
         button.setOnAction(e -> {
             try {
-                // Effacer l'animation précédente
+                // Clear the previous animation
                 clearPreviousAnimation();
                 
                 MazeSolver solver = createSolver(solverType);
                 
-                // Exécuter l'algorithme et mesurer le temps
+                // Exécuter algo and measure time
                 long startTime = System.currentTimeMillis();
-                
-                // S'assurer que la vue est à jour avant de lancer l'algorithme
                 MazeView mazeView = mainController.getMazeView();
 
                 if(!mazeView.verifyStartEnd()) return;
                 
                 mazeView.refresh();
                 
-                // Trouver le chemin d'abord (pour avoir la longueur)
+                // find first the path
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 updatePathLengthLabel(path);
-                
-                // Lancer la visualisation
                 solver.visualize();
                 
-                // Mettre à jour le temps d'exécution
+                // Update execution time
                 long endTime = System.currentTimeMillis();
                 updateTimeExecutionLabel(endTime - startTime);
                 
                 // Surveillance de fin d'animation si nécessaire
                 setupAnimationListener();
             } catch (Exception ex) {
-                System.err.println("Erreur lors de l'exécution de " + solverType + ": " + ex.getMessage());
+                System.err.println("Error during the execution  " + solverType + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         });
     }
 
-    // Initialisation de tous les boutons d'algorithme
+    /**
+     * Initializes all available algorithm buttons with their respective solvers.
+     */
     private void setupAllButtons() {
         setupAlgorithmButton(DFSButton, "DFS");
         setupAlgorithmButton(BFSButton, "BFS");
@@ -312,26 +345,26 @@ public class AlgorithmController {
     }
     
     /**
-     * Nettoie l'affichage des animations précédentes
+     * Clear the display from previous animations
      */
     private void clearPreviousAnimation() {
         MazeView mazeView = mainController.getMazeView();
         if (mazeView != null) {
-            // Arrêter toute animation en cours
+            // Stop every current animation
             if (this.animationTimeline != null) {
                 this.animationTimeline.stop();
             }
             
-            // Arrêter l'animation dans le MazeView
+            // Stop the animation
             mazeView.stopAnimation();
             
-            // Réinitialiser l'affichage
+            // Reset the display
             mazeView.clearAnimations();
             
-            // Forcer la mise à jour de l'affichage
+            // Update forced
             mazeView.draw();
             
-            // Réinitialiser les labels
+            // Reset labels
             updateTimeExecutionLabel(0);
             updatePathLengthLabel(null);
         }
