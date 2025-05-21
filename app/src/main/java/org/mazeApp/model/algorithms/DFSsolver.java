@@ -61,6 +61,35 @@ public class DFSsolver extends AbstractMazeSolver {
 
         System.out.println("DFS algorithm duration : " + getExecutionTime() + " ms");
     }
+    @Override
+    public void nonAnimationVisualize() {
+        if (mazeView == null) {
+            System.out.println("MazeView is null. Cannot visualize.");
+            return;
+        }
+        
+        int start = mazeView.getStartIndex();
+        int end = mazeView.getEndIndex();
+        
+        if (start < 0 || end < 0) {
+            System.out.println("Please define a Start and end point");
+            return;
+        }
+        
+        measureExecutionTime(() -> {
+            ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
+            
+            if (steps.isEmpty()) {
+                System.out.println("No path found");
+                this.finalPath = new ArrayList<>();
+            } else {
+                this.finalPath = steps.get(steps.size() - 1);
+                mazeView.nonAnimationVisualizeStep(steps);
+            }
+        });
+        
+        System.out.println("algorithm duration: " + getExecutionTime() + " ms");
+    }
 
     /**
      * Do a DFS search and return the steps taken

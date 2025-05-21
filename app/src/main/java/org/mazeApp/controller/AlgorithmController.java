@@ -309,7 +309,15 @@ public class AlgorithmController {
                 // find first the path
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 updatePathLengthLabel(path);
-                solver.visualize();
+
+                if(animationCBK.isSelected()){
+                    solver.visualize();
+                    System.out.println("résolution avec animation");
+                }
+                else{
+                    solver.nonAnimationVisualize();
+                    System.out.println("résolution sans animation");
+                }
                 
                 // Update execution time
                 long endTime = System.currentTimeMillis();

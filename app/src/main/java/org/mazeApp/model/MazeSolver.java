@@ -21,6 +21,11 @@ public interface MazeSolver {
      * Exécute l'algorithme avec visualisation en temps réel
      */
     void visualize();
+
+    /**
+     * Exécute l'algorithme sans visualisation
+     */
+    void nonAnimationVisualize();
     
     /**
      * Récupère le temps d'exécution de l'algorithme

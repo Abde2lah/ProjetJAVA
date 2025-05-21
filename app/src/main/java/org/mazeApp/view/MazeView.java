@@ -2,6 +2,7 @@ package org.mazeApp.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.mazeApp.model.Edges;
@@ -693,6 +694,81 @@ public class MazeView extends Pane {
         timeline.play();
     }
 
+
+    /**
+     * visualize only solution
+     * @param steps
+     */
+    public void nonAnimationVisualizeStep(ArrayList<ArrayList<Integer>> steps){
+        if (steps.isEmpty()) {
+            System.out.println("Aucun chemin trouvé.");
+            return;
+        }
+    
+        draw(); 
+    
+        double cellSize = calculateCellSize();
+        double pathThickness = Math.max(0.5, cellSize * 0.1);
+    
+        double mazeWidth = columns * cellSize;
+        double mazeHeight = rows * cellSize;
+        double offsetX = (getWidth() - mazeWidth) / 2;
+        double offsetY = (getHeight() - mazeHeight) / 2;
+    
+        Map<Pair<Integer, Integer>, Line> edgeLines = new HashMap<>();
+    
+        for (Edges edgeObj : currentGraph.getEdges()) {
+            int from = edgeObj.getSource();
+            int to = edgeObj.getDestination();
+    
+            int row1 = from / columns, col1 = from % columns;
+            int row2 = to / columns, col2 = to % columns;
+    
+            double x1 = col1 * cellSize + offsetX + cellSize / 2;
+            double y1 = row1 * cellSize + offsetY + cellSize / 2;
+            double x2 = col2 * cellSize + offsetX + cellSize / 2;
+            double y2 = row2 * cellSize + offsetY + cellSize / 2;
+    
+            Pair<Integer, Integer> edge = new Pair<>(Math.min(from, to), Math.max(from, to));
+            Line line = new Line(x1, y1, x2, y2);
+            line.setStrokeWidth(pathThickness);
+            line.setVisible(false);
+    
+            edgeLines.put(edge, line);
+            getChildren().add(line);
+        }
+    
+        // Regrouper tous les bords de toutes les étapes
+        HashSet<Pair<Integer, Integer>> allEdges = new HashSet<>();
+        for (ArrayList<Integer> path : steps) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                int from = path.get(i);
+                int to = path.get(i + 1);
+                allEdges.add(new Pair<>(Math.min(from, to), Math.max(from, to)));
+            }
+        }
+    
+        // Identifier les bords de la dernière étape
+        HashSet<Pair<Integer, Integer>> lastStepEdges = new HashSet<>();
+        ArrayList<Integer> lastStep = steps.get(steps.size() - 1);
+        for (int i = 0; i < lastStep.size() - 1; i++) {
+            int from = lastStep.get(i);
+            int to = lastStep.get(i + 1);
+            lastStepEdges.add(new Pair<>(Math.min(from, to), Math.max(from, to)));
+        }
+    
+        // Colorier tous les bords en vert clair sauf les derniers en rouge
+        for (Pair<Integer, Integer> edge : allEdges) {
+            Line line = edgeLines.get(edge);
+            if (line != null) {
+                line.setStroke(lastStepEdges.contains(edge) ? Color.RED : Color.LIGHTGREEN);
+                line.setVisible(true);
+            }
+        }
+    
+        System.out.println("Chemin trouvé de longueur " + lastStep.size());
+    }
+        
     /**
      * Reset Start and end points
      */
