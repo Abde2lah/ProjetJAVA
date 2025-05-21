@@ -265,4 +265,29 @@ public class Graph {
         return edgesList;
     }
 
+    /**
+     * Returns all edges (connections) adjacent to the specified vertex.
+     * This method finds all edges where the specified vertex is either the source
+     * or the destination.
+     *
+     * @param vertex The vertex for which to find neighboring edges
+     * @return ArrayList of Edges that are connected to the specified vertex
+     * @throws IllegalArgumentException if the vertex is outside the valid range
+     */
+    public ArrayList<Edges> getEdges(int vertex) {
+        // Check if vertex is valid
+        if (vertex < 0 || vertex >= vertexCount) {
+            throw new IllegalArgumentException("Invalid vertex: " + vertex + ". Must be between 0 and " + (vertexCount - 1));
+        }
+        
+        // Create a new ArrayList to store all neighboring edges
+        ArrayList<Edges> neighborEdges = new ArrayList<>();
+        
+        // Add all edges where the specified vertex is the source
+        neighborEdges.addAll(graphMaze.get(vertex));
+        
+        // Return the list of neighboring edges
+        return neighborEdges;
+    }
+
 }
