@@ -40,10 +40,10 @@ public class DijkstraSolver extends AbstractMazeSolver {
         int start = mazeView.getStartIndex();
         int end = mazeView.getEndIndex();
 
-        if (start < 0 || end < 0) {
-            System.out.println("Please define a start and a end point");
-            return;
-        }
+        // if (start < 0 || end < 0) {
+        //     System.out.println("Please define a start and a end point");
+        //     return;
+        // }
 
         measureExecutionTime(() -> {
             ArrayList<ArrayList<Integer>> steps = getDijkstraSteps(start, end);

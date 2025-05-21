@@ -268,6 +268,9 @@ public class AlgorithmController {
                 
                 // S'assurer que la vue est à jour avant de lancer l'algorithme
                 MazeView mazeView = mainController.getMazeView();
+
+                if(!mazeView.verifyStartEnd()) return;
+                
                 mazeView.refresh();
                 
                 // Trouver le chemin d'abord (pour avoir la longueur)
