@@ -11,7 +11,9 @@ import org.mazeApp.model.generator.KruskalGenerator;
 import org.mazeApp.view.MazeView;
 import org.mazeApp.view.SaveView;
 
-import javafx.scene.Cursor;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -23,14 +25,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.geometry.Pos;
 
 /**
- * Controller for the generation of mazes.
- * This class manages the UI for maze generation.
+ * Controller responsible for maze generation.
+ * <p>
+ * This class manages the user interface components and logic 
+ * for generating, animating, saving, and loading mazes in the application.
+ * </p>
+ * 
+ * It handles user inputs such as dimensions and seed, and 
+ * supports different maze generation algorithms (Kruskal and DFS).
+ * 
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
+
 public class GeneratorControlleur {
     //main controller
     private MainControlleur mainController;
@@ -50,10 +59,13 @@ public class GeneratorControlleur {
     private SaveManager saveManager;
     private SaveView saveView;
     private int delay = 5; // Delay in milliseconds for animation
+
+
     /**
-     * Constructor for the generator controller
-     * @param graph The graph model to be used in the application
-     * @param mainController The main controller of the application 
+     * Constructs the GeneratorControlleur with the specified graph and main controller.
+     *
+     * @param graph the initial graph model
+     * @param mainController the application's main controller
      */
     public GeneratorControlleur(Graph graph, MainControlleur mainController) {
         this.mainController = mainController;
@@ -67,7 +79,7 @@ public class GeneratorControlleur {
      * Initialize the generator UI components
      */
     private void initializeGeneratorControls() {
-        // Créer les étiquettes et champs de saisie
+        // Creates label and inputs
         Text rowLabel = new Text("Number of rows:");
         this.rowInput = new TextField();
         this.rowInput.setText("5");
@@ -80,7 +92,7 @@ public class GeneratorControlleur {
         this.seedInput = new TextField();
         this.seedInput.setText("42");
 
-        // Créer les boutons
+        // Create buttons
         this.clearButton = new Button("Clear");
         this.generateButton = new Button("Generate");
         this.saveButton = new Button("Save Maze");
@@ -202,11 +214,11 @@ public class GeneratorControlleur {
         }
     }
     /**
-     * Implémentation de l'animation de génération du labyrinthe
+     * Show the maze's animation during the generation
      */
     public void animateMazeGeneration() {
         try {
-            // Récupérer les valeurs numériques à partir des champs texte
+            // Récupthe numerals values froms the inputs
             int rows = getRowValue();
             int columns = getColumnValue();
             int seed = getSeedValue();
@@ -221,25 +233,25 @@ public class GeneratorControlleur {
             Graph animatedGraph = Graph.emptyGraph(rows, columns);
             animatedGraph.setSeed(seed);  // Définir la graine pour la cohérence
             
-            // Récupérer les étapes de génération
+            // Recup the step of generation during this
             ArrayList<Edges> steps = Graph.getCurrentGenerator().generate(rows, columns, seed);
             
-            // Créer une nouvelle vue de labyrinthe
+            // Create a new view of the maze
             MazeView animatedMazeView = new MazeView(animatedGraph, mainController.getGraphView());
             
-            // Mettre à jour le modèle et la vue
+            // Update model and view
             mainController.setModel(animatedGraph);
             mainController.setMazeView(animatedMazeView);
             mainController.updateMazeViewInContainer(animatedMazeView);
             
-            // Créer la timeline pour l'animation
+            // Create timeline for the view
             Timeline timeline = new Timeline();
             
-            // Ajouter chaque étape à la timeline avec le délai approprié
+            // Add each step with the asked delay
             for (int i = 0; i < steps.size(); i++) {
                 final int index = i;
                 KeyFrame frame = new KeyFrame(Duration.millis(i * delay), e -> {
-                    if (index < steps.size()) {  // Vérification de sécurité
+                    if (index < steps.size()) {  
                         Edges edge = steps.get(index);
                         animatedGraph.addEdge(edge.getSource(), edge.getDestination());
                         animatedMazeView.draw();
@@ -248,10 +260,9 @@ public class GeneratorControlleur {
                 timeline.getKeyFrames().add(frame);
             }
             
-            // Ajouter un événement à la fin de l'animation
             timeline.setOnFinished(e -> System.out.println("Animation terminée"));
             
-            // Lancer l'animation
+            // Launch the animation
             timeline.play();
             
         } catch (NumberFormatException e) {
@@ -275,24 +286,24 @@ public class GeneratorControlleur {
      */
     public void saveMaze() {
         try {
-            // Sauvegarder le labyrinthe avec sa structure complète
+            // Save the maze
             Graph currentGraph = mainController.getModel();
             
-            // Vérification que le modèle existe
+            // Verify that mthe model already exists
             if (currentGraph == null) {
-                System.out.println("Impossible de sauvegarder : aucun labyrinthe n'est généré.");
+                System.out.println("Impossible to save");
                 return;
             }
             
             String mazeName = saveManager.saveMaze(currentGraph);
             
             if (mazeName == null) {
-                System.out.println("Ce labyrinthe existe déjà dans la liste sauvegardée.");
+                System.out.println("This maze already exists on the file");
             } else {
-                System.out.println("Labyrinthe sauvegardé sous: " + mazeName);
+                System.out.println("Maze saved with the name " + mazeName);
             }
         } catch (Exception ex) {
-            System.out.println("Erreur lors de la sauvegarde: " + ex.getMessage());
+            System.out.println("Error during the save" + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -302,34 +313,32 @@ public class GeneratorControlleur {
      */
     public void loadMaze() {
         if (!saveManager.hasSavedMazes()) {
-            System.out.println("Aucun labyrinthe sauvegardé disponible.");
+            System.out.println("Non maze available");
             return;
         }
         
-        // Afficher la fenêtre des labyrinthes sauvegardés avec la nouvelle méthode
         saveView.showSavedMazesWindowEx((graph) -> {
-            // Vérification que le graphe n'est pas null
             if (graph == null) {
-                System.out.println("Erreur: le graphe chargé est null.");
+                System.out.println("Error, the graph is null.");
                 return;
             }
             
-            // Mise à jour du modèle
+            // Update the model
             mainController.setModel(graph);
             
-            // Mise à jour des champs d'entrée
+            // Update the inputs
             this.rowInput.setText(String.valueOf(graph.getRows()));
             this.colInput.setText(String.valueOf(graph.getColumns()));
             this.seedInput.setText(String.valueOf(graph.getSeed()));
             
-            // Création d'une nouvelle vue de labyrinthe
+            // Create new view for the maze
             MazeView mazeView = new MazeView(graph, mainController.getGraphView());
             mainController.setMazeView(mazeView);
             
-            // Mise à jour du conteneur
+            // Update Container
             mainController.updateMazeViewInContainer(mazeView);
             
-            // Rafraîchissement des vues
+            // Refresh view
             mainController.refreshViews();
         });
     }
