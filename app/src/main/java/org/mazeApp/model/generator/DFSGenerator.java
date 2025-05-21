@@ -5,7 +5,21 @@ import java.util.Collections;
 import java.util.Random;
 import org.mazeApp.model.Edges;
 
-public class DFSGenerator implements MazeGenerator {
+public class DFSGenerator extends MazeGenerator {
+
+    private mazeType typeMazeGenerated;
+    public DFSGenerator(boolean isImperfect){
+      if(isImperfect){
+        this.typeMazeGenerated = mazeType.IMPERFECT;
+      }else{
+        this.typeMazeGenerated = mazeType.PERFECT;
+      }
+    }
+  
+    public DFSGenerator(){
+      this(true);
+    }
+
     @Override
     public ArrayList<Edges> generate(int rows, int columns, int seed) {
         ArrayList<Edges> generationSteps = new ArrayList<>();
@@ -16,6 +30,16 @@ public class DFSGenerator implements MazeGenerator {
         int start = random.nextInt(rows * columns);
         dfsGenerate(start, rows, columns, visited, generationSteps, random);
         
+        if(typeMazeGenerated == mazeType.IMPERFECT){
+          generationSteps.removeFirst();
+          ArrayList<Edges> imperfectGenerationSteps = new ArrayList<>();
+          int probabilityToRemove = 5;
+          for(Edges edge : generationSteps ){
+            if(random.nextInt(100) > probabilityToRemove ) 
+              imperfectGenerationSteps.add(edge);
+          }
+          return imperfectGenerationSteps;
+        } 
         return generationSteps;
     }
     

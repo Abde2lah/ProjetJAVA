@@ -1,6 +1,7 @@
 package org.mazeApp.controller;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
@@ -12,6 +13,7 @@ import org.mazeApp.view.SaveView;
 
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -103,15 +105,28 @@ public class GeneratorControlleur {
         this.loadButton.setPrefSize(100, 30);
         this.animateGenerationButton.setPrefSize(100, 30);
         this.SpeedGenerationCursor.setPrefSize(100, 30);
+        
         RadioButton kruskalRadio = new RadioButton("Kruskal");
         RadioButton dfsRadio = new RadioButton("DFS");
-        kruskalRadio.setSelected(true);
+        CheckBox createImperfectMazeCB = new CheckBox("Imperfect Maze");
         ToggleGroup algoGroup = new ToggleGroup();
+        
+        kruskalRadio.setSelected(true);
         kruskalRadio.setToggleGroup(algoGroup);
+        
         dfsRadio.setToggleGroup(algoGroup);
-        kruskalRadio.setOnAction(e -> Graph.setGenerator(new KruskalGenerator()));
+        
+        
+        AtomicBoolean imperfectMzCheckBoxState = new AtomicBoolean(createImperfectMazeCB.isSelected());
+        createImperfectMazeCB.setOnAction(e->{
+          imperfectMzCheckBoxState.set(!imperfectMzCheckBoxState.get());
+        });
+
+        kruskalRadio.setOnAction(e -> Graph.setGenerator(new KruskalGenerator(imperfectMzCheckBoxState.get())));
+        
         dfsRadio.setOnAction(e -> Graph.setGenerator(new DFSGenerator()));
-        HBox radioBox = new HBox(10, kruskalRadio, dfsRadio);
+        
+        HBox radioBox = new HBox(10, kruskalRadio, dfsRadio, createImperfectMazeCB);
         radioBox.setAlignment(Pos.CENTER);
         Text genTitle = new Text("Génération de Labyrinthe");
         genTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");

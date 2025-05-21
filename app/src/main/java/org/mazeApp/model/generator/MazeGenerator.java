@@ -6,22 +6,38 @@ import org.mazeApp.model.Edges;
 
 
 /**
- * Interface pour les différents algorithmes de génération de labyrinthe
- C'est tras simple : 
-    * - On génère un labyrinthe
-    * - On retourne les étapes de génération
-    * - On retourne le nom de l'algorithme
-    *
- 
+ *This interface is intended to be implemented in order to specify the maze generator methods.
+ * @since 1.0
  */
-public interface MazeGenerator {
+public abstract class MazeGenerator {
     /**
-     * Génère un labyrinthe et retourne les étapes de génération
+     *Enumeration containing booleans where each field represents the type of maze generated 
+     * 
+     * */
+    protected enum mazeType {
+      PERFECT(false),
+      IMPERFECT(true);
+
+      private final boolean code;
+      
+      mazeType (boolean code){
+        this.code = code ;  
+      }
+
+      public boolean getCode() {
+        return code;
+      } 
+    }  
+  /**
+     * @param rows Number of rows in the Maze
+     * @param columns Number of columns in the Maze
+     * @param seed Seed Number of the Maze
+     * @return Returns an ArrayList of {@link org.mazeApp.model.Edges} representing the maze
      */
-    ArrayList<Edges> generate(int rows, int columns, int seed);
+    abstract public ArrayList<Edges> generate(int rows, int columns, int seed);
     
     /**
-     * Retourne le nom de l'algorithme
-     */
-    String getName();
+     * @return Returns the algorithm's name used for the maze genaration proccess. 
+     * */
+    abstract public String getName();
 }

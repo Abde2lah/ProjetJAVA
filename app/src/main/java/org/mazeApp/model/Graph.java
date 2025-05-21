@@ -1,18 +1,19 @@
 package org.mazeApp.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+
+import org.mazeApp.model.generator.MazeGenerator;
 
 import org.mazeApp.model.generator.KruskalGenerator;
-import org.mazeApp.model.generator.MazeGenerator;
+
 
 /**
 
  * Representation of a graph using an adjacency list.
  * This class represents a graph using an adjacency list, where each vertex
  * is represented by an index and its neighbors are stored in an ArrayList.
- * Authors: Felipe Zani, Jeremy Perbost
+ * @author Felipe Zani, Jeremy Perbost
+ * @since 1.0
  */
 public class Graph {
 
