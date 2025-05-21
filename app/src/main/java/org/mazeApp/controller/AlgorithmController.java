@@ -176,7 +176,7 @@ public class AlgorithmController {
             userSolver.attachToScene();
         });
     
-       //toggle animation modifiers visibility 
+       //toggle animation speed modifiers visibility 
         this.animationCBK.setOnAction(e->{
             this.SpeedAnimationCursor.setVisible(animationCBK.isSelected());
             this.SpeedAnimationLabel.setVisible(animationCBK.isSelected()); 
