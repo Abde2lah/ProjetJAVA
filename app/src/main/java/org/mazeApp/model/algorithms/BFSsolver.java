@@ -1,6 +1,7 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,8 +16,12 @@ import org.mazeApp.view.MazeView;
 
 public class BFSsolver extends AbstractMazeSolver {
 
+    private int start = -1;
+    private int end = -1;
+
     private boolean[] visitedVerticesArray;
     private ArrayList<Integer> vertexVisitOrder;
+    Graph graph;
     private int verticesNb;
 
     public BFSsolver() {
@@ -36,8 +41,81 @@ public class BFSsolver extends AbstractMazeSolver {
         super.setup(graph, graphView, mazeView);
         this.verticesNb = graph.getVertexNb();
         this.visitedVerticesArray = new boolean[verticesNb];
+        this.graph = graph;
         return this;
     }
+
+    public ArrayList<ArrayList<Integer>> solveBFS() {
+        int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
+        int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
+
+        this.visitedVerticesArray = new boolean[verticesNb];
+        this.vertexVisitOrder = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> animationPath = new ArrayList<>();
+
+        Queue<Integer> queue = new LinkedList<>();
+        int[] parent = new int[verticesNb]; // Pour reconstruire le chemin à la fin
+
+        Arrays.fill(parent, -1); // Initialisation des parents
+
+        visitedVerticesArray[startIdx] = true;
+        queue.add(startIdx);
+
+        // Animation de la première étape (départ)
+        ArrayList<Integer> initialStep = new ArrayList<>();
+        initialStep.add(startIdx);
+        animationPath.add(new ArrayList<>(initialStep));
+
+        boolean goalFound = false;
+
+        while (!queue.isEmpty() && !goalFound) {
+            int current = queue.poll();
+            ArrayList<Integer> step = new ArrayList<>();
+            step.add(current); 
+
+            for (Edges edge : graph.getEdges(current)) {
+                int neighborSource = edge.getDestination();
+                int neighborFirst = edge.getSource();
+
+                if (!visitedVerticesArray[neighborSource]) {
+                    visitedVerticesArray[neighborSource] = true;
+                    parent[neighborSource] = current;
+                    queue.add(neighborSource);
+
+                    if (step.isEmpty() || step.get(step.size() - 1) != neighborFirst) {
+                        step.add(neighborFirst);
+                    }
+                    if (step.isEmpty() || step.get(step.size() - 1) != neighborSource) {
+                        step.add(neighborSource);
+                    }
+
+                    if (neighborSource == goalIdx) {
+                        goalFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!step.isEmpty()) {
+                animationPath.add(new ArrayList<>(step));
+            }
+        }
+
+        // Reconstruction du chemin de fin pour le montrer en rouge à la fin
+        if (goalFound) {
+            ArrayList<Integer> path = new ArrayList<>();
+            int node = goalIdx;
+            while (node != -1) {
+                path.add(0, node);
+                node = parent[node];
+            }
+
+            animationPath.add(path); 
+        }
+
+        return animationPath;
+    }
+
     
     //BFS with saving steps
     private ArrayList<Integer> bfsWithSteps(int startingPoint, int endingPoint, ArrayList<ArrayList<Edges>> graph) {
@@ -75,27 +153,18 @@ public class BFSsolver extends AbstractMazeSolver {
     @Override
     public void visualize() {
         if (mazeView == null) {
-            System.out.println("MazeView is null. Cannot visualize.");
+            System.out.println("Visualisation non disponible en mode terminal.");
             return;
         }
-        
-        int start = mazeView.getStartIndex();
-        int end = mazeView.getEndIndex();
-        
+
+        if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
+            System.out.println("Please define a start and end point.");
+            return;
+        }
+
         measureExecutionTime(() -> {
-            this.finalPath = bfsWithSteps(start, end, model.getGraphMaze());
-            
-            // Pour BFS, nous n'avons pas d'étapes intermédiaires, 
-            // alors nous devons les simuler pour la visualisation
-            ArrayList<ArrayList<Integer>> steps = new ArrayList<>();
-            for (int i = 0; i < finalPath.size(); i++) {
-                ArrayList<Integer> step = new ArrayList<>(finalPath.subList(0, i + 1));
-                steps.add(step);
-            }
-            
-            if (!steps.isEmpty()) {
-                mazeView.visualiseStep(steps);
-            }
+            ArrayList<ArrayList<Integer>> steps = solveBFS();
+            mazeView.visualiseStep(steps);
         });
         
         System.out.println("BFS algorithm duration : " + getExecutionTime() + " ms");
