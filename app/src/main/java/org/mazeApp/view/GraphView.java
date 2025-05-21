@@ -10,33 +10,43 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
+/**
+ * GraphView is a JavaFX component that visually represents a graph structure.
+ * <p>
+ * This class displays vertices and edges in a grid layout, and allows interaction
+ * such as edge creation and deletion through mouse events.
+ * It synchronizes with the {@link MazeView} to reflect graph updates.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
 public class GraphView extends Pane {
-    // Constantes et propriétés
+    // Constants and properties
     private final double FIXED_WIDTH = 300;
     private final double FIXED_HEIGHT = 300;
     private final double padding = 20;
     private final double minVertexRadius = 0.5;
     private final double maxVertexRadius = 5;
     
-    // Variables pour l'édition du graphe
+    // Variables to edit the graph
     private Graph currentGraph;
     private MazeView associatedMazeView;
     private int hoveredVertexIndex = -1;
     private int selectedVertexIndex = -1;
     private int[] hoveredEdge = null;
-    private int[] potentialEdge = null; // Pour afficher les arêtes potentielles
+    private int[] potentialEdge = null; 
     private boolean edgeCreationMode = false;
     private double edgeStartX, edgeStartY;
     private final double HOVER_THRESHOLD = 10.0;
     
-    // Couleurs pour l'interface
+    // Colors for the UI
     private final Color EDGE_HOVER_COLOR = Color.RED;
     private final Color VERTEX_HOVER_COLOR = Color.LIGHTBLUE;
     private final Color POTENTIAL_EDGE_COLOR = Color.GREEN;
     
 
     /**
-     * Constructeur : initialise les dimensions fixes de la vue
+     * Constructs the GraphView and sets up default dimensions and event handlers.
      */
     public GraphView() {
         setPrefSize(FIXED_WIDTH, FIXED_HEIGHT);
@@ -46,31 +56,29 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Définit la vue du labyrinthe associée pour la synchronisation
+     * Sets the associated MazeView to allow for synchronized updates when the graph is edited.
+     *
+     * @param mazeView the MazeView to synchronize with
      */
     public void setAssociatedMazeView(MazeView mazeView) {
         this.associatedMazeView = mazeView;
     }
 
     /**
-     * Configure les gestionnaires d'événements pour l'interaction
+     * Setup the events gestionary in case if happened
      */
     private void setupEventHandlers() {
-        // Gestion du survol
+        // hover gestion with the mouse
         setOnMouseMoved(event -> {
             if (currentGraph == null) return;
             
             double mouseX = event.getX();
             double mouseY = event.getY();
             
-            // Mode création d'arête
             if (edgeCreationMode) {
-                // Le code reste inchangé pour le mode création d'arête
-                // ...
                 return;
             }
             
-            // Mode normal - réinitialiser l'état
             boolean wasHoveringVertex = hoveredVertexIndex != -1;
             boolean wasHoveringEdge = hoveredEdge != null;
             boolean hadPotentialEdge = potentialEdge != null;
@@ -78,40 +86,31 @@ public class GraphView extends Pane {
             hoveredVertexIndex = -1;
             hoveredEdge = null;
             potentialEdge = null;
-            
-            // Vérifier les survols dans cet ordre: arêtes, arêtes potentielles, puis sommets
-            
-            // 1. Vérifier survol sur arête existante
             checkEdgeHover(mouseX, mouseY);
             
-            // 2. Si aucune arête n'est survolée, vérifier les arêtes potentielles
             if (hoveredEdge == null) {
                 findPotentialEdge(mouseX, mouseY);
             }
             
-            // 3. Si aucune arête (existante ou potentielle) n'est survolée, vérifier les sommets
             if (hoveredEdge == null && potentialEdge == null) {
                 checkVertexHover(mouseX, mouseY);
             }
             
-            // Mise à jour de l'interface selon ce qui est survolé
             if (hoveredEdge != null) {
-                // Survol d'une arête existante
                 setCursor(javafx.scene.Cursor.HAND);
                 draw(currentGraph);
                 drawEdgeHover(hoveredEdge[0], hoveredEdge[1], EDGE_HOVER_COLOR);
             } else if (potentialEdge != null) {
-                // Survol d'une arête potentielle
                 setCursor(javafx.scene.Cursor.HAND);
                 draw(currentGraph);
                 drawPotentialEdge(potentialEdge[0], potentialEdge[1], POTENTIAL_EDGE_COLOR);
             } else if (hoveredVertexIndex != -1) {
-                // Survol d'un sommet
+                // vertex hovered
                 setCursor(javafx.scene.Cursor.HAND);
                 draw(currentGraph);
                 drawVertexHover(hoveredVertexIndex, VERTEX_HOVER_COLOR);
             } else {
-                // Aucun élément survolé
+                // none elements hovered
                 setCursor(javafx.scene.Cursor.DEFAULT);
                 if (wasHoveringVertex || wasHoveringEdge || hadPotentialEdge) {
                     draw(currentGraph);
@@ -119,7 +118,7 @@ public class GraphView extends Pane {
             }
         });
         
-        // Gestion des clics
+        // Clics gestion
         setOnMouseClicked(event -> {
             if (currentGraph == null) return;
             
@@ -129,7 +128,7 @@ public class GraphView extends Pane {
                 return;
             }
             
-            // Clic sur une arête existante - supprimer l'arête
+            // delete the edges if clicked
             if (hoveredEdge != null) {
                 removeEdge(hoveredEdge[0], hoveredEdge[1]);
                 hoveredEdge = null;
@@ -137,7 +136,7 @@ public class GraphView extends Pane {
                 return;
             }
             
-            // Clic sur une arête potentielle - ajouter l'arête
+            // add a edges if clicked
             if (potentialEdge != null) {
                 addEdge(potentialEdge[0], potentialEdge[1]);
                 potentialEdge = null;
@@ -145,13 +144,10 @@ public class GraphView extends Pane {
                 return;
             }
             
-            // Clic sur un sommet - débuter création d'arête si Shift enfoncé
             if (hoveredVertexIndex != -1) {
                 if (event.isShiftDown()) {
                     selectedVertexIndex = hoveredVertexIndex;
                     edgeCreationMode = true;
-                    
-                    // Coordonnées du sommet pour la ligne temporaire
                     int rows = currentGraph.getRows();
                     int columns = currentGraph.getColumns();
                     double cellSize = calculateCellSize(rows, columns);
@@ -161,17 +157,16 @@ public class GraphView extends Pane {
                     edgeStartY = row * cellSize + padding;
                     
                     setCursor(javafx.scene.Cursor.CROSSHAIR);
-                    System.out.println("Début création d'arête depuis sommet " + selectedVertexIndex);
+                    System.out.println("begin edges creation" + selectedVertexIndex);
                 } else {
-                    // Clic simple sur un sommet (peut être utilisé pour d'autres actions)
-                    System.out.println("Sommet sélectionné : " + hoveredVertexIndex);
+                    System.out.println("Vertex selected : " + hoveredVertexIndex);
                 }
             }
         });
     }
     
     /**
-     * Cherche une arête potentielle à créer lorsque la souris est entre deux sommets
+     * Find a potential edge to create if the mouse hover near a edge
      */
     private void findPotentialEdge(double mouseX, double mouseY) {
         if (currentGraph == null) return;
@@ -179,28 +174,24 @@ public class GraphView extends Pane {
         int rows = currentGraph.getRows();
         int columns = currentGraph.getColumns();
         double cellSize = calculateCellSize(rows, columns);
-        
-        // Rechercher toutes les paires de sommets adjacents qui n'ont pas d'arête entre eux
         for (int i = 0; i < currentGraph.getVertexNb(); i++) {
             int row1 = i / columns;
             int col1 = i % columns;
             double x1 = col1 * cellSize + padding;
             double y1 = row1 * cellSize + padding;
-            
-            // Vérifier uniquement les voisins directs (haut, bas, gauche, droite)
-            int[] directions = {-columns, -1, 1, columns}; // haut, gauche, droite, bas
+            int[] directions = {-columns, -1, 1, columns}; 
             int[] neighborIndices = new int[4];
             
             for (int d = 0; d < 4; d++) {
                 int neighborIndex = i + directions[d];
                 
-                // Vérifier que le voisin est valide
+                // Verify if the neighbor is correct
                 if (neighborIndex < 0 || neighborIndex >= currentGraph.getVertexNb()) {
                     neighborIndices[d] = -1;
                     continue;
                 }
                 
-                // Éviter les arêtes qui traversent les bords de la grille
+                // Don't touch the border of the maze
                 if (directions[d] == -1 && i % columns == 0) {
                     neighborIndices[d] = -1;
                     continue;
@@ -213,11 +204,11 @@ public class GraphView extends Pane {
                 neighborIndices[d] = neighborIndex;
             }
             
-            // Vérifier chaque voisin valide
+            // Verify if edge is valid
             for (int j : neighborIndices) {
                 if (j == -1) continue;
                 
-                // Vérifier si une arête existe déjà
+                // Verify if an edge is already there
                 boolean edgeExists = false;
                 for (Edges edge : currentGraph.getGraphMaze().get(i)) {
                     if (edge.getDestination() == j) {
@@ -226,19 +217,17 @@ public class GraphView extends Pane {
                     }
                 }
                 
-                // Si pas d'arête, vérifier si la souris est proche de la ligne entre ces sommets
                 if (!edgeExists) {
                     int row2 = j / columns;
                     int col2 = j % columns;
                     double x2 = col2 * cellSize + padding;
                     double y2 = row2 * cellSize + padding;
                     
-                    // Calculer la distance du point (mouseX, mouseY) à la ligne
                     double distance = distancePointToLine(mouseX, mouseY, x1, y1, x2, y2);
                     
                     if (distance <= HOVER_THRESHOLD) {
                         potentialEdge = new int[] {i, j};
-                        return; // On a trouvé une arête potentielle, on s'arrête
+                        return; 
                     }
                 }
             }
@@ -246,15 +235,13 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Vérifie si la souris est au-dessus d'un sommet
+     * Check if the mouse is near a vertex
      */
     private boolean checkVertexHover(double mouseX, double mouseY) {
         int rows = currentGraph.getRows();
         int columns = currentGraph.getColumns();
         double cellSize = calculateCellSize(rows, columns);
         double vertexRadius = calculateVertexRadius(cellSize);
-        
-        // Seuil adaptatif
         double threshold = Math.max(HOVER_THRESHOLD, vertexRadius * 2);
         
         for (int i = 0; i < currentGraph.getVertexNb(); i++) {
@@ -276,7 +263,7 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Vérifie si la souris est au-dessus d'une arête
+     * Check if the mouse is near an edge
      */
     private boolean checkEdgeHover(double mouseX, double mouseY) {
         int rows = currentGraph.getRows();
@@ -291,7 +278,7 @@ public class GraphView extends Pane {
             
             for (Edges edge : currentGraph.getGraphMaze().get(i)) {
                 int j = edge.getDestination();
-                // Éviter les doublons
+                // Dodge duplicate terms
                 if (i >= j) continue;
                 
                 int row2 = j / columns;
@@ -299,7 +286,7 @@ public class GraphView extends Pane {
                 double x2 = col2 * cellSize + padding;
                 double y2 = row2 * cellSize + padding;
                 
-                // Distance point-ligne
+                // Distance point-line
                 double distance = distancePointToLine(mouseX, mouseY, x1, y1, x2, y2);
                 
                 if (distance <= HOVER_THRESHOLD) {
@@ -313,7 +300,7 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Calcule la distance entre un point et une ligne
+     * Calcule the distance between a point and a line
      */
     private double distancePointToLine(double px, double py, double x1, double y1, double x2, double y2) {
         double A = px - x1;
@@ -346,7 +333,7 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Dessine un effet de survol sur un sommet
+     * Draw an effect hover near a vertex
      */
     private void drawVertexHover(int index, Color color) {
         int rows = currentGraph.getRows();
@@ -367,7 +354,7 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Dessine un effet de survol sur une arête
+     * Draw an hovered effect near an edge
      */
     private void drawEdgeHover(int source, int dest, Color color) {
         int rows = currentGraph.getRows();
@@ -391,7 +378,7 @@ public class GraphView extends Pane {
     }
     
     /**
-     * Ajoute une arête entre deux sommets
+     * Add an edge between two vertexs
      */
     private void addEdge(int source, int destination) {
         if (source == destination) return;
@@ -399,11 +386,11 @@ public class GraphView extends Pane {
         if (source < 0 || destination < 0 || 
             source >= currentGraph.getVertexNb() || 
             destination >= currentGraph.getVertexNb()) {
-            System.err.println("Erreur: indices de sommets invalides: " + source + " -> " + destination);
+            System.err.println("Error: Vertex indices invalid: " + source + " -> " + destination);
             return;
         }
         
-        // Vérifier si l'arête existe déjà
+        // Check if the edge already exists
         boolean edgeExists = false;
         for (Edges edge : currentGraph.getGraphMaze().get(source)) {
             if (edge.getDestination() == destination) {
@@ -414,37 +401,34 @@ public class GraphView extends Pane {
         
         if (!edgeExists) {
             try {
-                // Ajouter directement au graphe de façon bidirectionnelle (sans appel à Graph.addEdge())
                 currentGraph.getGraphMaze().get(source).add(new Edges(source, destination));
                 currentGraph.getGraphMaze().get(destination).add(new Edges(destination, source));
                 
-                System.out.println("Arête ajoutée avec succès entre " + source + " et " + destination);
-                
-                // Redessiner le graphe
+                System.out.println("Edge added with success between " + source + " and " + destination);
                 draw(currentGraph);
                 
-                // Mettre à jour le labyrinthe
+                // Update the maze
                 if (associatedMazeView != null) {
                     associatedMazeView.draw();
                 }
             } catch (Exception e) {
-                System.err.println("Erreur lors de l'ajout d'arête: " + e.getMessage());
+                System.err.println("Error during the edge add " + e.getMessage());
                 e.printStackTrace();
             }
         } else {
-            System.out.println("L'arête existe déjà entre " + source + " et " + destination);
+            System.out.println("The edge already exists between " + source + " and " + destination);
         }
     }
     
     /**
-     * Supprime une arête entre deux sommets
+     * Delete and edges between two vertices
      */
     private void removeEdge(int source, int destination) {
         if (source == destination) return;
         
         boolean removed = false;
         
-        // Supprimer dans les deux sens
+        // Delete it
         for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(source))) {
             if (edge.getDestination() == destination) {
                 currentGraph.getGraphMaze().get(source).remove(edge);
@@ -460,12 +444,12 @@ public class GraphView extends Pane {
         }
         
         if (removed) {
-            System.out.println("Arête supprimée entre " + source + " et " + destination);
+            System.out.println("Edge deleted between " + source + " and " + destination);
             
-            // Redessiner le graphe
+            // Redraw the graph
             draw(currentGraph);
             
-            // Mettre à jour le labyrinthe
+            // Update the maze
             if (associatedMazeView != null) {
                 associatedMazeView.draw();
             }
@@ -473,37 +457,33 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Dessine le graphe dans le panneau.
-     * 
-     * @param graph Le graphe à dessiner
+     * Draws the entire graph including vertices and edges.
+     *
+     * @param graph the graph to render
      */
     public void draw(Graph graph) {
         getChildren().clear();
         if (graph == null || graph.getGraphMaze() == null) {
-            System.out.println("Erreur : Le graphe est null ou invalide.");
+            System.out.println("Error : the graph is null or invalid");
             return;
         }
         
-        // Stocker le graphe courant
+        // Stock the current graph
         this.currentGraph = graph;
 
-        // Récupération des dimensions du graphe
+        // Recup the graph's size
         int rows = graph.getRows();
         int columns = graph.getColumns();
         int totalVertices = rows * columns;
 
-        // Calculs pour adapter les dimensions
+        // Calcul to adapt the dimensions
         double cellSize = calculateCellSize(rows, columns);
         double vertexRadius = calculateVertexRadius(cellSize);
         double lineWidth = calculateLineWidth(cellSize);
 
-        drawEdges(graph, columns, cellSize, lineWidth); // d'abord les arêtes
-        drawVertices(totalVertices, columns, cellSize, vertexRadius); // puis les sommets
+        drawEdges(graph, columns, cellSize, lineWidth); 
+        drawVertices(totalVertices, columns, cellSize, vertexRadius); 
     }
-
-    /**
-     * Dessine le fond blanc du graphe avec un léger contour
-     */
 
     /**
      * Dessine les arêtes (connexions) du graphe.
@@ -523,7 +503,7 @@ public class GraphView extends Pane {
 
             for (Edges edge : graph.getGraphMaze().get(i)) {
                 int destIndex = edge.getDestination();
-                if (destIndex < i) continue; // éviter les doublons d'arêtes
+                if (destIndex < i) continue; 
 
                 int destRow = destIndex / columns;
                 int destCol = destIndex % columns;
@@ -540,12 +520,12 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Dessine les sommets (points) du graphe.
+     * Redraw the vextices of the graph
      * 
-     * @param totalVertices Nombre total de sommets
-     * @param columns Nombre de colonnes
-     * @param cellSize Taille de cellule
-     * @param vertexRadius Rayon du cercle représentant un sommet
+     * @param totalVertices Number of vertices
+     * @param columns columns numbers
+     * @param cellSize size of a cell
+     * @param vertexRadius Vertex radius with a circle
      */
     private void drawVertices(int totalVertices, int columns, double cellSize, double vertexRadius) {
         for (int i = 0; i < totalVertices; i++) {
@@ -564,11 +544,11 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Calcule la taille optimale d'une cellule dans la grille.
+     * Calcul the perfect size for a cell
      * 
-     * @param rows Nombre de lignes
-     * @param columns Nombre de colonnes
-     * @return Taille de cellule
+     * @param rows rows number
+     * @param columns columns numbers
+     * @return size cell
      */
     private double calculateCellSize(int rows, int columns) {
         double availableWidth = FIXED_WIDTH - (2 * padding);
@@ -581,10 +561,10 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Calcule un rayon adapté pour les sommets en fonction de la cellule.
+     * calcul the best and adapted size vertex for a cell
      * 
-     * @param cellSize Taille d'une cellule
-     * @return Rayon du sommet
+     * @param cellSize size of a cell
+     * @return Vertex radius
      */
     private double calculateVertexRadius(double cellSize) {
         double radius = cellSize * 0.25;
@@ -592,19 +572,24 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Calcule l'épaisseur des lignes en fonction de la taille des cellules.
+     * Calcul the thickness of a line
      * 
-     * @param cellSize Taille d'une cellule
-     * @return Épaisseur des lignes
+     * @param cellSize cell size
+     * @return line thickness
      */
     private double calculateLineWidth(double cellSize) {
         double width = cellSize * 0.05;
         return Math.max(0.5, Math.min(width, 2.0));
     }
 
+    /**
+     * Highlights a single vertex with a default light green color.
+     *
+     * @param index the index of the vertex to highlight
+     * @param model the graph model
+     */
     public void highlightVertex(int index, Graph model) {
-        // Redessine le graphe avec le sommet "index" en surbrillance
-        draw(model); // Redessine de base
+        draw(model); 
         int rows = model.getRows();
         int cols = model.getColumns();
         double cellSize = calculateCellSize(rows, cols);
@@ -621,6 +606,14 @@ public class GraphView extends Pane {
         getChildren().add(highlight);
     }
 
+
+    /**
+     * Highlights multiple vertices on the graph view.
+     *
+     * @param indices the list of vertex indices to highlight
+     * @param model the graph model
+     * @param color the highlight color
+     */
     public void drawHighlightedVertices(ArrayList<Integer> indices, Graph model, Color color) {
         if (indices == null || indices.isEmpty()) return;
 
@@ -642,6 +635,13 @@ public class GraphView extends Pane {
         }
     }
 
+    /**
+     * Highlights a single vertex on the graph view.
+     *
+     * @param index the index of the vertex to highlight
+     * @param model the graph model
+     * @param color the highlight color
+     */
     public void drawHighlightedVertices(int index, Graph model, Color color) {
         int rows = model.getRows();
         int columns = model.getColumns();
@@ -660,7 +660,7 @@ public class GraphView extends Pane {
     }
 
     /**
-     * Dessine une arête potentielle (ligne verte) entre deux sommets.
+     * Draw a potential edge.
      */
     private void drawPotentialEdge(int source, int dest, Color color) {
         if (currentGraph == null) return;

@@ -15,14 +15,29 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Save class for the maze application.
- * This class is responsible for displaying the saved mazes and providing options to load or delete them.
+ * UI component for managing saved mazes.
+ * <p>
+ * The SaveView class provides a graphical interface to display, load, and delete saved mazes.
+ * It uses a {@link SaveManager} to retrieve and manipulate saved maze data,
+ * and presents it in a JavaFX window with buttons for user interaction.
+ * </p>
+ * 
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
 public class SaveView {
     private SaveManager saveManager;
+
+    /**
+     * Constructs a SaveView with the given SaveManager.
+     *
+     * @param saveManager the save manager that handles maze persistence
+     */
     public SaveView(SaveManager saveManager) {
         this.saveManager = saveManager;
     }
+
+
     /**
      * Display a window with saved mazes
      * 
@@ -36,7 +51,7 @@ public class SaveView {
         //get all saved mazes
         for (String mazeName : saveManager.getAllSavedMazes().keySet()) {
             SavedMaze savedMaze = saveManager.getSavedMaze(mazeName);
-            String displayText = String.format("Nom: %s | Graine: %d | Lignes: %d | Colonnes: %d", mazeName, savedMaze.getSeed(), savedMaze.getRows(), savedMaze.getColumns());
+            String displayText = String.format("Name: %s | Seed: %d | rows: %d | Columns: %d", mazeName, savedMaze.getSeed(), savedMaze.getRows(), savedMaze.getColumns());
             mazeListView.getItems().add(displayText);
         }
         Button loadButton = createLoadGraphButton(mazeListView, savedMazesStage, onLoadGraphAction);
@@ -50,6 +65,7 @@ public class SaveView {
         savedMazesStage.setScene(scene);
         savedMazesStage.show();
     }
+
     /**
      * Creates a button to load a maze from the list
      * @param mazeListView The ListView containing the saved mazes
@@ -59,7 +75,7 @@ public class SaveView {
      */
     private Button createLoadGraphButton(ListView<String> mazeListView, Stage stage, 
                                       GraphConsumer onLoadGraphAction) {
-        Button loadButton = new Button("Charger le labyrinthe sélectionné");
+        Button loadButton = new Button("load the selected maze");
         loadButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         loadButton.setPrefWidth(200);
         
@@ -74,17 +90,17 @@ public class SaveView {
                     if (graph != null) {
                         // Exécution du callback avec le graphe complet
                         onLoadGraphAction.accept(graph);
-                        System.out.println("Labyrinthe chargé: " + mazeName);
+                        System.out.println("Maze loaded: " + mazeName);
                         stage.close();
                     } else {
-                        showWarningAlert("Erreur", "Impossible de charger le labyrinthe.");
+                        showWarningAlert("Error", "Impossible to load the maze");
                     }
                 } catch (Exception ex) {
-                    showWarningAlert("Erreur", "Problème lors du chargement du labyrinthe: " + ex.getMessage());
+                    showWarningAlert("Error", "Problem during the maze's loading " + ex.getMessage());
                     ex.printStackTrace();
                 }
             } else {
-                showWarningAlert("Aucune sélection", "Veuillez sélectionner un labyrinthe à charger.");
+                showWarningAlert("No selection", "Please select a maze in the list");
             }
         });
         
@@ -97,7 +113,7 @@ public class SaveView {
      * @return The delete button
      */
     private Button createDeleteButton(ListView<String> mazeListView) {
-        Button deleteButton = new Button("Supprimer le labyrinthe sélectionné");
+        Button deleteButton = new Button("Delete the selected maze");
         deleteButton.setStyle("-fx-background-color: #F44336; -fx-text-fill: white;");
         deleteButton.setPrefWidth(200);
         
@@ -107,22 +123,22 @@ public class SaveView {
                 try {
                     String mazeName = selectedItem.split(" \\| ")[0].split(": ")[1];
                     Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
-                    confirmAlert.setTitle("Confirmation de suppression");
+                    confirmAlert.setTitle("Deleting confirmation");
                     confirmAlert.setHeaderText(null);
-                    confirmAlert.setContentText("Êtes-vous sûr de vouloir supprimer ce labyrinthe ?");
+                    confirmAlert.setContentText("Are you sure you want to delete this maze ?");
                     if (confirmAlert.showAndWait().get().getButtonData().isDefaultButton()) {
                         if (saveManager.deleteSavedMaze(mazeName)) {
                             // Refresh the ListView
                             mazeListView.getItems().remove(mazeListView.getSelectionModel().getSelectedIndex());
-                            System.out.println("Labyrinthe supprimé: " + mazeName);
+                            System.out.println("Maze deleted: " + mazeName);
                         }
                     }
                 } catch (Exception ex) {
-                    showWarningAlert("Erreur", "Problème lors de la suppression: " + ex.getMessage());
+                    showWarningAlert("Error", "Problem during the suppression: " + ex.getMessage());
                     ex.printStackTrace();
                 }
             } else {
-                showWarningAlert("Aucune sélection", "Veuillez sélectionner un labyrinthe à supprimer.");
+                showWarningAlert("No selection", "Please select a maze to delete");
             }
         });
         

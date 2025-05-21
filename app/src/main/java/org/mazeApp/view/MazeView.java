@@ -16,6 +16,17 @@ import javafx.scene.shape.Line;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
+
+/**
+ * MazeView is the visual representation of the maze.
+ * <p>
+ * It handles user interactions for editing the maze structure (e.g., adding/removing walls),
+ * setting the start and end points, and animating pathfinding algorithm steps.
+ * </p>
+ *
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
 public class MazeView extends Pane {
     // Display constants
     private final double padding = 2;
@@ -54,9 +65,10 @@ public class MazeView extends Pane {
     }
     
     /**
-     * Constructeur avec graphe et vue graphe associée
-     * @param graph le graphe représentant le labyrinthe
-     * @param graphView la vue graphe associée
+     * Constructs a MazeView with the given graph and associated GraphView.
+     *
+     * @param graph the graph representing the maze
+     * @param graphView the graph view used for synchronization with the maze view
      */
     public MazeView(Graph graph, GraphView graphView) {
         this.currentGraph = graph;
@@ -72,7 +84,9 @@ public class MazeView extends Pane {
         this.associatedGraphView = graphView;
     }
 
-    // Initialize visual properties of the view
+    /**
+     * Initialize visual properties of the view
+     */
     private void initializeView() {
         setPrefSize(900, 900);
         setMinSize(400, 400);  
@@ -86,8 +100,9 @@ public class MazeView extends Pane {
         heightProperty().addListener((obs, oldVal, newVal) -> draw());
     }
 
-
-    // Setup mouse interactions
+    /** 
+    * Setup mouse interactions
+    */
     private void setupEventHandlers() {
         setOnMouseMoved(event -> {
             if (currentGraph == null) return;
@@ -96,17 +111,15 @@ public class MazeView extends Pane {
             double mouseX = event.getX();
             double mouseY = event.getY();
 
-            // Calculer le centrage du labyrinthe
+            // Calcul the center of the maze
             double mazeWidth = columns * cellSize;
             double mazeHeight = rows * cellSize;
             double offsetX = (getWidth() - mazeWidth) / 2;
             double offsetY = (getHeight() - mazeHeight) / 2;
 
-            // Réinitialiser l'état de survol des murs
+            // Reset hover on the walls
             wallHoverActive = false;
             checkWallHover(mouseX, mouseY, cellSize);
-
-            // Gestion du survol des points start/end
             if (!wallHoverActive && !bothPointsPlaced) {
                 double gridX = mouseX - offsetX;
                 double gridY = mouseY - offsetY;
@@ -118,7 +131,6 @@ public class MazeView extends Pane {
                                 (row == 0 || row == rows - 1 || col == 0 || col == columns - 1);
 
                 if (isOnBorder) {
-                    // ❗️Sans offset ici, car offset ajouté plus tard dans draw
                     hoveredX = col * cellSize + cellSize / 2;
                     hoveredY = row * cellSize + cellSize / 2;
                 } else {
@@ -127,8 +139,7 @@ public class MazeView extends Pane {
                 }
             }
 
-
-            // Mise à jour du curseur
+            // Update cursor
             if (wallHoverActive) {
                 setCursor(javafx.scene.Cursor.HAND);
             } else if (hoveredX >= 0) {
@@ -140,7 +151,7 @@ public class MazeView extends Pane {
             draw();
         });
 
-        // Gestion des clics sur le labyrinthe
+        // Clics gestion on the maze
         setOnMouseClicked(event -> {
             if (currentGraph == null) return;
 
@@ -186,6 +197,10 @@ public class MazeView extends Pane {
 
     /**
      * Verify the coordinates near of a wall
+     * @param mouseX X coordinates of the mouse
+     * @param mouseY Y coordinates of the mouse
+     * @param cellSize size of a cell
+     * @return boolean if the mouse is near a wall
      */
     private boolean isNearWall(double mouseX, double mouseY, double cellSize) {
         double mazeWidth = columns * cellSize;
@@ -217,7 +232,12 @@ public class MazeView extends Pane {
         return false;
     }
 
-
+    /**
+     * Verify the coordinates near of a wall
+     * @param mouseX X coordinates of the mouse
+     * @param mouseY Y coordinates of the mouse
+     * @param cellSize size of a cell
+     */ 
     private void checkWallHover(double mouseX, double mouseY, double cellSize) {
         double mazeWidth = columns * cellSize;
         double mazeHeight = rows * cellSize;
@@ -227,7 +247,7 @@ public class MazeView extends Pane {
         double gridX = mouseX - offsetX;
         double gridY = mouseY - offsetY;
 
-        // Hover sur mur vertical
+        // Hover on a vertical wall
         double distToVerticalGrid = gridX % cellSize;
         if (distToVerticalGrid < cellSize * 0.15 || distToVerticalGrid > cellSize * 0.85) {
             int gridCol = (int) Math.round(gridX / cellSize);
@@ -242,7 +262,7 @@ public class MazeView extends Pane {
             }
         }
 
-        // Hover sur mur horizontal
+        // Hover on a horizonta wall
         double distToHorizontalGrid = gridY % cellSize;
         if (distToHorizontalGrid < cellSize * 0.15 || distToHorizontalGrid > cellSize * 0.85) {
             int gridRow = (int) Math.round(gridY / cellSize);
@@ -264,6 +284,9 @@ public class MazeView extends Pane {
     
     /**
      * Verify if two walls are connected
+     * @param cell1 first cell
+     * @param cell2 second cell 
+     * @return if the cell are linked
      */
     private boolean areConnected(int cell1, int cell2) {
         if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
@@ -282,9 +305,12 @@ public class MazeView extends Pane {
 
     /**
      * Monitor a click on a wall
+     * @param mouseX X coordinates of the mouse
+     * @param mouseY Y coordinates of the mouse
+     * @param cellSize size of a cell
      */
     private void handleWallClick(double mouseX, double mouseY, double cellSize) {
-        // Calcul de l’offset (centrage)
+        // Offset calcul
         double mazeWidth = columns * cellSize;
         double mazeHeight = rows * cellSize;
         double offsetX = (getWidth() - mazeWidth) / 2;
@@ -320,6 +346,9 @@ public class MazeView extends Pane {
 
     /**
      * Add or delete a wall
+     * @param cell1 first cell
+     * @param cell2 second cell
+     * 
      */
     private void toggleWall(int cell1, int cell2) {
         if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
@@ -341,13 +370,13 @@ public class MazeView extends Pane {
                 }
             }
             
-            System.out.println("Mur ajouté entre " + cell1 + " et " + cell2);
+            System.out.println("Wall added between " + cell1 + " and " + cell2);
         } else {
             //  If non connected, add a connection)
             currentGraph.getGraphMaze().get(cell1).add(new Edges(cell1, cell2));
             currentGraph.getGraphMaze().get(cell2).add(new Edges(cell2, cell1));
             
-            System.out.println("Mur supprimé entre " + cell1 + " et " + cell2);
+            System.out.println("Wall deleted between  " + cell1 + " and " + cell2);
         }
         
         // Re-draw the maze
@@ -366,36 +395,34 @@ public class MazeView extends Pane {
         getChildren().clear();
         if (currentGraph == null) return;
 
-        // Met à jour les dimensions du labyrinthe
+        // Update the maze's dimesions
         this.rows = currentGraph.getRows();
         this.columns = currentGraph.getColumns();
 
         double cellSize = calculateCellSize();
         double wallThickness = Math.max(minWallThickness, cellSize * 0.1);
 
-        // Calcul du centrage du labyrinthe
+        // Center the maze
         double mazeWidth = columns * cellSize;
         double mazeHeight = rows * cellSize;
         double offsetX = (getWidth() - mazeWidth) / 2;
         double offsetY = (getHeight() - mazeHeight) / 2;
 
-        // Initialise tous les murs comme présents
+        // say all the walls are present
         boolean[][] horizontalWalls = new boolean[rows + 1][columns];
         boolean[][] verticalWalls = new boolean[rows][columns + 1];
         initializeWalls(horizontalWalls, verticalWalls);
-
-        // Supprime les murs connectés selon le graphe
         removeWallsBasedOnEdges(horizontalWalls, verticalWalls);
-
-        // Dessine les murs (y compris survol)
         drawWalls(horizontalWalls, verticalWalls, cellSize, wallThickness, offsetX, offsetY);
-
-        // Dessine les points start, end, et le survol éventuel
         drawSpecialPoints(cellSize, offsetX, offsetY);
     }
 
 
-    // Initialize all the presents walls 
+    /**
+     * Verify the coordinates near of a wall
+     * @param horizontalWalls list which contains the horizontals walls
+     * @param verticalWalls list with all the vertical walls
+     */
     private void initializeWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         for (int i = 0; i <= rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -409,15 +436,18 @@ public class MazeView extends Pane {
         }
     }
 
-    // Delete the walls and the connexions on the graphs
-// Supprime les murs correspondants aux arêtes présentes dans le graphe
+    /**
+     * Verify the coordinates near of a wall
+     * @param horizontalWalls list which contains the horizontals walls
+     * @param verticalWalls list with all the vertical walls
+     */
     private void removeWallsBasedOnEdges(boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         for (int i = 0; i < currentGraph.getGraphMaze().size(); i++) {
             for (Edges edge : currentGraph.getGraphMaze().get(i)) {
                 int source = edge.getSource();
                 int dest = edge.getDestination();
 
-                // Éviter les doublons : ne traiter l'arête qu'une seule fois
+                // Avoid duplication
                 if (source >= dest) continue;
 
                 int sourceX = source % columns;
@@ -426,11 +456,9 @@ public class MazeView extends Pane {
                 int destY = dest / columns;
 
                 if (sourceX == destX) {
-                    // Mur horizontal entre deux cellules verticalement adjacentes
                     int minY = Math.min(sourceY, destY);
                     horizontalWalls[minY + 1][sourceX] = false;
                 } else if (sourceY == destY) {
-                    // Mur vertical entre deux cellules horizontalement adjacentes
                     int minX = Math.min(sourceX, destX);
                     verticalWalls[sourceY][minX+1] = false;
                 }
@@ -438,8 +466,11 @@ public class MazeView extends Pane {
         }
     }
 
-
-// Draw the walls of the maze
+    /**
+     * Verify the coordinates near of a wall
+     * @param horizontalWalls list which contains the horizontals walls
+     * @param verticalWalls list with all the vertical walls
+     */
     private void drawWalls(boolean[][] horizontalWalls, boolean[][] verticalWalls,
                         double cellSize, double wallThickness,
                         double offsetX, double offsetY) {
@@ -476,7 +507,7 @@ public class MazeView extends Pane {
             }
         }
 
-        // ✅ Ajout du survol sur un mur avec centrage correct
+        // Hover add with success
         if (wallHoverActive) {
             Line hoverLine = new Line(
                 hoveredWallX1 + offsetX,
@@ -510,8 +541,12 @@ public class MazeView extends Pane {
         }
     }
 
-
-    // Draw the hover and special points on the maze
+    /**
+     * Draw the special points with a good placement
+     * @param cellSize size of a cell
+     * @param offsetX offset on the X
+     * @param offsetY offset on the Y to keep a good distance
+     */
     private void drawSpecialPoints(double cellSize, double offsetX, double offsetY) {
         double pointRadius = Math.max(0.5, cellSize / 4);
 
@@ -547,16 +582,17 @@ public class MazeView extends Pane {
     }
 
 
-
+    /**
+     * Calculate the best size for a cell
+     * @return the minimal value
+     */
     // Calcul the size of a cell
     private double calculateCellSize() {
         if (currentGraph == null) return 0;
 
-        // Utilisation complète de la taille du conteneur
+        // Use all the heigth of the container
         double availableWidth = getWidth();
         double availableHeight = getHeight();
-
-        // Choisir la plus petite taille pour que ça rentre
         double widthBased = availableWidth / columns;
         double heightBased = availableHeight / rows;
 
@@ -566,6 +602,7 @@ public class MazeView extends Pane {
 
     /**
      * Draw a path on the maze with a list of steps
+     * @param path contains the node of the path's solution
      */
     public void drawPath(ArrayList<Integer> path) {
         if (path == null || path.isEmpty() || currentGraph == null) return;
@@ -573,7 +610,7 @@ public class MazeView extends Pane {
         double cellSize = calculateCellSize();
         double pathThickness = Math.max(0.5, cellSize * 0.1);
 
-        // Calcul du centrage
+        // Center calculation
         double mazeWidth = columns * cellSize;
         double mazeHeight = rows * cellSize;
         double offsetX = (getWidth() - mazeWidth) / 2;
@@ -602,14 +639,15 @@ public class MazeView extends Pane {
     
     /**
      * Visualize step resolution
+     * @param steps collects all the steps of the resolution
      */
     public void visualiseStep(ArrayList<ArrayList<Integer>> steps) {
         if (steps.isEmpty()) {
-            System.out.println("Aucun chemin trouvé.");
+            System.out.println("No paths found");
             return;
         }
 
-        draw(); // Redessiner le labyrinthe
+        draw();
 
         Map<Pair<Integer, Integer>, Integer> edgeStates = new HashMap<>();
 
@@ -685,11 +723,11 @@ public class MazeView extends Pane {
         }
 
         timeline.setOnFinished(e -> {
-            System.out.println("Chemin trouvé de longueur " + steps.get(steps.size() - 1).size());
+            System.out.println("Path found with a length of " + steps.get(steps.size() - 1).size());
         });
 
         this.currentAnimation = timeline;
-        System.out.println("Timeline démarrée");
+        System.out.println("Timeline begin");
         timeline.play();
     }
 
@@ -705,18 +743,30 @@ public class MazeView extends Pane {
         draw();
     }
 
+    /**
+     * Verify if there is a start and a ending point
+     * @return if it's the case
+     */
     public boolean verifyStartEnd(){
         if( startIndex == -1 || endIndex == -1 ){
-            System.out.println("vous devez mettre un point de départ et d'arrivée !");
+            System.out.println("You musty be place a start and a end point");
             return false;
         }
         return true;
     }
 
+    /**
+     * get the start point
+     * @return the start point
+     */
     public int getStartIndex() {
         return startIndex;
     }
 
+    /**
+     * get the end point
+     * @return the end point
+     */
     public int getEndIndex() {
         return endIndex;
     }
@@ -739,11 +789,11 @@ public class MazeView extends Pane {
             if (paused) {
                 // Pause the animation
                 currentAnimation.pause();
-                System.out.println("Animation mise en pause dans MazeView");
+                System.out.println("Animation paused in the mazeview");
             } else {
                 // Resume the animation
                 currentAnimation.play();
-                System.out.println("Animation reprise dans MazeView");
+                System.out.println("Animation rebegin at new dans MazeView");
             }
         }
     }
@@ -767,31 +817,29 @@ public class MazeView extends Pane {
     }
     
     /**
-     * Efface toutes les animations et réinitialise l'affichage
+     *clear all the animation 
      */
     public void clearAnimations() {
-        // Arrêter toute Timeline en cours
+        // Stop all the timeline
         if (currentAnimation != null) {
             currentAnimation.stop();
             currentAnimation = null;
         }
-        
-        // Réinitialiser la vue graphique
-        for (Circle circle : vertexCircles.values()) {
-            circle.setFill(Color.WHITE);  // Couleur par défaut
-            circle.setVisible(false);     // Cacher tous les cercles
+                for (Circle circle : vertexCircles.values()) {
+            circle.setFill(Color.WHITE);  
+            circle.setVisible(false);  
         }
         
-        // Réinitialiser les arêtes
+        // Reset the edges
         for (Line line : edgeLines.values()) {
-            line.setStroke(Color.BLACK);  // Couleur par défaut
-            line.setStrokeWidth(1.0);     // Largeur par défaut
+            line.setStroke(Color.BLACK); 
+            line.setStrokeWidth(1.0);     
         }
-        
-        // Effacer les états des arêtes
+    
+        // Clear the edges' status
         edgeStates.clear();
         
-        // Afficher uniquement les points de départ et d'arrivée
+        // Show only the start and end point
         if (startIndex >= 0 && vertexCircles.containsKey(startIndex)) {
             Circle startCircle = vertexCircles.get(startIndex);
             startCircle.setFill(Color.GREEN);
@@ -804,35 +852,29 @@ public class MazeView extends Pane {
             endCircle.setVisible(true);
         }
         
-        // Rafraîchir l'affichage
+        // Refresh the display
         requestLayout();
     }
 
     /**
-     * Arrête complètement l'animation en cours
+     * Stop the current animation
      */
     public void stopAnimation() {
-        // Arrêter l'animation en cours
+        // Stop the animation
         if (currentAnimation != null) {
             currentAnimation.stop();
             currentAnimation = null;
         }
-        
-        // Nettoyer les états
         animationPaused = false;
         
-        // Redessiner le labyrinthe
         draw();
     }
 
     /**
-     * Force le rafraîchissement complet de la vue
+     * Refresh with force the view
      */
     public void refresh() {
-        // Redessiner le labyrinthe
         draw();
-        
-        // Si un graphe associé existe, le redessiner aussi
         if (associatedGraphView != null) {
             associatedGraphView.draw(currentGraph);
         }
