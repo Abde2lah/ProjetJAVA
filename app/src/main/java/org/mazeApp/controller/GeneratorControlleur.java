@@ -124,7 +124,7 @@ public class GeneratorControlleur {
 
         kruskalRadio.setOnAction(e -> Graph.setGenerator(new KruskalGenerator(imperfectMzCheckBoxState.get())));
         
-        dfsRadio.setOnAction(e -> Graph.setGenerator(new DFSGenerator()));
+        dfsRadio.setOnAction(e -> Graph.setGenerator(new DFSGenerator(imperfectMzCheckBoxState.get())));
         
         HBox radioBox = new HBox(10, kruskalRadio, dfsRadio, createImperfectMazeCB);
         radioBox.setAlignment(Pos.CENTER);
