@@ -23,19 +23,9 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     protected MazeView mazeView;
     protected List<Integer> finalPath;
     protected long executionTime;
-<<<<<<< HEAD
-    protected int vistedVerticesNb;
-
-=======
-    
-    /**
-     * Constructs an AbstractMazeSolver and initializes the path and execution time.
-     */
->>>>>>> b4609f5ec42a2b36bdbd3f6160702665de932d72
     public AbstractMazeSolver() {
         this.finalPath = new ArrayList<>();
         this.executionTime = 0;
-        this.vistedVerticesNb = 0;
     }
     
     /**
