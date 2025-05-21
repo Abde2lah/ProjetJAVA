@@ -2,11 +2,20 @@ package org.mazeApp.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Classe abstraite implémentant les fonctionnalités communes aux solveurs
+ * AbstractMazeSolver provides a base implementation for all maze solver algorithms.
+ * <p>
+ * This abstract class handles shared functionality such as storing the graph model,
+ * linked views, result path, and execution time. Subclasses are expected to implement
+ * their own pathfinding logic.
+ * </p>
+ *
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
 public abstract class AbstractMazeSolver implements MazeSolver {
     protected Graph model;
@@ -14,14 +23,29 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     protected MazeView mazeView;
     protected List<Integer> finalPath;
     protected long executionTime;
+<<<<<<< HEAD
     protected int vistedVerticesNb;
 
+=======
+    
+    /**
+     * Constructs an AbstractMazeSolver and initializes the path and execution time.
+     */
+>>>>>>> b4609f5ec42a2b36bdbd3f6160702665de932d72
     public AbstractMazeSolver() {
         this.finalPath = new ArrayList<>();
         this.executionTime = 0;
         this.vistedVerticesNb = 0;
     }
     
+    /**
+     * Sets up the solver with the graph model, graph view, and maze view.
+     *
+     * @param graph the graph model representing the maze
+     * @param graphView the graphical view of the graph
+     * @param mazeView the visual representation of the maze
+     * @return the configured MazeSolver instance
+     */
     @Override
     public MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView) {
         this.model = graph;
@@ -30,19 +54,30 @@ public abstract class AbstractMazeSolver implements MazeSolver {
         return this;
     }
     
+    /**
+     * Returns the time taken by the solver to compute the solution.
+     *
+     * @return the execution time in milliseconds
+     */
     @Override
     public long getExecutionTime() {
         return executionTime;
     }
     
+    /**
+     * Returns the final computed path after the solver completes.
+     *
+     * @return a list of vertex indices representing the path
+     */
     @Override
     public List<Integer> getFinalPath() {
         return finalPath;
     }
     
     /**
-     * Méthode utilitaire pour mesurer le temps d'exécution d'une opération
-     * @param operation L'opération à exécuter
+     * Measures the execution time of a given operation and stores the result.
+     *
+     * @param operation the operation (typically the pathfinding logic) to be timed
      */
     protected void measureExecutionTime(Runnable operation) {
         long startTime = System.currentTimeMillis();

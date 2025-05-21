@@ -12,16 +12,30 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implémentation of Dijkstra's algorithm to solve a maze.
+ * Implementation of Dijkstra's algorithm for maze solving.
+ * <p>
+ * This class extends {@link AbstractMazeSolver} and implements both animated
+ * and non-animated visualization of the shortest path from a start to an end node.
+ * It uses a priority queue to ensure optimal exploration of the graph.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
  */
 public class DijkstraSolver extends AbstractMazeSolver {
 
-    // Constructeur par défaut pour la factory
+    /**
+     * Default constructor for factory instantiation.
+     */
     public DijkstraSolver() {
         super();
     }
 
-    // Constructeur avec paramètres
+    /**
+     * Constructor that sets up the solver with the graph and view components.
+     *
+     * @param model the maze graph model
+     * @param graphView the view for the graph (can be null)
+     * @param mazeView the maze visualization view (can be null for headless use)
+     */
     public DijkstraSolver(Graph model, GraphView graphView, MazeView mazeView) {
         super();
         setup(model, graphView, mazeView);
@@ -61,6 +75,9 @@ public class DijkstraSolver extends AbstractMazeSolver {
         System.out.println("Dijkstra algorithm duration: " + getExecutionTime() + " ms");
     }
 
+    /**
+     * Executes Dijkstra's algorithm and visualizes the final result without animation.
+     */
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
@@ -92,7 +109,11 @@ public class DijkstraSolver extends AbstractMazeSolver {
     }
 
     /**
-     * Return the steps taken by the Dijkstra algorithm
+     * Executes Dijkstra's algorithm and returns a list of step-by-step paths.
+     *
+     * @param start the starting vertex
+     * @param goal the target vertex
+     * @return a list of paths representing each step of the algorithm
      */
     public ArrayList<ArrayList<Integer>> getDijkstraSteps(int start, int goal) {
         int vertexCount = model.getVertexNb();
@@ -142,7 +163,11 @@ public class DijkstraSolver extends AbstractMazeSolver {
     }
 
     /**
-     * Reconstitute the path from the start to the goal using the previous nodes
+     * Reconstructs the path from the source to the current node using a 'prev' map.
+     *
+     * @param prev an array of predecessors
+     * @param current the destination vertex
+     * @return a list of vertex indices forming the path
      */
     private ArrayList<Integer> reconstructPath(int[] prev, int current) {
         ArrayList<Integer> path = new ArrayList<>();
@@ -153,6 +178,14 @@ public class DijkstraSolver extends AbstractMazeSolver {
         return path;
     }
 
+    /**
+     * Finds the shortest path from start to end using Dijkstra's algorithm.
+     * This version does not produce any visual output.
+     *
+     * @param start the starting node
+     * @param end the target node
+     * @return a list of vertex indices representing the shortest path
+     */
     @Override
     public List<Integer> findPath(int start, int end) {
         if (model == null) {
@@ -173,7 +206,8 @@ public class DijkstraSolver extends AbstractMazeSolver {
     }
 
     /**
-     * Class representing a node in the priority queue
+     * Internal utility class to represent a node in the priority queue.
+     * Implements comparison by shortest tentative distance.
      */
     private static class Node {
         int vertex;

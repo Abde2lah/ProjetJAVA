@@ -10,23 +10,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Gestionnaire des labyrinthes sauvegardés
- * Cette classe est responsable de sauvegarder et charger les labyrinthes depuis un fichier.
- * Elle permet à l'utilisateur de sauvegarder des labyrinthes avec un nom unique et de les récupérer plus tard.
+ * Manager class responsible for saving and loading mazes to/from a file.
+ * <p>
+ * This class allows users to persist maze configurations (including edges),
+ * associate them with unique names, and retrieve or delete them later.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
 public class SaveManager {
     
     private HashMap<String, SavedMaze> savedMazes;
     private static final String FILE_PATH = "savedMazes.txt";
     
-    /**
-     * representation of a saved maze : 
-     * exemple : Maze_1747594236929,5,4,4,5,6,5,9,6,10,9,10
-     * 5=SEED
-     * 4=ROWS
-     * 4=COLUMNS
-     * (5, 6) (5, 9) (6, 10) (9, 10) = Edges
-     */
+/**
+ * Represents a saved maze with seed, dimensions, and edge list.
+ * <p>
+ * Format example:
+ * Maze_1747594236929,5,4,4,5,6,5,9,6,10,9,10
+ * where:
+ * 5 = seed, 4 = rows, 4 = columns, (5,6),(5,9),(6,10),(9,10) = edges
+ * </p>
+ */
     public static class SavedMaze {
         private final int seed;
         private final int rows;
@@ -34,7 +39,7 @@ public class SaveManager {
         private final ArrayList<Edges> edges; // Nouvelle propriété pour stocker les arêtes
 
         /**
-         * Constructeur simple pour la rétrocompatibilité
+         * Initializes the SaveManager by loading all saved mazes from file.
          */
         public SavedMaze(int seed, int rows, int columns) {
             this.seed = seed;
@@ -89,22 +94,23 @@ public class SaveManager {
     /**
      * Save a maze maze a unique name.
      * 
-     * @param rows Nombre de lignes
-     * @param columns Nombre de colonnes
-     * @param seed Valeur de la graine pour la génération du labyrinthe
-     * @return Le nom unique du labyrinthe
+     * @param rows Number of rows
+     * @param columns Number of columns
+     * @param seed Value of the seed for the generation
+     * @return Unique name for the maze
      */
     public String saveMaze(int rows, int columns, int seed) {
         return saveMaze(rows, columns, seed, null);
     }
+
     /**
-     * Sauvegarde un labyrinthe avec un nom unique et des arêtes personnalisées.
-     * 
-     * @param rows Nombre de lignes
-     * @param columns Nombre de colonnes
-     * @param seed Valeur de la graine pour la génération du labyrinthe
-     * @param edges Liste des arêtes du labyrinthe (peut être null)
-     * @return Le nom unique du labyrinthe
+     * Saves a maze with a given list of custom edges.
+     *
+     * @param rows number of rows
+     * @param columns number of columns
+     * @param seed generation seed
+     * @param edges list of edges (optional, can be null)
+     * @return the generated maze name, or null if duplicate
      */
     public String saveMaze(int rows, int columns, int seed, ArrayList<Edges> edges) {
         String mazeName = "Maze_" + System.currentTimeMillis(); // Génère un nom unique basé sur l'heure actuelle
@@ -115,12 +121,12 @@ public class SaveManager {
                 if (edges != null) {
                     continue;
                 }
-                System.out.println("Ce labyrinthe existe déjà dans la liste sauvegardée.");
+                System.out.println("This maze already exists in the file");
                 return null;
             }
         }
         
-        // Sauvegarde le labyrinthe avec ou sans arêtes personnalisées
+        // Save the maze with or without the customised edges
         SavedMaze newMaze;
         if (edges != null) {
             newMaze = new SavedMaze(seed, rows, columns, edges);
@@ -130,20 +136,20 @@ public class SaveManager {
         
         savedMazes.put(mazeName, newMaze);
         saveMazesToFile(); // Garde le fichier à jour
-        System.out.println("Labyrinthe sauvegardé sous le nom " + mazeName);
+        System.out.println("Maze saved with the name : " + mazeName);
         
         return mazeName;
     }
     
     /**
-     * Sauvegarde un graphe complet avec sa structure.
-     * 
-     * @param graph Le graphe à sauvegarder
-     * @return Le nom unique du labyrinthe
+     * Saves an entire Graph instance, extracting its edge list.
+     *
+     * @param graph the graph to save
+     * @return the unique name of the saved maze
      */
     public String saveMaze(Graph graph) {
         if (graph == null) {
-            System.out.println("Impossible de sauvegarder un graphe null.");
+            System.out.println("Impossible to save a null graph");
             return null;
         }
         
@@ -164,6 +170,7 @@ public class SaveManager {
         }
         return saveMaze(rows, columns, seed, allEdges);
     }
+
     /**
      * Get a saved maze by its name.
      * 
@@ -182,6 +189,7 @@ public class SaveManager {
     public HashMap<String, SavedMaze> getAllSavedMazes() {
         return savedMazes;
     }
+    
     /**
      * Check if there are any saved mazes.
      * 
@@ -201,7 +209,7 @@ public class SaveManager {
     public Graph buildGraph(String mazeName) {
         SavedMaze savedMaze = savedMazes.get(mazeName);
         if (savedMaze == null) {
-            System.out.println("Labyrinthe introuvable: " + mazeName);
+            System.out.println("Mazes unfoundable: " + mazeName);
             return null;
         }
         // Otherwise, we need to create a new graph and add the edges manually
@@ -232,9 +240,9 @@ public class SaveManager {
                 writer.write(line.toString());
                 writer.newLine();
             }
-            System.out.println("Labyrinthes sauvegardes dans le fichier.");
+            System.out.println("Mazes saved on the files");
         } catch (IOException e) {
-            System.out.println("Erreur lors de la sauvegarde des labyrinthes : " + e.getMessage());
+            System.out.println("Error during the saving of the mazes : " + e.getMessage());
         }
     }
     
@@ -267,11 +275,11 @@ public class SaveManager {
                     savedMazes.put(mazeName, maze);
                 }
             }
-            System.out.println("Labyrinthes chargés depuis le fichier.");
+            System.out.println("Mazes loaded from the file");
         } catch (FileNotFoundException e) {
-            System.out.println("Aucun fichier trouvé. Pas de labyrinthes chargés.");
+            System.out.println("No file found, no maze loaded.");
         } catch (IOException | NumberFormatException e) {
-            System.out.println("Erreur lors du chargement des labyrinthes : " + e.getMessage());
+            System.out.println("Error during the loading of the mazes : " + e.getMessage());
         }
     }
     
@@ -285,7 +293,7 @@ public class SaveManager {
         SavedMaze removed = savedMazes.remove(mazeName);
         if (removed != null) {
             saveMazesToFile(); 
-            System.out.println("Labyrinthe supprimé: " + mazeName);
+            System.out.println("Maze deleted: " + mazeName);
             return true;
         }
         return false;

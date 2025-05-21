@@ -2,7 +2,6 @@ package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,6 +14,15 @@ import org.mazeApp.model.MazeSolver;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
+
+/**
+ * Breadth-First Search (BFS) implementation for solving mazes.
+ * <p>
+ * This class extends {@link AbstractMazeSolver} and provides both animated
+ * and non-animated BFS traversal logic. It supports integration with JavaFX views.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ */
 public class BFSsolver extends AbstractMazeSolver {
 
     private int start = -1;
@@ -26,11 +34,19 @@ public class BFSsolver extends AbstractMazeSolver {
     Graph graph;
     private int verticesNb;
 
+    /**
+     * Default constructor.
+     */
     public BFSsolver() {
         super();
         this.vertexVisitOrder = new ArrayList<>();
     }
     
+    /**
+     * Constructor specifying the number of vertices.
+     *
+     * @param verticesNb the total number of vertices in the graph
+     */
     public BFSsolver(int verticesNb) {
         super();
         this.verticesNb = verticesNb;
@@ -38,6 +54,14 @@ public class BFSsolver extends AbstractMazeSolver {
         this.vertexVisitOrder = new ArrayList<>();
     }
     
+    /**
+     * Sets up the BFS solver with the graph, graph view, and maze view.
+     *
+     * @param graph the maze graph
+     * @param graphView the associated graph view (may be null)
+     * @param mazeView the associated maze view (may be null)
+     * @return the current solver instance
+     */
     @Override
     public MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView) {
         super.setup(graph, graphView, mazeView);
@@ -48,6 +72,12 @@ public class BFSsolver extends AbstractMazeSolver {
         return this;
     }
 
+    /**
+     * Core BFS algorithm implementation that returns animation steps.
+     * Each step is a list of visited vertices.
+     *
+     * @return a list of steps representing the BFS traversal
+     */
     public ArrayList<ArrayList<Integer>> solveBFS() {
         int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
         int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
@@ -57,15 +87,15 @@ public class BFSsolver extends AbstractMazeSolver {
         ArrayList<ArrayList<Integer>> animationPath = new ArrayList<>();
 
         Queue<Integer> queue = new LinkedList<>();
-        int[] parent = new int[verticesNb]; // Pour reconstruire le chemin à la fin
+        int[] parent = new int[verticesNb]; // To build the path at the end
 
-        Arrays.fill(parent, -1); // Initialisation des parents
+        Arrays.fill(parent, -1); // parents initialization
 
         visitedVerticesArray[startIdx] = true;
        this.visitedVerticesNb++; 
         queue.add(startIdx);
 
-        // Animation de la première étape (départ)
+        // Animation of the first step
         ArrayList<Integer> initialStep = new ArrayList<>();
         initialStep.add(startIdx);
         animationPath.add(new ArrayList<>(initialStep));
@@ -106,7 +136,7 @@ public class BFSsolver extends AbstractMazeSolver {
             }
         }
 
-        // Reconstruction du chemin de fin pour le montrer en rouge à la fin
+        // Build of the final path in red to indicate the solution
         if (goalFound) {
             ArrayList<Integer> path = new ArrayList<>();
             int node = goalIdx;
@@ -121,9 +151,16 @@ public class BFSsolver extends AbstractMazeSolver {
         return animationPath;
     }
     
-    //BFS with saving steps
+    /**
+     * Internal BFS execution that tracks visited order and parents.
+     *
+     * @param startingPoint the source node
+     * @param endingPoint the target node
+     * @param graph the adjacency list graph structure
+     * @return the path reconstructed from BFS traversal
+     */
     private ArrayList<Integer> bfsWithSteps(int startingPoint, int endingPoint, ArrayList<ArrayList<Edges>> graph) {
-        // Réinitialiser les structures
+        // Reset the structures
         this.visitedVerticesArray = new boolean[verticesNb];
         this.vertexVisitOrder = new ArrayList<>();
         
@@ -153,11 +190,15 @@ public class BFSsolver extends AbstractMazeSolver {
         
         return reconstructPath(parent, endingPoint);
     }
-    
+        
+    /**
+     * Executes the BFS algorithm with visual step-by-step animation.
+     * Draws each traversal step in the MazeView.
+     */
     @Override
     public void visualize() {
         if (mazeView == null) {
-            System.out.println("Visualisation non disponible en mode terminal.");
+            System.out.println("Visualization inavailable in terminal mode.");
             return;
         }
 
@@ -175,11 +216,14 @@ public class BFSsolver extends AbstractMazeSolver {
     }
 
 
-
+    /**
+     * Executes the BFS algorithm without animation.
+     * Still produces the steps and shows the final path in MazeView.
+     */
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
-            System.out.println("Visualisation non disponible en mode terminal.");
+            System.out.println("Visualisation  inavailable in terminal mode");
             return;
         }
         
@@ -206,6 +250,13 @@ public class BFSsolver extends AbstractMazeSolver {
         System.out.println("algorithm duration: " + getExecutionTime() + " ms");
     }
     
+    /**
+     * Executes the BFS algorithm and returns the final path between two vertices.
+     *
+     * @param start the starting node index
+     * @param end the ending node index
+     * @return a list of node indices forming the path from start to end
+     */
     @Override
     public List<Integer> findPath(int start, int end) {
         if (model == null) {
@@ -219,7 +270,14 @@ public class BFSsolver extends AbstractMazeSolver {
         
         return new ArrayList<>(finalPath);
     }
-    
+        
+    /**
+     * Reconstructs a path from goal back to start using parent mapping.
+     *
+     * @param parent a map of each node to its predecessor in the path
+     * @param goal the final node to trace back from
+     * @return a list representing the shortest path from start to goal
+ */
     private ArrayList<Integer> reconstructPath(HashMap<Integer, Integer> parent, int goal) {
         ArrayList<Integer> pth = new ArrayList<>();
         int node = goal;

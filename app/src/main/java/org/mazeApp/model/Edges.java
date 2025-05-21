@@ -8,7 +8,7 @@ package org.mazeApp.model;
  * This class is part of the model layer of the application.
  * </p>
  * 
- * @author Felipe Zani
+ * @author Felipe, Abdellah, Jeremy, Shawrov, Melina
  * @since 1.0
  */
 

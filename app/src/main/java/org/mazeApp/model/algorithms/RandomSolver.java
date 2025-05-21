@@ -6,26 +6,49 @@ import java.util.Random;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
-import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
+
+/**
+ * Maze solver using the Random Walk algorithm.
+ * <p>
+ * This solver explores the maze by randomly choosing an unvisited neighboring node
+ * until the goal is reached or all options are exhausted.
+ * It is not guaranteed to find a path if one exists.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
 public class RandomSolver extends AbstractMazeSolver {
 
     private int start = -1;
     private int end = -1;
 
-    // Constructeur par défaut pour la factory
+    /**
+     * Default constructor for use in solver factory.
+     */
     public RandomSolver() {
         super();
     }
 
-    // Constructeur avec paramètres
+    /**
+     * Constructor for GUI mode using MazeView.
+     *
+     * @param graph the maze graph
+     * @param mazeView the maze display view
+     */
     public RandomSolver(Graph graph, MazeView mazeView) {
         super();
         setup(graph, null, mazeView);
     }
 
-    // Constructeur pour terminal
+    /**
+     * Constructor for terminal mode (non-GUI).
+     *
+     * @param graph the maze graph
+     * @param start starting node index
+     * @param end ending node index
+     */
     public RandomSolver(Graph graph, int start, int end) {
         super();
         setup(graph, null, null);
@@ -33,11 +56,15 @@ public class RandomSolver extends AbstractMazeSolver {
         this.end = end;
     }
 
+
     /**
-     * Solve the maze using a random walk algorithm.
+     * Solves the maze using a random walk strategy.
+     * It randomly picks an unvisited neighbor until the end is reached or the path is blocked.
+     *
+     * @return a list of steps taken during the solving process, including backtracking
      */
     public ArrayList<ArrayList<Integer>> solveRandomWalkSteps() {
-        // Utiliser les valeurs de MazeView si disponibles
+        // Use the values of the maze if available
         int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
         int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
         
@@ -82,15 +109,19 @@ public class RandomSolver extends AbstractMazeSolver {
             }
         }
         
-        // Aucun chemin trouvé
+        // No path found
         this.finalPath = new ArrayList<>();
         return allSteps;
     }
 
+    /**
+     * Launches the maze resolution with animation using MazeView.
+     * Each step is visualized in real-time.
+     */
     @Override
     public void visualize() {
         if (mazeView == null) {
-            System.out.println("Visualisation non disponible en mode terminal.");
+            System.out.println("Visualization inavailable in terminal mode");
             return;
         }
 
@@ -108,6 +139,9 @@ public class RandomSolver extends AbstractMazeSolver {
         System.out.println("Path found: " + getFinalPath());
     }
 
+    /**
+     * Executes the resolution without animation, displaying only the final result.
+     */
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
@@ -138,6 +172,14 @@ public class RandomSolver extends AbstractMazeSolver {
         System.out.println("algorithm duration: " + getExecutionTime() + " ms");
     }
 
+    /**
+     * Finds a path from start to end using random walk strategy, without visualization.
+     * May not find a path even if one exists.
+     *
+     * @param start index of the starting node
+     * @param end index of the target node
+     * @return the final path found, or an empty list if no path exists
+     */
     @Override
     public List<Integer> findPath(int start, int end) {
         this.start = start;
