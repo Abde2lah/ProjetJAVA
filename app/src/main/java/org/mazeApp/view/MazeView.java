@@ -293,9 +293,9 @@ public class MazeView extends Pane {
      * @param cell2 second cell 
      * @return if the cell are linked
      */
-    private boolean areConnected(int cell1, int cell2) {
-        return mazeEditor.areConnected(currentGraph, cell1, cell2);
-    }
+private boolean areConnected(int cell1, int cell2) {
+    return mazeEditor.areConnected(currentGraph, cell1, cell2);
+}
 
 
     /**

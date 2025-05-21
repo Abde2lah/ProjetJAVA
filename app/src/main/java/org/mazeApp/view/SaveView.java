@@ -14,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.function.Consumer;
+
 /**
  * UI component for managing saved mazes.
  * <p>
@@ -43,7 +45,7 @@ public class SaveView {
      * 
      * @param onLoadGraphAction Callback to execute when a maze is loaded
      */
-    public void showSavedMazesWindowEx(GraphConsumer onLoadGraphAction) {
+    public void showSavedMazesWindowEx(Consumer<Graph> onLoadGraphAction) {
         Stage savedMazesStage = new Stage();
         savedMazesStage.setTitle("Labyrinthes sauvegardés");
         // ListView for displaying saved mazes
@@ -74,7 +76,7 @@ public class SaveView {
      * @return The load button
      */
     private Button createLoadGraphButton(ListView<String> mazeListView, Stage stage, 
-                                      GraphConsumer onLoadGraphAction) {
+                                      Consumer<Graph> onLoadGraphAction) {
         Button loadButton = new Button("load the selected maze");
         loadButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         loadButton.setPrefWidth(200);
@@ -122,7 +124,7 @@ public class SaveView {
             if (selectedItem != null) {
                 try {
                     String mazeName = selectedItem.split(" \\| ")[0].split(": ")[1];
-                    Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
+                    Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     confirmAlert.setTitle("Deleting confirmation");
                     confirmAlert.setHeaderText(null);
                     confirmAlert.setContentText("Are you sure you want to delete this maze ?");
@@ -141,7 +143,6 @@ public class SaveView {
                 showWarningAlert("No selection", "Please select a maze to delete");
             }
         });
-        
         return deleteButton;
     }
     
@@ -149,22 +150,10 @@ public class SaveView {
      * Display a warning alert with the given title and content.
      */
     private void showWarningAlert(String title, String content) {
-        Alert alert = new Alert(AlertType.WARNING);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }    
-    /**
-     * Warning ! This is a functional interface
-     * Explaination:
-        * This interface is used to define a callback that accepts a Graph object.
-        * It is used in the context of loading a graph from a saved maze.
-        * The interface is functional because it contains only one abstract method.
-        * This allows it to be used as a target for lambda expressions or method references.
-     */
-    @FunctionalInterface
-    public interface GraphConsumer {
-        void accept(Graph graph);
-    }
 }

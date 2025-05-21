@@ -23,8 +23,8 @@ import javafx.scene.shape.Line;
  */
 public class GraphView extends Pane {
     // Constants and properties
-    private final double FIXED_WIDTH = 300;
-    private final double FIXED_HEIGHT = 300;
+    private final double FIXED_WIDTH = 250;
+    private final double FIXED_HEIGHT = 250;
     private final double padding = 20;
     private final double minVertexRadius = 0.5;
     private final double maxVertexRadius = 5;
@@ -45,8 +45,6 @@ public class GraphView extends Pane {
     private final Color EDGE_HOVER_COLOR = Color.RED;
     private final Color VERTEX_HOVER_COLOR = Color.LIGHTBLUE;
     private final Color POTENTIAL_EDGE_COLOR = Color.GREEN;
-    
-
     /**
      * Constructs the GraphView and sets up default dimensions and event handlers.
      */
@@ -392,6 +390,8 @@ public class GraphView extends Pane {
     
     /**
      * Delete and edges between two vertices
+     * @param source the source vertex
+     * @param destination the destination vertex
      */
     private void removeEdge(int source, int destination) {
         if (graphEditor.removeEdge(currentGraph, source, destination)) {
@@ -401,7 +401,6 @@ public class GraphView extends Pane {
             }
         }
     }
-
     /**
      * Draws the entire graph including vertices and edges.
      *

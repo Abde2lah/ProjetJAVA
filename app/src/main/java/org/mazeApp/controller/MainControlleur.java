@@ -115,14 +115,14 @@ public class MainControlleur {
         Label mazeTitle = new Label("Vue du Labyrinthe");
         mazeTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
-        this.graphContainer = new VBox(10);
-        this.mazeContainer = new VBox(10);
+        this.graphContainer = new VBox(5);
+        this.mazeContainer = new VBox(5);
 
         this.graphContainer.getChildren().addAll(graphTitle, this.graphView);
         this.mazeContainer.getChildren().addAll(mazeTitle, this.mazeView);
 
-        this.graphContainer.setPrefWidth(350);
-        this.graphContainer.setMinWidth(350);
+        this.graphContainer.setPrefWidth(250);
+        this.graphContainer.setMinWidth(250);
         this.mazeContainer.setPrefWidth(600);
         this.mazeContainer.setMinWidth(600);
 

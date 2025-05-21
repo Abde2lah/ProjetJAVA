@@ -139,7 +139,7 @@ public class GeneratorControlleur {
         
         dfsRadio.setOnAction(e -> Graph.setGenerator(new DFSGenerator(imperfectMzCheckBoxState.get())));
         
-        HBox radioBox = new HBox(10, kruskalRadio, dfsRadio, createImperfectMazeCB);
+        HBox radioBox = new HBox(10, kruskalRadio, dfsRadio);
         radioBox.setAlignment(Pos.CENTER);
         Text genTitle = new Text("Génération de Labyrinthe");
         genTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
@@ -153,6 +153,7 @@ public class GeneratorControlleur {
             colLabel, this.colInput,
             seedLabel, this.seedInput,
             radioBox,
+            createImperfectMazeCB,
             this.generateButton,
             this.clearButton,
             this.saveButton,

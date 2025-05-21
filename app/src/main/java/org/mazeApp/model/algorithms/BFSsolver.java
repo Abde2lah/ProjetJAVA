@@ -146,7 +146,7 @@ public class BFSsolver extends AbstractMazeSolver {
             }
 
             animationPath.add(path); 
-        }
+        }else{System.out.println("No path found");}
 
         return animationPath;
     }
