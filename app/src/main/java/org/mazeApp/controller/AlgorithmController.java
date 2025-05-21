@@ -1,9 +1,8 @@
 package org.mazeApp.controller;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
 import org.mazeApp.model.MazeSolver;
 import org.mazeApp.model.algorithms.AStarSolver;
@@ -19,13 +18,12 @@ import org.mazeApp.view.MazeView;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import javafx.scene.paint.Color;
 
 /**
  * Controller for the algorithms
@@ -53,7 +51,7 @@ public class AlgorithmController {
     private int delay = 50;
     private VBox AlgoContainer;
     private Timeline animationTimeline;
-
+    private CheckBox animationCBK;
     /**
      * Constructor which initializes the algorithm controller
      */
@@ -77,12 +75,13 @@ public class AlgorithmController {
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.StopButton = new Button("Arrêter");  
+        this.StopButton = new Button("Arrêter");
+        this.animationCBK = new CheckBox("Animation");
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
-        this.SpeedAnimationCursor= new Slider(0, 100, 1);
-        
+        this.SpeedAnimationCursor= new Slider(1, 100, 1);
+         
         // Give the same size to algo buttons
         this.DFSButton.setPrefSize(100, 30);
         this.BFSButton.setPrefSize(100, 30);
@@ -99,10 +98,12 @@ public class AlgorithmController {
         this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
-        
+        this.animationCBK.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;"); 
         // Style pour le bouton d'arrêt (fond rouge)
         this.StopButton.setStyle("-fx-background-color: #D32F2F; -fx-text-fill: white;");
-        
+        //Sets initial visibility
+        this.SpeedAnimationLabel.setVisible(false);
+        this.SpeedAnimationCursor.setVisible(false);  
         // Create a VBox to hold the buttons
         this.AlgoContainer = new VBox(10);
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
@@ -124,6 +125,7 @@ public class AlgorithmController {
             this.StopButton,          // Remplacement du bouton pause par le bouton d'arrêt
             this.TimeExecutionLabel,  
             this.PathLengthLabel,    
+            this.animationCBK,
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
         );
@@ -155,6 +157,12 @@ public class AlgorithmController {
             // Activer le mode de résolution manuelle
             UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
             userSolver.attachToScene();
+        });
+    
+       //toggle animation modifiers visibility 
+        this.animationCBK.setOnAction(e->{
+            this.SpeedAnimationCursor.setVisible(animationCBK.isSelected());
+            this.SpeedAnimationLabel.setVisible(animationCBK.isSelected()); 
         });
 
         this.SpeedAnimationCursor.setOnMouseDragged(e -> {
