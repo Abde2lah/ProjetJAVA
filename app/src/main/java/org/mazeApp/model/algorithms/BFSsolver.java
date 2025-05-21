@@ -20,12 +20,9 @@ public class BFSsolver extends AbstractMazeSolver {
     private int start = -1;
     private int end = -1;
 
-    private int start = -1;
-    private int end = -1;
 
     private boolean[] visitedVerticesArray;
     private ArrayList<Integer> vertexVisitOrder;
-    Graph graph;
     Graph graph;
     private int verticesNb;
 
@@ -121,79 +118,6 @@ public class BFSsolver extends AbstractMazeSolver {
 
         return animationPath;
     }
-
-
-    public ArrayList<ArrayList<Integer>> solveBFS() {
-        int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
-        int goalIdx = (mazeView != null) ? mazeView.getEndIndex() : this.end;
-
-        this.visitedVerticesArray = new boolean[verticesNb];
-        this.vertexVisitOrder = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> animationPath = new ArrayList<>();
-
-        Queue<Integer> queue = new LinkedList<>();
-        int[] parent = new int[verticesNb]; // Pour reconstruire le chemin à la fin
-
-        Arrays.fill(parent, -1); // Initialisation des parents
-
-        visitedVerticesArray[startIdx] = true;
-        queue.add(startIdx);
-
-        // Animation de la première étape (départ)
-        ArrayList<Integer> initialStep = new ArrayList<>();
-        initialStep.add(startIdx);
-        animationPath.add(new ArrayList<>(initialStep));
-
-        boolean goalFound = false;
-
-        while (!queue.isEmpty() && !goalFound) {
-            int current = queue.poll();
-            ArrayList<Integer> step = new ArrayList<>();
-            step.add(current); 
-
-            for (Edges edge : graph.getEdges(current)) {
-                int neighborSource = edge.getDestination();
-                int neighborFirst = edge.getSource();
-
-                if (!visitedVerticesArray[neighborSource]) {
-                    visitedVerticesArray[neighborSource] = true;
-                    parent[neighborSource] = current;
-                    queue.add(neighborSource);
-
-                    if (step.isEmpty() || step.get(step.size() - 1) != neighborFirst) {
-                        step.add(neighborFirst);
-                    }
-                    if (step.isEmpty() || step.get(step.size() - 1) != neighborSource) {
-                        step.add(neighborSource);
-                    }
-
-                    if (neighborSource == goalIdx) {
-                        goalFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!step.isEmpty()) {
-                animationPath.add(new ArrayList<>(step));
-            }
-        }
-
-        // Reconstruction du chemin de fin pour le montrer en rouge à la fin
-        if (goalFound) {
-            ArrayList<Integer> path = new ArrayList<>();
-            int node = goalIdx;
-            while (node != -1) {
-                path.add(0, node);
-                node = parent[node];
-            }
-
-            animationPath.add(path); 
-        }
-
-        return animationPath;
-    }
-
     
     //BFS with saving steps
     private ArrayList<Integer> bfsWithSteps(int startingPoint, int endingPoint, ArrayList<ArrayList<Edges>> graph) {
