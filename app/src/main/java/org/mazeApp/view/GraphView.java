@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.view.EditingView.GraphEditor;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -30,6 +31,7 @@ public class GraphView extends Pane {
     
     // Variables to edit the graph
     private Graph currentGraph;
+    private GraphEditor graphEditor;
     private MazeView associatedMazeView;
     private int hoveredVertexIndex = -1;
     private int selectedVertexIndex = -1;
@@ -52,6 +54,7 @@ public class GraphView extends Pane {
         setPrefSize(FIXED_WIDTH, FIXED_HEIGHT);
         setMinSize(FIXED_WIDTH, FIXED_HEIGHT);
         setMaxSize(FIXED_WIDTH, FIXED_HEIGHT);
+        graphEditor = new GraphEditor();
         setupEventHandlers();
     }
 
@@ -377,79 +380,22 @@ public class GraphView extends Pane {
         getChildren().add(hoverLine);
     }
     
-    /**
-     * Add an edge between two vertexs
-     */
     private void addEdge(int source, int destination) {
-        if (source == destination) return;
-        
-        if (source < 0 || destination < 0 || 
-            source >= currentGraph.getVertexNb() || 
-            destination >= currentGraph.getVertexNb()) {
-            System.err.println("Error: Vertex indices invalid: " + source + " -> " + destination);
-            return;
-        }
-        
-        // Check if the edge already exists
-        boolean edgeExists = false;
-        for (Edges edge : currentGraph.getGraphMaze().get(source)) {
-            if (edge.getDestination() == destination) {
-                edgeExists = true;
-                break;
+        if (graphEditor.addEdge(currentGraph, source, destination)) {
+            draw(currentGraph);
+            if (associatedMazeView != null) {
+                associatedMazeView.draw();
             }
-        }
-        
-        if (!edgeExists) {
-            try {
-                currentGraph.getGraphMaze().get(source).add(new Edges(source, destination));
-                currentGraph.getGraphMaze().get(destination).add(new Edges(destination, source));
-                
-                System.out.println("Edge added with success between " + source + " and " + destination);
-                draw(currentGraph);
-                
-                // Update the maze
-                if (associatedMazeView != null) {
-                    associatedMazeView.draw();
-                }
-            } catch (Exception e) {
-                System.err.println("Error during the edge add " + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("The edge already exists between " + source + " and " + destination);
         }
     }
+
     
     /**
      * Delete and edges between two vertices
      */
     private void removeEdge(int source, int destination) {
-        if (source == destination) return;
-        
-        boolean removed = false;
-        
-        // Delete it
-        for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(source))) {
-            if (edge.getDestination() == destination) {
-                currentGraph.getGraphMaze().get(source).remove(edge);
-                removed = true;
-            }
-        }
-        
-        for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(destination))) {
-            if (edge.getDestination() == source) {
-                currentGraph.getGraphMaze().get(destination).remove(edge);
-                removed = true;
-            }
-        }
-        
-        if (removed) {
-            System.out.println("Edge deleted between " + source + " and " + destination);
-            
-            // Redraw the graph
+        if (graphEditor.removeEdge(currentGraph, source, destination)) {
             draw(currentGraph);
-            
-            // Update the maze
             if (associatedMazeView != null) {
                 associatedMazeView.draw();
             }

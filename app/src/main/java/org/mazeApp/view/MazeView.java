@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
+import org.mazeApp.view.EditingView.MazeEditor;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -42,6 +43,7 @@ public class MazeView extends Pane {
     
     // Maze attributes for editing
     private GraphView associatedGraphView;
+    private MazeEditor mazeEditor;
     private double hoveredWallX1 = -1, hoveredWallY1 = -1, hoveredWallX2 = -1, hoveredWallY2 = -1;
     private boolean wallHoverActive = false;
     private int delay = 100; // Delay for animation
@@ -61,6 +63,7 @@ public class MazeView extends Pane {
      */
     public MazeView(Graph graph) {
         this.currentGraph = graph;
+        mazeEditor=new MazeEditor();
         initializeView();
         setupEventHandlers();
     }
@@ -74,6 +77,7 @@ public class MazeView extends Pane {
     public MazeView(Graph graph, GraphView graphView) {
         this.currentGraph = graph;
         this.associatedGraphView = graphView;
+        mazeEditor=new MazeEditor();
         initializeView();
         setupEventHandlers();
     }
@@ -290,19 +294,9 @@ public class MazeView extends Pane {
      * @return if the cell are linked
      */
     private boolean areConnected(int cell1, int cell2) {
-        if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
-            cell2 < 0 || cell2 >= currentGraph.getVertexNb()) {
-            return false;
-        }
-        
-        for (Edges edge : currentGraph.getGraphMaze().get(cell1)) {
-            if (edge.getDestination() == cell2) {
-                return true;
-            }
-        }
-        
-        return false;
+        return mazeEditor.areConnected(currentGraph, cell1, cell2);
     }
+
 
     /**
      * Monitor a click on a wall
@@ -352,42 +346,14 @@ public class MazeView extends Pane {
      * 
      */
     private void toggleWall(int cell1, int cell2) {
-        if (cell1 < 0 || cell1 >= currentGraph.getVertexNb() || 
-            cell2 < 0 || cell2 >= currentGraph.getVertexNb()) {
-            return; 
-        }
-        
-        if (areConnected(cell1, cell2)) {
-            // If connected, delete the connection on the graph
-            for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(cell1))) {
-                if (edge.getDestination() == cell2) {
-                    currentGraph.getGraphMaze().get(cell1).remove(edge);
-                }
+        if (mazeEditor.toggleConnection(currentGraph, cell1, cell2)) {
+            draw();
+            if (associatedGraphView != null) {
+                associatedGraphView.draw(currentGraph);
             }
-            
-            for (Edges edge : new ArrayList<>(currentGraph.getGraphMaze().get(cell2))) {
-                if (edge.getDestination() == cell1) {
-                    currentGraph.getGraphMaze().get(cell2).remove(edge);
-                }
-            }
-            
-            System.out.println("Wall added between " + cell1 + " and " + cell2);
-        } else {
-            //  If non connected, add a connection)
-            currentGraph.getGraphMaze().get(cell1).add(new Edges(cell1, cell2));
-            currentGraph.getGraphMaze().get(cell2).add(new Edges(cell2, cell1));
-            
-            System.out.println("Wall deleted between  " + cell1 + " and " + cell2);
-        }
-        
-        // Re-draw the maze
-        draw();
-        
-        // Improve the maze view 
-        if (associatedGraphView != null) {
-            associatedGraphView.draw(currentGraph);
         }
     }
+
     
     /**
      * Draw the current graph
