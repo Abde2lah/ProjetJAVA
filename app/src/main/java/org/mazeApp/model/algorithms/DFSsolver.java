@@ -119,6 +119,7 @@ public class DFSsolver extends AbstractMazeSolver {
         for (Edges edge : model.getGraphMaze().get(current)) {
             int neighbor = edge.getDestination();
             if (!visited[neighbor]) {
+                this.visitedVerticesNb++;
                 if (dfsRecursive(neighbor, target, visited, path, steps)) {
                     return true;
                 }

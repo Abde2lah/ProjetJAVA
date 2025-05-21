@@ -16,10 +16,12 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     protected MazeView mazeView;
     protected List<Integer> finalPath;
     protected long executionTime;
+    protected int visitedVerticesNb;
     
     public AbstractMazeSolver() {
         this.finalPath = new ArrayList<>();
         this.executionTime = 0;
+        this.visitedVerticesNb = 0;
     }
     
     @Override
@@ -41,6 +43,14 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     }
     
     /**
+     * @return Returns the number of visited Vertices/Squares in a Graph/Maze 
+     * */
+    @Override
+    public int getvisitedVerticesNumber(){
+      return this.visitedVerticesNb;
+    }
+
+    /**
      * Méthode utilitaire pour mesurer le temps d'exécution d'une opération
      * @param operation L'opération à exécuter
      */
@@ -50,4 +60,5 @@ public abstract class AbstractMazeSolver implements MazeSolver {
         long endTime = System.currentTimeMillis();
         this.executionTime = endTime - startTime;
     }
+
 }

@@ -117,7 +117,7 @@ public class DijkstraSolver extends AbstractMazeSolver {
 
             if (visited[current]) continue;
             visited[current] = true;
-
+            this.visitedVerticesNb++;
             // Save the current path
             ArrayList<Integer> currentPath = reconstructPath(prev, current);
             steps.add(currentPath);

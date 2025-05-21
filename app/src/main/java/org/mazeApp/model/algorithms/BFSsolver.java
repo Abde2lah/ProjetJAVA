@@ -62,6 +62,7 @@ public class BFSsolver extends AbstractMazeSolver {
         Arrays.fill(parent, -1); // Initialisation des parents
 
         visitedVerticesArray[startIdx] = true;
+       this.visitedVerticesNb++; 
         queue.add(startIdx);
 
         // Animation de la première étape (départ)
@@ -82,6 +83,7 @@ public class BFSsolver extends AbstractMazeSolver {
 
                 if (!visitedVerticesArray[neighborSource]) {
                     visitedVerticesArray[neighborSource] = true;
+                    this.visitedVerticesNb++;
                     parent[neighborSource] = current;
                     queue.add(neighborSource);
 

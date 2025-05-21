@@ -1,6 +1,7 @@
 package org.mazeApp.model.algorithms;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public class UserPlaySolver {
     private Circle playerCircle;
     private final Set<Integer> visited = new HashSet<>();
     private Label winLabel;
-
+    private boolean[] visitedArr; 
     // MediaPlayer pour jouer le son de victoire
     private MediaPlayer victoryPlayer;
 
@@ -31,14 +32,16 @@ public class UserPlaySolver {
         this.mazeView = mazeView;
         this.graph = graph;
         this.currentIndex = mazeView.getStartIndex();
-
-        // Création du label de victoire
+        int vertexNb = graph.getVertexNb();
+        this.visitedArr = new boolean[vertexNb];
+        Arrays.fill(this.visitedArr,false);
+        // Creates victory Label
         this.winLabel = new Label("🎉 GG vous avez réussi !");
         winLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel); // On ajoute le label une seule fois
 
-        // Initialisation du son de victoire
+        // Initialialize victory sound effect
         URL soundUrl = getClass().getResource("/Victory.wav");
         if (soundUrl != null) {
             Media media = new Media(soundUrl.toExternalForm());

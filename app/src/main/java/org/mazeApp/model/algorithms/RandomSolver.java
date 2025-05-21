@@ -51,6 +51,7 @@ public class RandomSolver extends AbstractMazeSolver {
         ArrayList<Integer> path = new ArrayList<>();
         path.add(startIdx);
         visited[startIdx] = true;
+        this.visitedVerticesNb++;
         allSteps.add(new ArrayList<>(path)); // Add the first step
 
         while (!path.isEmpty()) {
@@ -65,7 +66,8 @@ public class RandomSolver extends AbstractMazeSolver {
             for (Edges edge : graphMaze.get(current)) {
                 int neighbor = edge.getDestination();
                 if (!visited[neighbor]) {
-                    unvisitedNeighbours.add(neighbor);
+                  this.visitedVerticesNb++;
+                  unvisitedNeighbours.add(neighbor);
                 }
             }
 

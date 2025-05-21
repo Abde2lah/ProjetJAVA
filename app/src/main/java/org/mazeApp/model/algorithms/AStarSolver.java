@@ -62,6 +62,7 @@ public class AStarSolver extends AbstractMazeSolver {
         });
         
         System.out.println("A* algorithm duration: " + getExecutionTime() + " ms");
+        
     }
 
 
@@ -128,7 +129,8 @@ public class AStarSolver extends AbstractMazeSolver {
             
             if (visited[current]) continue;
             visited[current] = true;
-            
+            this.visitedVerticesNb++;
+
             // Reconstitute the path
             ArrayList<Integer> currentPath = reconstructPath(cameFrom, current);
             steps.add(currentPath);

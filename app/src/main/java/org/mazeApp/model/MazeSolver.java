@@ -47,4 +47,9 @@ public interface MazeSolver {
      * @return Le solveur lui-même (pour chaînage)
      */
     MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView);
+     /**
+     * @return Returns the number of visited Vertices/Squares in a Graph/Maze 
+     * */
+    int getvisitedVerticesNumber();
 }
+

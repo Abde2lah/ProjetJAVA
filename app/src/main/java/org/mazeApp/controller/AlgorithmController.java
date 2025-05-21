@@ -58,6 +58,7 @@ public class AlgorithmController {
     private Label SpeedAnimationLabel;
     private Label TimeExecutionLabel;   
     private Label PathLengthLabel;     
+    private Label totalVisitedSquares;
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
@@ -79,7 +80,7 @@ public class AlgorithmController {
     }
     
     /**
-     * Initialize the algorithm buttons and their interactivity
+     * Initializes the algorithm buttons and their interactivity
      */
     private void initializeAlgorithmButtons() {
         // Create algorithm buttons
@@ -95,6 +96,7 @@ public class AlgorithmController {
         this.animationCBK = new CheckBox("Animation");
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
+        this.totalVisitedSquares = new Label("Cases traitées: 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
         this.SpeedAnimationCursor= new Slider(1, 100, 1);
          
@@ -114,6 +116,7 @@ public class AlgorithmController {
         this.SpeedAnimationLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+        this.totalVisitedSquares.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         //Style for the checkbox
         this.animationCBK.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;"); 
 
@@ -142,7 +145,8 @@ public class AlgorithmController {
             this.RandomButton,
             this.StopButton,          
             this.TimeExecutionLabel,  
-            this.PathLengthLabel,    
+            this.PathLengthLabel,  
+            this.totalVisitedSquares,
             this.animationCBK,
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
@@ -150,7 +154,7 @@ public class AlgorithmController {
     }
     
     /**
-     * Set up the actions for the algorithm buttons
+     * Set up the actions for the algorithm buttons.
      */
     private void setupAlgorithmButtonActions() {
         // Button to stop the current animation
@@ -210,7 +214,7 @@ public class AlgorithmController {
                 int start = mazeView.getStartIndex();
                 int end = mazeView.getEndIndex();
                 
-                // Use DFS to search easier the path
+                // Use DFS to easier search the path
                 DFSsolver dfsSolver = new DFSsolver(model, null, null);
                 List<Integer> path = dfsSolver.findPath(start, end);
                 updatePathLengthLabel(path);
@@ -230,14 +234,22 @@ public class AlgorithmController {
     private void updateTimeExecutionLabel(long durationMs) {
         TimeExecutionLabel.setText("Temps : " + durationMs + " ms");
     }
-    
     /**
      * Update the path length
      * @param path Path found which contains the nodes
      */
     private void updatePathLengthLabel(List<Integer> path) {
         int length = (path != null) ? path.size() : 0;
-        PathLengthLabel.setText("Length : " + length + " cases");
+        PathLengthLabel.setText("Longueur : " + length + " cases");
+    }
+
+    /**
+     * Updates total visited Vertices counter.
+     * @param nbVisitedPaths Represents the total number of visited paths 
+     * */
+    private void updateVisitedSquaresLabel(int nbVisitedPaths){
+      totalVisitedSquares.setText("Total de cases Visitées "+nbVisitedPaths+"cases");
+      
     }
     
     /**
@@ -298,7 +310,7 @@ public class AlgorithmController {
                 
                 MazeSolver solver = createSolver(solverType);
                 
-                // Exécuter algo and measure time
+                // Takes the time measurement of the solver
                 long startTime = System.currentTimeMillis();
                 MazeView mazeView = mainController.getMazeView();
 
@@ -323,6 +335,9 @@ public class AlgorithmController {
                 long endTime = System.currentTimeMillis();
                 updateTimeExecutionLabel(endTime - startTime);
                 
+                //Updates total visited squares
+                updateVisitedSquaresLabel(solver.getvisitedVerticesNumber());
+
                 // Surveillance de fin d'animation si nécessaire
                 setupAnimationListener();
             } catch (Exception ex) {

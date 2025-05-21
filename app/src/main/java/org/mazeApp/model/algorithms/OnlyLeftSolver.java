@@ -91,7 +91,9 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         if (current < 0 || current >= graphMaze.size()) return -1;
         for (Edges edge : graphMaze.get(current)) {
             int neighbor = edge.getDestination();
-            if (!visited[neighbor] && isDirection(current, neighbor, direction)) return neighbor;
+            if (!visited[neighbor] && isDirection(current, neighbor, direction)) {
+              this.visitedVerticesNb++;
+              return neighbor;}
         }
         return -1;
     }

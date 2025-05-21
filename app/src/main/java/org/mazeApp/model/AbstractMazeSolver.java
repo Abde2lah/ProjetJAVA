@@ -14,10 +14,12 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     protected MazeView mazeView;
     protected List<Integer> finalPath;
     protected long executionTime;
-    
+    protected int vistedVerticesNb;
+
     public AbstractMazeSolver() {
         this.finalPath = new ArrayList<>();
         this.executionTime = 0;
+        this.vistedVerticesNb = 0;
     }
     
     @Override
@@ -48,4 +50,5 @@ public abstract class AbstractMazeSolver implements MazeSolver {
         long endTime = System.currentTimeMillis();
         this.executionTime = endTime - startTime;
     }
+ 
 }
