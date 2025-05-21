@@ -10,6 +10,16 @@ import org.mazeApp.model.MazeSolver;
 import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
+/**
+ * Maze solver using the "Always Turn Left" strategy.
+ * <p>
+ * This algorithm tries to follow the left-hand rule to navigate through the maze
+ * from a defined start point to an end point. It uses directional state and backtracking
+ * when needed, storing each movement step-by-step.
+ * </p>
+ * @author Abdellah, Felipe, Jerely, Shawrov, Melina
+ * @version 1.0
+ */
 public class OnlyLeftSolver extends AbstractMazeSolver {
 
     private int columns;
@@ -17,18 +27,33 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
     private int start = -1;
     private int end = -1;
 
-    // Constructeur par défaut pour la factory
+
+    /**
+     * Default constructor for factory usage.
+     */
     public OnlyLeftSolver() {
         super();
     }
 
-    // Constructeur avec paramètres
+    /**
+     * Constructor used for GUI mode with MazeView.
+     *
+     * @param graph the maze graph
+     * @param mazeView the associated maze view
+     */
     public OnlyLeftSolver(Graph graph, MazeView mazeView) {
         super();
         setup(graph, null, mazeView);
     }
 
-    // Constructeur pour terminal
+
+    /**
+     * Constructor used in terminal mode (no UI).
+     *
+     * @param graph the maze graph
+     * @param start start index
+     * @param end end index
+     */
     public OnlyLeftSolver(Graph graph, int start, int end) {
         super();
         setup(graph, null, null);
@@ -36,6 +61,14 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         this.end = end;
     }
 
+    /**
+     * Sets up the solver with the graph and views.
+     *
+     * @param graph the maze graph
+     * @param graphView optional graph view (can be null)
+     * @param mazeView optional maze view (can be null)
+     * @return the solver itself (for chaining)
+     */
     @Override
     public MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView) {
         super.setup(graph, graphView, mazeView);
@@ -46,6 +79,10 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         return this;
     }
 
+    /**
+     * Enum representing the four cardinal directions.
+     * Includes methods to turn left, right, or around.
+     */
     private enum Direction {
         RIGHT(0), DOWN(1), LEFT(2), UP(3);
         private final int value;
@@ -57,6 +94,14 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         public Direction turnAround() { return values()[(value + 2) % 4]; }
     }
 
+    /**
+     * Checks if a neighbor cell lies in the given direction relative to the current cell.
+     *
+     * @param current the current cell index
+     * @param neighbor the neighboring cell index
+     * @param direction the direction to check
+     * @return true if neighbor is in the specified direction
+     */
     private boolean isDirection(int current, int neighbor, Direction direction) {
         int currentRow = current / columns;
         int currentCol = current % columns;
@@ -71,6 +116,13 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         }
     }
 
+    /**
+     * Returns the direction of movement from one cell to another.
+     *
+     * @param from the origin cell
+     * @param to the destination cell
+     * @return the direction from 'from' to 'to'
+     */
     private Direction getMovementDirection(int from, int to) {
         int fromRow = from / columns;
         int fromCol = from % columns;
@@ -86,6 +138,15 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         return null;
     }
 
+
+    /**
+     * Attempts to move in the given direction if the neighbor exists and is not visited.
+     *
+     * @param current the current cell index
+     * @param visited array of visited flags
+     * @param direction the direction to attempt
+     * @return the neighbor index or -1 if move is invalid
+     */
     private int tryMove(int current, boolean[] visited, Direction direction) {
         ArrayList<ArrayList<Edges>> graphMaze = model.getGraphMaze();
         if (current < 0 || current >= graphMaze.size()) return -1;
@@ -96,6 +157,14 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         return -1;
     }
 
+    /**
+     * Attempts to move in the given direction if the neighbor exists and is not visited.
+     *
+     * @param current the current cell index
+     * @param visited array of visited flags
+     * @param direction the direction to attempt
+     * @return the neighbor index or -1 if move is invalid
+     */
     public ArrayList<ArrayList<Integer>> solveLeftSteps() {
         // Utiliser les valeurs de MazeView si disponibles
         int startIdx = (mazeView != null) ? mazeView.getStartIndex() : this.start;
@@ -179,10 +248,14 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         return allSteps;
     }
 
+    /**
+     * Executes the algorithm and animates each step on the maze view.
+     * The path is shown incrementally with delays between each step.
+     */
     @Override
     public void visualize() {
         if (mazeView == null) {
-            System.out.println("Visualisation non disponible en mode terminal.");
+            System.out.println("Visualization inavailable in terminal mode.");
             return;
         }
 
@@ -203,6 +276,10 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         System.out.println("Duration of Left walk solver : " + getExecutionTime() + " ms");
     }
 
+
+    /**
+     * Executes the algorithm and displays the final path without step-by-step animation.
+     */
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
@@ -233,6 +310,14 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
         System.out.println("algorithm duration: " + getExecutionTime() + " ms");
     }
 
+    /**
+     * Finds the final path between two nodes using the left-hand rule.
+     * This version is used in headless or terminal mode.
+     *
+     * @param start the start vertex
+     * @param end the end vertex
+     * @return the final path found as a list of vertex indices
+     */
     @Override
     public List<Integer> findPath(int start, int end) {
         this.start = start;

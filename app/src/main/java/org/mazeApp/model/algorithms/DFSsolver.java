@@ -1,7 +1,6 @@
 package org.mazeApp.model.algorithms;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
@@ -9,19 +8,30 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implementation of the DFS algorithm to solve a maze.
+ * Depth-First Search (DFS) implementation for solving mazes.
+ * <p>
+ * This class extends {@link AbstractMazeSolver} and provides both animated
+ * and non-animated execution modes. DFS explores as deep as possible before
+ * backtracking, and this implementation collects each step for visualization.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
  */
 public class DFSsolver extends AbstractMazeSolver {
 
     /**
-     * Constructeur par défaut pour la factory
+     * Default constructor for usage with factory or manual setup.
      */
     public DFSsolver() {
         super();
     }
 
     /**
-     * Constructeur avec paramètres
+     * Constructor with initial setup.
+     *
+     * @param model the graph model representing the maze
+     * @param graphView the associated graph view (optional)
+     * @param mazeView the associated maze view (required for visualization)
      */
     public DFSsolver(Graph model, GraphView graphView, MazeView mazeView) {
         super();
@@ -29,7 +39,8 @@ public class DFSsolver extends AbstractMazeSolver {
     }
 
     /**
-     * Launches the maze solving with step-by-step visualization
+     * Executes DFS with animated visualization in the MazeView.
+     * Displays each traversal step as the algorithm proceeds.
      */
     @Override
     public void visualize() {
@@ -46,7 +57,7 @@ public class DFSsolver extends AbstractMazeSolver {
             return;
         }
 
-        // Utiliser measureExecutionTime pour calculer le temps d'exécution
+        // Use measureExecutionTime to calculate the time execution
         measureExecutionTime(() -> {
             ArrayList<ArrayList<Integer>> steps = solveDFSWithSteps(start, end);
             
@@ -61,6 +72,11 @@ public class DFSsolver extends AbstractMazeSolver {
 
         System.out.println("DFS algorithm duration : " + getExecutionTime() + " ms");
     }
+
+    /**
+     * Executes DFS without animation.
+     * Computes the steps and renders the final path only.
+     */    
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
@@ -92,7 +108,11 @@ public class DFSsolver extends AbstractMazeSolver {
     }
 
     /**
-     * Do a DFS search and return the steps taken
+     * Performs DFS traversal and collects each step into a list.
+     *
+     * @param start the starting vertex index
+     * @param end the target vertex index
+     * @return a list of traversal steps (each step is a path snapshot)
      */
     private ArrayList<ArrayList<Integer>> solveDFSWithSteps(int start, int end) {
         ArrayList<ArrayList<Integer>> steps = new ArrayList<>();
@@ -104,7 +124,14 @@ public class DFSsolver extends AbstractMazeSolver {
     }
 
     /**
-     * Recursive DFS function
+     * Recursive helper for DFS traversal with backtracking.
+     *
+     * @param current the current vertex
+     * @param target the goal vertex
+     * @param visited a boolean array to track visited vertices
+     * @param path the current path being explored
+     * @param steps the list of recorded steps for visualization
+     * @return true if the target is found, false otherwise
      */
     private boolean dfsRecursive(int current, int target, boolean[] visited,
                                  ArrayList<Integer> path, ArrayList<ArrayList<Integer>> steps) {
@@ -131,7 +158,12 @@ public class DFSsolver extends AbstractMazeSolver {
     }
 
     /**
-     * Find the path from start to end without visualizing the steps
+     * Finds a path from start to end using DFS, without visualization.
+     * The final path is stored and returned.
+     *
+     * @param start the starting vertex
+     * @param end the destination vertex
+     * @return the path as a list of vertex indices
      */
     @Override
     public ArrayList<Integer> findPath(int start, int end) {

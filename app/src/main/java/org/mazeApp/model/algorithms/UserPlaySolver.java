@@ -16,6 +16,12 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+/**
+ * Allows a user to manually navigate through a maze using keyboard input (ZQSD).
+ * Supports visual feedback in the MazeView and optional victory sound effects.
+ * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
+ * @version 1.0
+ */
 public class UserPlaySolver {
     private final MazeView mazeView;
     private final Graph graph;
@@ -27,26 +33,35 @@ public class UserPlaySolver {
     // MediaPlayer pour jouer le son de victoire
     private MediaPlayer victoryPlayer;
 
+    /**
+     * Constructs the interactive solver and prepares the victory label and sound.
+     *
+     * @param mazeView the view used to render the maze and player
+     * @param graph the maze structure to navigate
+     */
     public UserPlaySolver(MazeView mazeView, Graph graph) {
         this.mazeView = mazeView;
         this.graph = graph;
         this.currentIndex = mazeView.getStartIndex();
 
-        // Création du label de victoire
-        this.winLabel = new Label("🎉 GG vous avez réussi !");
+        this.winLabel = new Label("GG WELL PLAY !");
         winLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
-        mazeView.getChildren().add(winLabel); // On ajoute le label une seule fois
+        mazeView.getChildren().add(winLabel); 
 
-        // Initialisation du son de victoire
+        // Initialization of the victory sound
         URL soundUrl = getClass().getResource("/Victory.wav");
         if (soundUrl != null) {
             Media media = new Media(soundUrl.toExternalForm());
             victoryPlayer = new MediaPlayer(media);
-            victoryPlayer.setOnError(() -> System.out.println("❌ Erreur lecture son : " + victoryPlayer.getError()));
+            victoryPlayer.setOnError(() -> System.out.println("❌ Error can't listen the sound : " + victoryPlayer.getError()));
         }
     }
 
+    /**
+     * Attaches the solver to the MazeView and sets up key listeners for user control.
+     * Initializes the player avatar and victory label.
+     */
     public void attachToScene() {
         if (currentIndex < 0) return;
 
@@ -54,14 +69,19 @@ public class UserPlaySolver {
         mazeView.setFocusTraversable(true);
         mazeView.requestFocus();
 
-        // Initialisation du label GG (encore une fois au cas où)
-        winLabel = new Label("🏁 GG WELL PLAY");
+        winLabel = new Label("GG WELL PLAY");
         winLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel);
         drawPlayer();
     }
 
+    /**
+     * Handles key press events to move the player through the maze using ZQSD controls.
+     * Plays a victory sound and shows a label upon reaching the goal.
+     *
+     * @param event the KeyEvent triggered by user input
+     */
     private void handleKeyPress(KeyEvent event) {
         if (currentIndex == mazeView.getEndIndex()) {
             System.out.println("GG WELL PLAY");
@@ -89,13 +109,20 @@ public class UserPlaySolver {
             drawPlayer();
 
             if (currentIndex == mazeView.getEndIndex()) {
-                System.out.println("🏁 Vous avez atteint la sortie !");
+                System.out.println("You reach the arrival");
                 showVictoryLabel();
                 playVictorySound();
             }
         }
     }
 
+    /**
+     * Checks whether there is a connection (edge) between two nodes.
+     *
+     * @param from the source node index
+     * @param to the destination node index
+     * @return true if a connection exists, false otherwise
+     */
     private boolean isConnected(int from, int to) {
         for (Edges edge : graph.getGraphMaze().get(from)) {
             if (edge.getDestination() == to) {
@@ -105,6 +132,10 @@ public class UserPlaySolver {
         return false;
     }
 
+    /**
+     * Draws the player on the maze at the current index.
+     * Recenters and redraws the maze view, showing victory if the player has reached the end.
+     */
     private void drawPlayer() {
         mazeView.draw(); // redessine le labyrinthe => efface tout
 
@@ -139,7 +170,9 @@ public class UserPlaySolver {
         }
     }
 
-    // Affiche le message de victoire
+    /**
+     * Displays a congratulatory label in the center of the screen.
+     */
     private void showVictoryLabel() {
         double centerX = mazeView.getWidth() / 2;
         double centerY = mazeView.getHeight() / 2;
@@ -149,10 +182,12 @@ public class UserPlaySolver {
         winLabel.setVisible(true);
     }
 
-    // Joue le son de victoire
+    /**
+     * Plays the victory sound effect (if available).
+     */
     private void playVictorySound() {
         if (victoryPlayer != null) {
-            victoryPlayer.stop(); // Redémarre proprement le son
+            victoryPlayer.stop(); 
             victoryPlayer.play();
         }
     }

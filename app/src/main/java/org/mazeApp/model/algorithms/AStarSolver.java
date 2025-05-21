@@ -12,19 +12,29 @@ import org.mazeApp.view.GraphView;
 import org.mazeApp.view.MazeView;
 
 /**
- * Implementation of the A* algorithm for solving a maze
+ * Implementation of the A* algorithm for solving mazes.
+ * <p>
+ * This class extends AbstractMazeSolver and uses Manhattan distance
+ * as a heuristic to efficiently find the shortest path from start to end.
+ * </p>
+ * @author Abdellah, Felipe, Jeremy, SHawrov, Melina
  */
+
 public class AStarSolver extends AbstractMazeSolver {
 
     /**
-     * Constructeur par défaut
+     * Default constructor.
      */
     public AStarSolver() {
         super();
     }
 
     /**
-     * Constructeur avec paramètres
+     * Constructs an AStarSolver with the provided graph, graph view, and maze view.
+     *
+     * @param model the graph representing the maze
+     * @param graphView the graphical view of the graph (for visualization)
+     * @param mazeView the graphical view of the maze (for visualization)
      */
     public AStarSolver(Graph model, GraphView graphView, MazeView mazeView) {
         super();
@@ -99,7 +109,11 @@ public class AStarSolver extends AbstractMazeSolver {
     }
 
     /**
-     * Return the steps taken by the A* algorithm
+     * Runs the A* algorithm from start to goal and returns the steps taken.
+     *
+     * @param start the index of the starting node
+     * @param goal the index of the goal node
+     * @return a list of steps, each step being a partial path constructed so far
      */
     public ArrayList<ArrayList<Integer>> getAStarSteps(int start, int goal) {
         int vertexCount = model.getVertexNb();
@@ -151,8 +165,13 @@ public class AStarSolver extends AbstractMazeSolver {
         return steps;
     }
 
+
     /**
-     * Heuristic function for A* algorithm based on Manhattan distance
+     * Heuristic function used by A* (Manhattan distance).
+     *
+     * @param a index of the first node
+     * @param b index of the second node
+     * @return the heuristic distance between a and b
      */
     private int heuristic(int a, int b) {
         int columns = model.getColumns();
@@ -164,7 +183,11 @@ public class AStarSolver extends AbstractMazeSolver {
     }
 
     /**
-     * Reconstitute a path from the cameFrom array
+     * Reconstructs the shortest path using the cameFrom array.
+     *
+     * @param cameFrom array mapping each node to its predecessor
+     * @param current the node from which to reconstruct the path
+     * @return the complete path from start to current
      */
     private ArrayList<Integer> reconstructPath(int[] cameFrom, int current) {
         ArrayList<Integer> path = new ArrayList<>();
@@ -175,6 +198,13 @@ public class AStarSolver extends AbstractMazeSolver {
         return path;
     }
     
+    /**
+     * Finds the shortest path between start and end using the A* algorithm.
+     *
+     * @param start the starting node
+     * @param end the ending node
+     * @return a list of node indices representing the shortest path
+     */
     @Override
     public List<Integer> findPath(int start, int end) {
         if (model == null) {
