@@ -95,6 +95,7 @@ public class AlgorithmController {
         this.RandomButton = new Button("Random");
         this.StopButton = new Button("Arrêter");
         this.animationCBK = new CheckBox("Animation");
+        this.animationCBK.setSelected(true);
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.totalVisitedSquares = new Label("Nombre de cases traitées: 0 cases");
@@ -317,23 +318,22 @@ public class AlgorithmController {
                 // Exécuter l'algorithme et mesurer le temps
                 long startTime = System.currentTimeMillis();
                 
-                // Trouver le chemin d'abord (pour avoir la longueur et le nombre de cases visitées)
                 MazeView mazeView = mainController.getMazeView();
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 
-                // Mettre à jour les labels
                 updatePathLengthLabel(path);
                 updateVisitedSquaresLabel(solver.getvisitedVerticesNumber(), path != null ? path.size() : 0);
-                
-                // Lancer la visualisation
-                solver.visualize();
+                if (animationCBK.isSelected()) {
+                    solver.visualize();
+                    setupAnimationListener();
+                } else {
+                    solver.nonAnimationVisualize();
+                }
                 
                 // Mettre à jour le temps d'exécution
                 long endTime = System.currentTimeMillis();
                 updateTimeExecutionLabel(endTime - startTime);
                 
-                // Surveillance de fin d'animation si nécessaire
-                setupAnimationListener();
             } catch (Exception ex) {
                 System.err.println("Erreur lors de l'exécution de " + solverType + ": " + ex.getMessage());
                 ex.printStackTrace();

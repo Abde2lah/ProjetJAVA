@@ -3,6 +3,7 @@ package org.mazeApp.view;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.mazeApp.model.Edges;
@@ -11,6 +12,7 @@ import org.mazeApp.view.EditingView.MazeEditor;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -358,31 +360,57 @@ private boolean areConnected(int cell1, int cell2) {
     /**
      * Draw the current graph
      */
-    public void draw() {
-        getChildren().clear();
-        if (currentGraph == null) return;
-
-        // Update the maze's dimesions
-        this.rows = currentGraph.getRows();
-        this.columns = currentGraph.getColumns();
-
-        double cellSize = calculateCellSize();
-        double wallThickness = Math.max(minWallThickness, cellSize * 0.1);
-
-        // Center the maze
-        double mazeWidth = columns * cellSize;
-        double mazeHeight = rows * cellSize;
-        double offsetX = (getWidth() - mazeWidth) / 2;
-        double offsetY = (getHeight() - mazeHeight) / 2;
-
-        // say all the walls are present
-        boolean[][] horizontalWalls = new boolean[rows + 1][columns];
-        boolean[][] verticalWalls = new boolean[rows][columns + 1];
-        initializeWalls(horizontalWalls, verticalWalls);
-        removeWallsBasedOnEdges(horizontalWalls, verticalWalls);
-        drawWalls(horizontalWalls, verticalWalls, cellSize, wallThickness, offsetX, offsetY);
-        drawSpecialPoints(cellSize, offsetX, offsetY);
+/**
+ * Draw the current graph
+ */
+public void draw() {
+    if (currentGraph == null) return;
+    // Preserve animation paths (red and light green lines)
+    List<Node> pathElements = new ArrayList<>();
+    
+    // Check if there's an animation that is finished or still running
+    if (currentAnimation != null ) {
+        // Save all path lines before clearing
+        for (Node node : getChildren()) {
+            if (node instanceof Line) {
+                Line line = (Line) node;
+                Color strokeColor = (Color) line.getStroke();
+                // Save red lines (final path) and light green lines (explored paths)
+                if ((Color.RED.equals(strokeColor) || Color.LIGHTGREEN.equals(strokeColor)) && line.getOpacity() != 0.7) { 
+                    pathElements.add(line);
+                }
+            }
+        }
     }
+    
+    // Now clear and redraw the base maze
+    getChildren().clear();
+
+    // Update the maze's dimensions
+    this.rows = currentGraph.getRows();
+    this.columns = currentGraph.getColumns();
+
+    double cellSize = calculateCellSize();
+    double wallThickness = Math.max(minWallThickness, cellSize * 0.1);
+
+    // Center the maze
+    double mazeWidth = columns * cellSize;
+    double mazeHeight = rows * cellSize;
+    double offsetX = (getWidth() - mazeWidth) / 2;
+    double offsetY = (getHeight() - mazeHeight) / 2;
+
+    // say all the walls are present
+    boolean[][] horizontalWalls = new boolean[rows + 1][columns];
+    boolean[][] verticalWalls = new boolean[rows][columns + 1];
+    initializeWalls(horizontalWalls, verticalWalls);
+    removeWallsBasedOnEdges(horizontalWalls, verticalWalls);
+    drawWalls(horizontalWalls, verticalWalls, cellSize, wallThickness, offsetX, offsetY);
+    drawSpecialPoints(cellSize, offsetX, offsetY);
+    // Restore the path elements if they exist
+    if (!pathElements.isEmpty()) {
+        getChildren().addAll(pathElements);
+    }
+}
 
 
     /**
@@ -708,9 +736,7 @@ private boolean areConnected(int cell1, int cell2) {
             System.out.println("Aucun chemin trouvé.");
             return;
         }
-    
         draw(); 
-    
         double cellSize = calculateCellSize();
         double pathThickness = Math.max(0.5, cellSize * 0.1);
     
