@@ -2,7 +2,6 @@
 
 ## ⚠️ Sommaire ⚠️
 1. [📓 PRÉREQUIS D'INSTALLATION 📓](#-prérequis-dinstallation-)
-2. [📖 WIKI 📖](#-wiki-)
 3. [🧑‍🤝‍🧑 PARTICIPANTS 🧑‍🤝‍🧑](#-participants-)
 
 ---
@@ -24,7 +23,6 @@ Linux :
 ./gradlew run
 ````
 
-## 📖WIKI📖
 ## 🧑‍🤝‍🧑PARTICIPANTS🧑‍🤝‍🧑
 Jérémy 
 
