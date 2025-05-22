@@ -27,8 +27,6 @@ public class BFSsolver extends AbstractMazeSolver {
 
     private int start = -1;
     private int end = -1;
-
-
     private boolean[] visitedVerticesArray;
     private ArrayList<Integer> vertexVisitOrder;
     Graph graph;
@@ -40,6 +38,7 @@ public class BFSsolver extends AbstractMazeSolver {
     public BFSsolver() {
         super();
         this.vertexVisitOrder = new ArrayList<>();
+        this.visitedVerticesNb = 0; // Initialiser le compteur à 0
     }
     
     /**
@@ -52,6 +51,7 @@ public class BFSsolver extends AbstractMazeSolver {
         this.verticesNb = verticesNb;
         this.visitedVerticesArray = new boolean[verticesNb];
         this.vertexVisitOrder = new ArrayList<>();
+        this.visitedVerticesNb = 0; // Initialiser le compteur à 0
     }
     
     /**
@@ -68,7 +68,7 @@ public class BFSsolver extends AbstractMazeSolver {
         this.verticesNb = graph.getVertexNb();
         this.visitedVerticesArray = new boolean[verticesNb];
         this.graph = graph;
-        this.graph = graph;
+        this.visitedVerticesNb = 0; // Réinitialiser le compteur à chaque configuration
         return this;
     }
 
@@ -85,6 +85,9 @@ public class BFSsolver extends AbstractMazeSolver {
         this.visitedVerticesArray = new boolean[verticesNb];
         this.vertexVisitOrder = new ArrayList<>();
         ArrayList<ArrayList<Integer>> animationPath = new ArrayList<>();
+        
+        // Réinitialiser le compteur au début de l'algorithme
+        this.visitedVerticesNb = 0;
 
         Queue<Integer> queue = new LinkedList<>();
         int[] parent = new int[verticesNb]; // To build the path at the end
@@ -92,7 +95,7 @@ public class BFSsolver extends AbstractMazeSolver {
         Arrays.fill(parent, -1); // parents initialization
 
         visitedVerticesArray[startIdx] = true;
-       this.visitedVerticesNb++; 
+        this.visitedVerticesNb++; // Incrémenter pour le point de départ
         queue.add(startIdx);
 
         // Animation of the first step
@@ -113,7 +116,7 @@ public class BFSsolver extends AbstractMazeSolver {
 
                 if (!visitedVerticesArray[neighborSource]) {
                     visitedVerticesArray[neighborSource] = true;
-                    this.visitedVerticesNb++;
+                    this.visitedVerticesNb++; // Incrémenter à chaque nouvelle cellule visitée
                     parent[neighborSource] = current;
                     queue.add(neighborSource);
 
@@ -145,8 +148,16 @@ public class BFSsolver extends AbstractMazeSolver {
                 node = parent[node];
             }
 
-            animationPath.add(path); 
-        }else{System.out.println("No path found");}
+            animationPath.add(path);
+            this.finalPath = path; // Stocker le chemin final
+        } else {
+            System.out.println("No path found");
+            this.finalPath = new ArrayList<>();
+        }
+
+        // Afficher les statistiques dans la console pour débogage
+        System.out.println("BFS stats: Visited " + this.visitedVerticesNb + " vertices, path length: " + 
+                          (this.finalPath != null ? this.finalPath.size() : 0));
 
         return animationPath;
     }
@@ -163,11 +174,14 @@ public class BFSsolver extends AbstractMazeSolver {
         // Reset the structures
         this.visitedVerticesArray = new boolean[verticesNb];
         this.vertexVisitOrder = new ArrayList<>();
+        // Réinitialiser le compteur
+        this.visitedVerticesNb = 0;
         
         Queue<Integer> adjQueue = new LinkedList<>();
         HashMap<Integer, Integer> parent = new HashMap<>();
         
         this.visitedVerticesArray[startingPoint] = true;
+        this.visitedVerticesNb++; // Incrémenter pour le point de départ
         adjQueue.add(startingPoint);
         parent.put(startingPoint, -1);
         
@@ -181,6 +195,7 @@ public class BFSsolver extends AbstractMazeSolver {
                 
                 if (!this.visitedVerticesArray[ajdVertex]) {
                     this.visitedVerticesArray[ajdVertex] = true;
+                    this.visitedVerticesNb++; // Incrémenter pour chaque nouvelle visite
                     adjQueue.add(ajdVertex);
                     this.vertexVisitOrder.add(ajdVertex);
                     parent.put(ajdVertex, currentVertex);
@@ -188,7 +203,14 @@ public class BFSsolver extends AbstractMazeSolver {
             }
         }
         
-        return reconstructPath(parent, endingPoint);
+        ArrayList<Integer> path = reconstructPath(parent, endingPoint);
+        this.finalPath = path; // Stocker le chemin final
+        
+        // Afficher les statistiques dans la console pour débogage
+        System.out.println("BFS stats: Visited " + this.visitedVerticesNb + " vertices, path length: " + 
+                          (path != null ? path.size() : 0));
+        
+        return path;
     }
         
     /**
@@ -207,12 +229,17 @@ public class BFSsolver extends AbstractMazeSolver {
             return;
         }
 
+        // Réinitialiser le compteur avant l'exécution
+        this.visitedVerticesNb = 0;
+
         measureExecutionTime(() -> {
             ArrayList<ArrayList<Integer>> steps = solveBFS();
             mazeView.visualiseStep(steps);
         });
         
         System.out.println("BFS algorithm duration : " + getExecutionTime() + " ms");
+        System.out.println("Total visited vertices: " + this.visitedVerticesNb);
+        System.out.println("Final path length: " + (finalPath != null ? finalPath.size() : 0));
     }
 
 
@@ -223,7 +250,7 @@ public class BFSsolver extends AbstractMazeSolver {
     @Override
     public void nonAnimationVisualize() {
         if (mazeView == null) {
-            System.out.println("Visualisation  inavailable in terminal mode");
+            System.out.println("Visualisation inavailable in terminal mode");
             return;
         }
         
@@ -234,6 +261,9 @@ public class BFSsolver extends AbstractMazeSolver {
             System.out.println("Please define a Start and end point");
             return;
         }
+        
+        // Réinitialiser le compteur avant l'exécution
+        this.visitedVerticesNb = 0;
         
         measureExecutionTime(() -> {
             ArrayList<ArrayList<Integer>> steps = solveBFS();
@@ -248,6 +278,8 @@ public class BFSsolver extends AbstractMazeSolver {
         });
         
         System.out.println("algorithm duration: " + getExecutionTime() + " ms");
+        System.out.println("Total visited vertices: " + this.visitedVerticesNb);
+        System.out.println("Final path length: " + (finalPath != null ? finalPath.size() : 0));
     }
     
     /**
@@ -264,6 +296,9 @@ public class BFSsolver extends AbstractMazeSolver {
             return new ArrayList<>();
         }
         
+        // Réinitialiser le compteur avant l'exécution
+        this.visitedVerticesNb = 0;
+        
         measureExecutionTime(() -> {
             this.finalPath = bfsWithSteps(start, end, model.getGraphMaze());
         });
@@ -277,7 +312,7 @@ public class BFSsolver extends AbstractMazeSolver {
      * @param parent a map of each node to its predecessor in the path
      * @param goal the final node to trace back from
      * @return a list representing the shortest path from start to goal
- */
+     */
     private ArrayList<Integer> reconstructPath(HashMap<Integer, Integer> parent, int goal) {
         ArrayList<Integer> pth = new ArrayList<>();
         int node = goal;
@@ -296,5 +331,15 @@ public class BFSsolver extends AbstractMazeSolver {
         
         Collections.reverse(pth);
         return pth;
+    }
+    
+    /**
+     * Gets the number of vertices visited during the algorithm execution.
+     *
+     * @return the number of visited vertices
+     */
+    @Override
+    public int getvisitedVerticesNumber() {
+        return this.visitedVerticesNb;
     }
 }

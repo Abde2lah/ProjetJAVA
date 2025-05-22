@@ -23,7 +23,6 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     protected List<Integer> finalPath;
     protected long executionTime;
     protected int visitedVerticesNb;
-    
     /**
      * Default constructor initializing the path and execution time.
      */
@@ -32,10 +31,8 @@ public abstract class AbstractMazeSolver implements MazeSolver {
         this.executionTime = 0;
         this.visitedVerticesNb = 0;
     }
-    
     /**
      * Sets up the solver with required components: graph model and views.
-     *
      * @param graph     the graph representing the maze
      * @param graphView the view for the graph
      * @param mazeView  the view for the maze

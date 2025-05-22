@@ -59,6 +59,7 @@ public class AlgorithmController {
     private Label TimeExecutionLabel;   
     private Label PathLengthLabel;     
     private Label totalVisitedSquares;
+    private Label FinalSquares;
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
@@ -96,7 +97,8 @@ public class AlgorithmController {
         this.animationCBK = new CheckBox("Animation");
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
-        this.totalVisitedSquares = new Label("Cases traitées: 0 cases");
+        this.totalVisitedSquares = new Label("Nombre de cases traitées: 0 cases");
+        this.FinalSquares = new Label("Nombre de case du chemin : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
         this.SpeedAnimationCursor= new Slider(1, 100, 1);
          
@@ -117,6 +119,7 @@ public class AlgorithmController {
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.totalVisitedSquares.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
+        this.FinalSquares.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         //Style for the checkbox
         this.animationCBK.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;"); 
 
@@ -147,6 +150,7 @@ public class AlgorithmController {
             this.TimeExecutionLabel,  
             this.PathLengthLabel,  
             this.totalVisitedSquares,
+            this.FinalSquares,
             this.animationCBK,
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
@@ -179,7 +183,6 @@ public class AlgorithmController {
             UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
             userSolver.attachToScene();
         });
-    
        //toggle animation speed modifiers visibility 
         this.animationCBK.setOnAction(e->{
             this.SpeedAnimationCursor.setVisible(animationCBK.isSelected());
@@ -246,10 +249,11 @@ public class AlgorithmController {
     /**
      * Updates total visited Vertices counter.
      * @param nbVisitedPaths Represents the total number of visited paths 
+     * @param pathLength Represents the length of the path
      * */
-    private void updateVisitedSquaresLabel(int nbVisitedPaths){
-      totalVisitedSquares.setText("Total de cases Visitées "+nbVisitedPaths+"cases");
-      
+    private void updateVisitedSquaresLabel(int nbVisitedPaths, int pathLength){
+      totalVisitedSquares.setText("Total de cases visitées : "+nbVisitedPaths+" cases");
+      FinalSquares.setText("Nombre de cases du chemin : "+pathLength+" cases");
     }
     
     /**
@@ -305,43 +309,33 @@ public class AlgorithmController {
     private void setupAlgorithmButton(Button button, String solverType) {
         button.setOnAction(e -> {
             try {
-                // Clear the previous animation
+                // Effacer l'animation précédente
                 clearPreviousAnimation();
                 
                 MazeSolver solver = createSolver(solverType);
                 
-                // Takes the time measurement of the solver
+                // Exécuter l'algorithme et mesurer le temps
                 long startTime = System.currentTimeMillis();
+                
+                // Trouver le chemin d'abord (pour avoir la longueur et le nombre de cases visitées)
                 MazeView mazeView = mainController.getMazeView();
-
-                if(!mazeView.verifyStartEnd()) return;
-                
-                mazeView.refresh();
-                
-                // find first the path
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
-                updatePathLengthLabel(path);
-
-                if(animationCBK.isSelected()){
-                    solver.visualize();
-                    System.out.println("résolution avec animation");
-                }
-                else{
-                    solver.nonAnimationVisualize();
-                    System.out.println("résolution sans animation");
-                }
                 
-                // Update execution time
+                // Mettre à jour les labels
+                updatePathLengthLabel(path);
+                updateVisitedSquaresLabel(solver.getvisitedVerticesNumber(), path != null ? path.size() : 0);
+                
+                // Lancer la visualisation
+                solver.visualize();
+                
+                // Mettre à jour le temps d'exécution
                 long endTime = System.currentTimeMillis();
                 updateTimeExecutionLabel(endTime - startTime);
                 
-                //Updates total visited squares
-                updateVisitedSquaresLabel(solver.getvisitedVerticesNumber());
-
                 // Surveillance de fin d'animation si nécessaire
                 setupAnimationListener();
             } catch (Exception ex) {
-                System.err.println("Error during the execution  " + solverType + ": " + ex.getMessage());
+                System.err.println("Erreur lors de l'exécution de " + solverType + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         });

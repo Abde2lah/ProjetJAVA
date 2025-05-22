@@ -412,7 +412,7 @@ public class GeneratorControlleur {
             System.out.println("Error: Please enter valid dimensions.");
             return false;
         }
-        if (rows > 500 || columns > 500) {
+        if (rows > 100 || columns > 100) {
             System.out.println("Error: Dimensions must be less than 500.");
             return false;
         }
