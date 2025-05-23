@@ -60,7 +60,6 @@ public class AlgorithmController {
     private Label TimeExecutionLabel;   
     private Label PathLengthLabel;     
     private Label totalVisitedSquares;
-    private Label FinalSquares;
     private Slider SpeedAnimationCursor;
     private int delay = 50;
     private VBox AlgoContainer;
@@ -100,7 +99,6 @@ public class AlgorithmController {
         this.TimeExecutionLabel = new Label("Temps : 0 ms");
         this.PathLengthLabel = new Label("Longueur : 0 cases");
         this.totalVisitedSquares = new Label("Nombre de cases traitées: 0 cases");
-        this.FinalSquares = new Label("Nombre de case du chemin : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
         this.SpeedAnimationCursor= new Slider(1, 100, 1);
          
@@ -121,7 +119,6 @@ public class AlgorithmController {
         this.TimeExecutionLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.PathLengthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         this.totalVisitedSquares.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
-        this.FinalSquares.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;");
         //Style for the checkbox
         this.animationCBK.setStyle("-fx-font-weight: bold; -fx-font-size: 10px;"); 
 
@@ -152,7 +149,6 @@ public class AlgorithmController {
             this.TimeExecutionLabel,  
             this.PathLengthLabel,  
             this.totalVisitedSquares,
-            this.FinalSquares,
             this.animationCBK,
             this.SpeedAnimationLabel,
             this.SpeedAnimationCursor
@@ -328,16 +324,24 @@ public class AlgorithmController {
             try {
                 clearPreviousAnimation();
                 
+                MazeView mazeView = mainController.getMazeView();
+                
+                // Validate that both start and end points are set before proceeding
+                if (mazeView.getStartIndex() < 0 || mazeView.getEndIndex() < 0) {
+                    System.out.println("Please define both start and end points before running the algorithm.");
+                    return; // Exit early if points aren't set
+                }
+                
                 MazeSolver solver = createSolver(solverType);
                 
                 // Computes the elapsed time  
                 long startTime = System.currentTimeMillis();
                 
-                MazeView mazeView = mainController.getMazeView();
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 
                 updatePathLengthLabel(path);
                 updateVisitedSquaresLabel(solver.getvisitedVerticesNumber() >= 0? solver.getvisitedVerticesNumber() : 0);
+                
                 if (animationCBK.isSelected()) {
                     solver.visualize();
                     setupAnimationListener();
@@ -345,15 +349,12 @@ public class AlgorithmController {
                     solver.nonAnimationVisualize();
                 }
                 
-                // Lancer la visualisation
-                solver.visualize();
-                
-                // Mettre à jour le temps d'exécution
+                // Update execution time
                 long endTime = System.currentTimeMillis();
                 updateTimeExecutionLabel(endTime - startTime);
                 
             } catch (Exception ex) {
-                System.err.println("Erreur lors de l'exécution de " + solverType + ": " + ex.getMessage());
+                System.err.println("Error executing " + solverType + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         });
