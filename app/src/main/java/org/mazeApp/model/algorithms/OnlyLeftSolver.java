@@ -161,11 +161,7 @@ public class OnlyLeftSolver extends AbstractMazeSolver {
 
     /**
      * Attempts to move in the given direction if the neighbor exists and is not visited.
-     *
-     * @param current the current cell index
-     * @param visited array of visited flags
-     * @param direction the direction to attempt
-     * @return the neighbor index or -1 if move is invalid
+     * {@return adjacency list storing all steps for the algorithm resolution}
      */
     public ArrayList<ArrayList<Integer>> solveLeftSteps() {
         // Utiliser les valeurs de MazeView si disponibles

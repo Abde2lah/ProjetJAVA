@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.mazeApp"},{"l":"org.mazeApp.controller"},{"l":"org.mazeApp.model"},{"l":"org.mazeApp.model.algorithms"},{"l":"org.mazeApp.model.generator"},{"l":"org.mazeApp.view"},{"l":"org.mazeApp.view.EditingView"}];updateSearchResults();

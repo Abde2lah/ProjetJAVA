@@ -86,6 +86,7 @@ public class MazeView extends Pane {
     
     /**
      * Define the associated graph view for synchronisation
+     * @param graphView {@link GraphView} 
      */
     public void setAssociatedGraphView(GraphView graphView) {
         this.associatedGraphView = graphView;

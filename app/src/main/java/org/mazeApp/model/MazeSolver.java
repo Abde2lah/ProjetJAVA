@@ -61,7 +61,7 @@ public interface MazeSolver {
      */
     MazeSolver setup(Graph graph, GraphView graphView, MazeView mazeView);
      /**
-     * @return Returns the number of visited Vertices/Squares in a Graph/Maze 
+     * {@return the number of visited Vertices/Squares in a Graph/Maze} 
      * */
     int getvisitedVerticesNumber();
 }

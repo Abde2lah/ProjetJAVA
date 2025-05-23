@@ -223,9 +223,7 @@ public class Graph {
     }
 
     /**
-     * Recup 
-     * @param ArrayList<Edges> list which contains the edges 
-     * @return the graph Maze
+     * {@return the graph Maze adjacency list representation}
      */
     public ArrayList<ArrayList<Edges>> getGraphMaze() {
         return this.graphMaze;

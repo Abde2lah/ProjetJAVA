@@ -9,9 +9,10 @@
 ## 📓 PRÉREQUIS D'INSTALLATION 📓
 
 1️⃣ Installer [Gradle](https://gradle.org/install/)  
-2️⃣ Installer la dernière version du [JDK](https://adoptium.net/) (Java 17 recommandé)  
-3️⃣ Cloner le projet et ouvrez un terminal dans le dossier du projet  
-4️⃣ Lancez simplement le projet avec :
+2️⃣ Installer la dernière version du [JDK](https://adoptium.net/) (Java 17+ recommandé)
+3️⃣IInstaller Python3 (Optionnel)
+4️⃣CCloner le projet et ouvrez un terminal dans le dossier du projet  
+5️⃣ Lancez simplement le projet avec :
 
 
 Windows : 
@@ -27,7 +28,10 @@ Pour lancer la version terminal du projet, il faut taper :
 ```bash
 java -cp app/build/classes/java/main org.mazeApp.Launcher terminal
 ````
-
+Ou lancer : 
+```
+python3 terminal_maze_launcher.py
+````
 ## 🧑‍🤝‍🧑PARTICIPANTS🧑‍🤝‍🧑
 Jérémy 
 

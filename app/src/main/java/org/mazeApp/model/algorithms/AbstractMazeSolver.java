@@ -17,11 +17,20 @@ import org.mazeApp.view.MazeView;
  * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
  */
 public abstract class AbstractMazeSolver implements MazeSolver {
+    /**
+     * Default fields to AbstractMazeSolver
+     */
     protected Graph model;
     protected GraphView graphView;
     protected MazeView mazeView;
     protected List<Integer> finalPath;
+    /**
+     * Execution time of solver.
+     */
     protected long executionTime;
+    /**
+     * Number of visited vertices.
+     */
     protected int visitedVerticesNb;
     /**
      * Default constructor initializing the path and execution time.
@@ -47,7 +56,7 @@ public abstract class AbstractMazeSolver implements MazeSolver {
     }
 
     /**
-     * @returns Returns the execution time of the last solving operation in milliseconds.
+     * {@return the execution time of the last solving operation in milliseconds.}
      */
     @Override
     public long getExecutionTime() {
