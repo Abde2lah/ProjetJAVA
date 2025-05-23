@@ -1,9 +1,7 @@
 package org.mazeApp.model.algorithms;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 import org.mazeApp.model.Edges;
 import org.mazeApp.model.Graph;
@@ -21,34 +19,40 @@ import javafx.scene.shape.Circle;
  * Allows a user to manually navigate through a maze using keyboard input (ZQSD).
  * Supports visual feedback in the MazeView and optional victory sound effects.
  * @author Abdellah, Felipe, Jeremy, Shawrov, Melina
- * @version 1.0
+ * @since 1.0
  */
 public class UserPlaySolver {
+  
     private final MazeView mazeView;
     private final Graph graph;
+
     private int currentIndex;
+    private long endTime;
+
     private Circle playerCircle;
-    private final Set<Integer> visited = new HashSet<>();
     private Label winLabel;
-    private boolean[] visitedArr; 
+    private Runnable onCompletionCallback; //created through chatGPT
     // MediaPlayer pour jouer le son de victoire
     private MediaPlayer victoryPlayer;
 
+    //Paths to be drawn once the player arrived at their destination
+    private final ArrayList<Integer> pathVisitedSquares;
+    private final ArrayList<Integer> finalPath;
+
     /**
      * Constructs the interactive solver and prepares the victory label and sound.
-     *
-     * @param mazeView the view used to render the maze and player
-     * @param graph the maze structure to navigate
+     * @param mazeView the {@link org.mazeApp.view.MazeView} used to render the maze and player
+     * @param graph the {@link org.mazeApp.model.Graph} representing the maze structure to navigate
      */
     public UserPlaySolver(MazeView mazeView, Graph graph) {
         this.mazeView = mazeView;
         this.graph = graph;
         this.currentIndex = mazeView.getStartIndex();
-        int vertexNb = graph.getVertexNb();
-        this.visitedArr = new boolean[vertexNb];
-        Arrays.fill(this.visitedArr,false);
+        this.pathVisitedSquares = new ArrayList<Integer>();
+        this.finalPath = new ArrayList<Integer>();
+
         // Creates victory Label
-        this.winLabel = new Label("GG WELL PLAYED !");
+        this.winLabel = new Label("GG WELL PLAYEDED !");
         winLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel); 
@@ -73,7 +77,7 @@ public class UserPlaySolver {
         mazeView.setFocusTraversable(true);
         mazeView.requestFocus();
 
-        winLabel = new Label("GG WELL PLAY");
+        winLabel = new Label("GG WELL PLAYED");
         winLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: green; -fx-font-weight: bold;");
         winLabel.setVisible(false);
         mazeView.getChildren().add(winLabel);
@@ -87,33 +91,47 @@ public class UserPlaySolver {
      * @param event the KeyEvent triggered by user input
      */
     private void handleKeyPress(KeyEvent event) {
-        if (currentIndex == mazeView.getEndIndex()) {
-            System.out.println("GG WELL PLAY");
-            return;
-        }
 
-        int row = currentIndex / graph.getColumns();
-        int col = currentIndex % graph.getColumns();
+        final int totCol = graph.getColumns();
+        final int totRow = graph.getColumns();
+        final KeyCode eventCode = event.getCode();
+
+        int row = currentIndex / totRow;
+        int col = currentIndex % totCol;
 
         int targetIndex = -1;
 
-        // Gestion ZQSD
-        if (event.getCode() == KeyCode.Z) {
-            targetIndex = (row > 0) ? (currentIndex - graph.getColumns()) : -1;
-        } else if (event.getCode() == KeyCode.S) {
-            targetIndex = (row < graph.getRows() - 1) ? (currentIndex + graph.getColumns()) : -1;
-        } else if (event.getCode() == KeyCode.Q) {
-            targetIndex = (col > 0) ? (currentIndex - 1) : -1;
-        } else if (event.getCode() == KeyCode.D) {
-            targetIndex = (col < graph.getColumns() - 1) ? (currentIndex + 1) : -1;
+        // Handles ZQSD movement
+        if (eventCode == KeyCode.Z) {
+          targetIndex = (row > 0) ? (currentIndex - totCol) : -1;
+        } else if (eventCode == KeyCode.S) {
+          targetIndex = (row < totRow - 1) ? (currentIndex + totCol) : -1;
+        } else if (eventCode == KeyCode.Q) {
+          targetIndex = (col > 0) ? (currentIndex - 1) : -1;
+        } else if (eventCode == KeyCode.D) {
+          targetIndex = (col < totCol - 1) ? (currentIndex + 1) : -1;
         }
-
+        
         if (targetIndex != -1 && isConnected(currentIndex, targetIndex)) {
+            
+            this.finalPath.add(currentIndex);
+            this.pathVisitedSquares.add(currentIndex);
+            
+            removeDouble(this.finalPath);
+
             currentIndex = targetIndex;
             drawPlayer();
 
             if (currentIndex == mazeView.getEndIndex()) {
+                this.finalPath.add(currentIndex);
                 System.out.println("You reach the arrival");
+                completedMaze = true;
+                endTime = System.currentTimeMillis();
+
+                if (onCompletionCallback != null) {
+                  onCompletionCallback.run();
+                }
+
                 showVictoryLabel();
                 playVictorySound();
             }
@@ -125,7 +143,7 @@ public class UserPlaySolver {
      *
      * @param from the source node index
      * @param to the destination node index
-     * @return true if a connection exists, false otherwise
+     * @return Returns true if a connection exists, false otherwise
      */
     private boolean isConnected(int from, int to) {
         for (Edges edge : graph.getGraphMaze().get(from)) {
@@ -173,6 +191,28 @@ public class UserPlaySolver {
             winLabel.setVisible(false);
         }
     }
+    /**
+     * Removes double elements in a list in order to construc {@link org.mazeApp.model.algorithms.UserPlaySolver#finalPath}
+     *@param l a list storing intengers that may contain doubles at a specific order
+    */
+    public void removeDouble(ArrayList<Integer> l){
+      if(l.size() >=3){
+        int i = l.size()-1;
+        if(l.get(i) == l.get(i-2)){
+          l.removeLast();
+          l.removeLast();
+        
+        }
+
+      }
+    }
+    /**
+     * This method sets a callback in order to indicate when to execute a task 
+     * @param callback {@see <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html">Java Dcoumentation</a>}
+     * */ 
+    public void setOnCompletion(Runnable callback) {
+      this.onCompletionCallback = callback;
+    }
 
     /**
      * Displays a congratulatory label in the center of the screen.
@@ -195,4 +235,33 @@ public class UserPlaySolver {
             victoryPlayer.play();
         }
     }
+
+/**
+ * Returns the final path through the maze.
+ * 
+ * @return Returns an {@code ArrayList} of integers representing the final path.
+ */
+public ArrayList<Integer> getFinalPath() {
+    return finalPath;
+}
+
+  /**
+   * Returns the list of squares visited during pathfinding.
+   * 
+   * @return Returns an {@code ArrayList} of integers representing the visited squares.
+   */
+  public ArrayList<Integer> getPathVisitedSquares() {
+      return pathVisitedSquares;
+  }
+
+  /**
+   * Returns the end time of the maze-solving operation.
+   * 
+   * @return Returns the end time in milliseconds.
+   */
+  public long getEndTime() {
+      return endTime;
+  }
+ 
+   
 }
