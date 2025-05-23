@@ -8,10 +8,14 @@
 
 ## 📓 PRÉREQUIS D'INSTALLATION 📓
 
-1️⃣ Installer [Gradle](https://gradle.org/install/)  
+1️⃣ Installer [Gradle](https://gradle.org/install/). Gradle gère l'installation de javafx automatiquement.
+
 2️⃣ Installer la dernière version du [JDK](https://adoptium.net/) (Java 17+ recommandé)
-3️⃣IInstaller Python3 (Optionnel)
-4️⃣CCloner le projet et ouvrez un terminal dans le dossier du projet  
+
+3️⃣Installer Python3 (Optionnel)
+
+4️⃣Cloner le projet et ouvrez un terminal dans le dossier du projet  
+
 5️⃣ Lancez simplement le projet avec :
 
 
