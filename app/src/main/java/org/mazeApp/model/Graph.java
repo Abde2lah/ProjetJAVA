@@ -342,4 +342,19 @@ public class Graph {
         return neighborEdges;
     }
 
+    /**
+     * Remove an edge between two vertices if it exists
+     * @param source starting vertex
+     * @param destination destination vertex
+     */
+    public void removeEdge(int source, int destination) {
+        // Remove edge from source to destination
+        graphMaze.get(source).removeIf(e -> e.getDestination() == destination);
+        
+        // Remove edge from destination to source (since graph is undirected)
+        graphMaze.get(destination).removeIf(e -> e.getDestination() == source);
+
+        edgeCount--;
+    }
+
 }

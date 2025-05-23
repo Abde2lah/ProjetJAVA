@@ -54,7 +54,7 @@ public class TerminalView {
         int rows = 0, cols = 0, seed = 0;
 
         System.out.println("1 - Create new maze");
-        System.out.println("2 - Load saved maze");
+        System.out.println("2 - Load saved maze"); //don't have the to implement the funtionnalities
         System.out.print("Your choice: ");
         String mazeChoice = scanner.nextLine();
 
@@ -69,6 +69,12 @@ public class TerminalView {
 
             // Display initial maze structure before solving
             printAsciiMazeOnly(graph, rows, cols);
+            System.out.println("Do you want to manually modify edges? (yes/no): ");
+            String modChoice = scanner.nextLine();
+            if (modChoice.equalsIgnoreCase("yes")) {
+                modifyEdges(graph);
+            }
+
 
             System.out.print("Enter start index: ");
             int start = Integer.parseInt(scanner.nextLine());
@@ -261,4 +267,47 @@ public class TerminalView {
         }
         System.out.println("+");
     }
+
+    /**
+     * Allows the user to manually add or remove edges in the graph
+     * @param graph the maze graph to modify
+     */
+/**
+ * Allows the user to manually add or remove edges in the graph
+ * @param graph the maze graph to modify
+ */
+    public static void modifyEdges(Graph graph) {
+        int rows = graph.getRows();
+        int cols = graph.getColumns();
+
+        while (true) {
+            System.out.println("1 - Add edge");
+            System.out.println("2 - Remove edge");
+            System.out.println("3 - Exit edge modification");
+            System.out.print("Your choice: ");
+            String choice = scanner.nextLine();
+
+            if (choice.equals("3")) break;
+
+            System.out.print("Enter source index: ");
+            int src = Integer.parseInt(scanner.nextLine());
+            System.out.print("Enter destination index: ");
+            int dest = Integer.parseInt(scanner.nextLine());
+
+            if (choice.equals("1")) {
+                graph.addEdge(src, dest); // Add edge in both directions
+                System.out.println("Edge added.");
+            } else if (choice.equals("2")) {
+                graph.removeEdge(src, dest); // Remove edge in both directions
+                System.out.println("Edge removed.");
+            } else {
+                System.out.println("Invalid choice.");
+                continue;
+            }
+
+            // Print updated maze
+            printAsciiMazeOnly(graph, rows, cols);
+        }
+    }
+
 }

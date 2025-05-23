@@ -249,7 +249,7 @@ public class AlgorithmController {
      * @param durationMs Duration in millisecondes
      */
     private void updateTimeExecutionLabel(long durationMs) {
-        TimeExecutionLabel.setText("Temps : " + durationMs + " ms");
+        TimeExecutionLabel.setText("Time : " + durationMs + " ms");
     }
     /**
      * Update the path length
@@ -257,7 +257,7 @@ public class AlgorithmController {
      */
     private void updatePathLengthLabel(List<Integer> path) {
         int length = (path != null) ? path.size() : 0;
-        PathLengthLabel.setText("Longueur : " + length + " cases");
+        PathLengthLabel.setText("Length : " + length + " cases");
     }
 
     /**
@@ -266,7 +266,7 @@ public class AlgorithmController {
      * @param pathLength Represents the length of the path
      * */
     private void updateVisitedSquaresLabel(int nbVisitedSquares){
-      totalVisitedSquares.setText("Total de cases traitées: "+nbVisitedSquares);
+      totalVisitedSquares.setText("Cells visisted : "+nbVisitedSquares);
     }
     
     /**
