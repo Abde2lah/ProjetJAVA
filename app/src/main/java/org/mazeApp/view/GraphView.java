@@ -69,7 +69,7 @@ public class GraphView extends Pane {
      * Setup the events gestionary in case if happened
      */
     private void setupEventHandlers() {
-        // hover gestion with the mouse
+        // Handles hovering with the mouse
         setOnMouseMoved(event -> {
             if (currentGraph == null) return;
             
@@ -119,7 +119,7 @@ public class GraphView extends Pane {
             }
         });
         
-        // Clics gestion
+        // Handles clicks events
         setOnMouseClicked(event -> {
             if (currentGraph == null) return;
             
@@ -154,8 +154,8 @@ public class GraphView extends Pane {
                     double cellSize = calculateCellSize(rows, columns);
                     int row = selectedVertexIndex / columns;
                     int col = selectedVertexIndex % columns;
-                    edgeStartX = col * cellSize + padding;
-                    edgeStartY = row * cellSize + padding;
+                    this.edgeStartX = col * cellSize + padding;
+                    this.edgeStartY = row * cellSize + padding;
                     
                     setCursor(javafx.scene.Cursor.CROSSHAIR);
                     System.out.println("begin edges creation" + selectedVertexIndex);
@@ -168,10 +168,11 @@ public class GraphView extends Pane {
     
     /**
      * Find a potential edge to create if the mouse hover near a edge
+     * @param mouseX Represents X position of the mouse
+     * @param mouseY Represents Y poisition of the mouse
      */
     private void findPotentialEdge(double mouseX, double mouseY) {
         if (currentGraph == null) return;
-        
         int rows = currentGraph.getRows();
         int columns = currentGraph.getColumns();
         double cellSize = calculateCellSize(rows, columns);
@@ -183,7 +184,7 @@ public class GraphView extends Pane {
             int[] directions = {-columns, -1, 1, columns}; 
             int[] neighborIndices = new int[4];
             
-            for (int d = 0; d < 4; d++) {
+            for (int d = 0; d < neighborIndices.length; d++) {
                 int neighborIndex = i + directions[d];
                 
                 // Verify if the neighbor is correct
@@ -606,6 +607,9 @@ public class GraphView extends Pane {
 
     /**
      * Draw a potential edge.
+     * @param source Representation of vertex source
+     * @param dest Representation of vertex destination
+     * @param color Representation of vertex color
      */
     private void drawPotentialEdge(int source, int dest, Color color) {
         if (currentGraph == null) return;
