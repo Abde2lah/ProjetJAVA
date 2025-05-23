@@ -6,12 +6,11 @@ import org.mazeApp.model.Graph;
 public class MazeEditor {
     
     /**
-     * Ajoute une connexion (mur supprimé) entre deux cellules.
-     * 
-     * @param graph Le graphe représentant le labyrinthe
-     * @param cell1 Première cellule (indice)
-     * @param cell2 Deuxième cellule (indice)
-     * @return true si ajout effectué, false sinon
+     * Adds connexion between two cells in the graph which deletes a wall.
+     * @param graph The graph representation of the maze
+     * @param cell1 Cell index of the maze 
+     * @param cell2 Cell index of the maze
+     * @return Returns true if a connection between cells was successfully added, false otherwise
      */
     public boolean addConnection(Graph graph, int cell1, int cell2) {
         if (graph == null) return false;
@@ -34,12 +33,11 @@ public class MazeEditor {
     }
 
     /**
-     * Supprime une connexion (mur ajouté) entre deux cellules.
-     * 
-     * @param graph Le graphe représentant le labyrinthe
-     * @param cell1 Première cellule (indice)
-     * @param cell2 Deuxième cellule (indice)
-     * @return true si suppression effectuée, false sinon
+     * Delete a connection between two cells, therefore a wall is created between them. 
+     * @param graph The graph representation of the maze
+     * @param cell1 Cell index of the maze 
+     * @param cell2 Cell index of the maze
+     * @return Returns true if a connection between cells was successfully removed, false otherwise
      */
     public boolean removeConnection(Graph graph, int cell1, int cell2) {
         if (graph == null) return false;
@@ -78,12 +76,11 @@ public class MazeEditor {
     }
 
     /**
-     * Vérifie si deux cellules sont connectées.
-     * 
-     * @param graph Le graphe
-     * @param cell1 Première cellule
-     * @param cell2 Deuxième cellule
-     * @return true si connectées, false sinon
+     * Verify if there is a connection between two cells.
+     * @param graph The graph representation of the maze
+     * @param cell1 Cell index of the maze 
+     * @param cell2 Cell index of the maze
+     * @return Returns true if a connection between cells exists, false otherwise
      */
     public boolean areConnected(Graph graph, int cell1, int cell2) {
         if (graph == null) return false;
@@ -100,14 +97,13 @@ public class MazeEditor {
     }
 
     /**
-     * Modifie le graphe en basculant la présence d'un mur entre deux cellules.
-     * Si connectées, supprime la connexion, sinon l'ajoute.
-     * 
-     * @param graph Le graphe représentant le labyrinthe
-     * @param cell1 Première cellule
-     * @param cell2 Deuxième cellule
-     * @return true si modification effectuée, false sinon
+     *Modify the graph by toggling the presence of a wall between two cells
+     * @param graph The graph representation of the maze
+     * @param cell1 Cell index of the maze 
+     * @param cell2 Cell index of the maze
+     * @return Returns true if a connexion between cells was toggle, false otherwise
      */
+
     public boolean toggleConnection(Graph graph, int cell1, int cell2) {
         if (areConnected(graph, cell1, cell2)) {
             return removeConnection(graph, cell1, cell2);
