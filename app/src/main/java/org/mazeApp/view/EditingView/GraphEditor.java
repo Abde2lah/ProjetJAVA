@@ -6,12 +6,11 @@ import org.mazeApp.model.Graph;
 public class GraphEditor {
 
     /**
-     * Ajoute une arête entre source et destination dans le graphe.
-     * 
-     * @param graph Le graphe à modifier
-     * @param source Indice du sommet source
-     * @param destination Indice du sommet destination
-     * @return true si l'arête a été ajoutée, false sinon (déjà existante ou erreur)
+     * Adds edge between two vertices in the graph. 
+     * @param graph Graph to edit 
+     * @param source Index of source vertex
+     * @param destination Index of destination vertex 
+     * @return Returns true if the edges was already added else otherwise (error or already existing)
      */
     public boolean addEdge(Graph graph, int source, int destination) {
         if (graph == null) return false;
@@ -23,7 +22,7 @@ public class GraphEditor {
             return false;
         }
 
-        // Vérifie si l'arête existe déjà
+        // Verification if edges already exist
         boolean edgeExists = false;
         for (Edges edge : graph.getGraphMaze().get(source)) {
             if (edge.getDestination() == destination) {
@@ -31,13 +30,12 @@ public class GraphEditor {
                 break;
             }
         }
-
         if (edgeExists) {
             System.out.println("Edge already exists between " + source + " and " + destination);
             return false;
         }
 
-        // Ajoute l'arête dans les deux sens (graphe non orienté)
+        //Adding vertices in a not oriented graph, edges are added in mirror ex: 2->1, 1->2 
         graph.getGraphMaze().get(source).add(new Edges(source, destination));
         graph.getGraphMaze().get(destination).add(new Edges(destination, source));
 
@@ -46,12 +44,11 @@ public class GraphEditor {
     }
 
     /**
-     * Supprime une arête entre source et destination dans le graphe.
-     * 
+     * Removing edges between vertices in the graph. 
      * @param graph Le graphe à modifier
      * @param source Indice du sommet source
      * @param destination Indice du sommet destination
-     * @return true si l'arête a été supprimée, false sinon (introuvable ou erreur)
+     * @return Returns true if edge was successfully removed, false otherwise 
      */
     public boolean removeEdge(Graph graph, int source, int destination) {
         if (graph == null) return false;
@@ -59,7 +56,7 @@ public class GraphEditor {
 
         boolean removed = false;
 
-        // Supprime dans la liste du source
+        //Removes the selected edge from the sourceEdges list
         for (Edges edge : new java.util.ArrayList<>(graph.getGraphMaze().get(source))) {
             if (edge.getDestination() == destination) {
                 graph.getGraphMaze().get(source).remove(edge);
@@ -67,8 +64,7 @@ public class GraphEditor {
                 break;
             }
         }
-
-        // Supprime dans la liste du destination
+        //Removes the selected edge from the destinationEdges list
         for (Edges edge : new java.util.ArrayList<>(graph.getGraphMaze().get(destination))) {
             if (edge.getDestination() == source) {
                 graph.getGraphMaze().get(destination).remove(edge);
