@@ -6,6 +6,9 @@
 
 ---
 
+## 🐛 Bugs non résolus 🐛
+- Le changement de mode de génération peut ne pas être pris en compte immédiatement. Relancez la génération correspondante une deuxième fois.
+- Le lancement des algorithmes de résolution nécessite un double clic pour s'exécuter.
 ## 📓 PRÉREQUIS D'INSTALLATION 📓
 
 1️⃣ Installer [Gradle](https://gradle.org/install/). Gradle gère l'installation de javafx automatiquement.
