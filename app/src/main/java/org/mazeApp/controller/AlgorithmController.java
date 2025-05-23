@@ -93,12 +93,12 @@ public class AlgorithmController {
         this.RightButton = new Button("Right");
         this.LeftButton = new Button("Left");
         this.RandomButton = new Button("Random");
-        this.StopButton = new Button("Arrêter");
+        this.StopButton = new Button("Stop");
         this.animationCBK = new CheckBox("Animation");
         this.animationCBK.setSelected(true);
-        this.TimeExecutionLabel = new Label("Temps : 0 ms");
-        this.PathLengthLabel = new Label("Longueur : 0 cases");
-        this.totalVisitedSquares = new Label("Nombre de cases traitées: 0 cases");
+        this.TimeExecutionLabel = new Label("Time : 0 ms");
+        this.PathLengthLabel = new Label("Length : 0 cases");
+        this.totalVisitedSquares = new Label("Cells visited : 0 cases");
         this.SpeedAnimationLabel = new Label("Speed : "+delay+" ms");
         this.SpeedAnimationCursor= new Slider(1, 100, 1);
          
@@ -132,7 +132,7 @@ public class AlgorithmController {
         this.AlgoContainer.setStyle("-fx-padding: 10; -fx-border-color: black; -fx-border-width: 1; -fx-background-color: rgb(255, 254, 211);");
         
         // Add a title to the algorithm container
-        javafx.scene.text.Text algoTitle = new javafx.scene.text.Text("Algorithmes");
+        javafx.scene.text.Text algoTitle = new javafx.scene.text.Text("Algorithms");
         algoTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         this.AlgoContainer.getChildren().add(algoTitle);
         
@@ -162,7 +162,7 @@ public class AlgorithmController {
         // Button to stop the current animation
         this.StopButton.setOnAction(e -> {
             clearPreviousAnimation();
-            System.out.println("Animation arrêtée");
+            System.out.println("Animation stoped");
         });
         
         //let the users solve by himself the maze

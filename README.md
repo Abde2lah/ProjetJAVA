@@ -23,12 +23,17 @@ Linux :
 ./gradlew run
 ````
 
+Pour lancer la version terminal du projet, il faut taper : 
+```bash
+java -cp app/build/classes/java/main org.mazeApp.Launcher terminal
+````
+
 ## 🧑‍🤝‍🧑PARTICIPANTS🧑‍🤝‍🧑
 Jérémy 
 
-Fellipe
+Felipe
 
-Abdella
+Abdellah
 
 Shawrov
 

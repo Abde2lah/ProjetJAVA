@@ -141,7 +141,7 @@ public class GeneratorControlleur {
         
         HBox radioBox = new HBox(10, kruskalRadio, dfsRadio);
         radioBox.setAlignment(Pos.CENTER);
-        Text genTitle = new Text("Génération de Labyrinthe");
+        Text genTitle = new Text("Maze generation");
         genTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         // Main container for generation controls
         this.generationContainer = new VBox(10);
@@ -356,12 +356,12 @@ public class GeneratorControlleur {
             //hide the graph
             mainController.getGraphContainer().setVisible(false);
             mainController.getGraphContainer().setManaged(false);
-            this.toggleGraphButton.setText("Afficher le graphe");
+            this.toggleGraphButton.setText("Display the graph");
         } else {
             // show the graph
             mainController.getGraphContainer().setVisible(true);
             mainController.getGraphContainer().setManaged(true);
-            this.toggleGraphButton.setText("Masquer le graphe");
+            this.toggleGraphButton.setText("Hide the graph");
         }
     }
     

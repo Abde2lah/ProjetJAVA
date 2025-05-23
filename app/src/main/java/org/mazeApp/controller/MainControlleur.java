@@ -110,9 +110,9 @@ public class MainControlleur {
      * Sets up the VBox containers for the graph and maze views.
      */    
     private void setupContainers() {
-        Label graphTitle = new Label("Vue du Graphe");
+        Label graphTitle = new Label("Graph View");
         graphTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        Label mazeTitle = new Label("Vue du Labyrinthe");
+        Label mazeTitle = new Label("Maze View");
         mazeTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
         this.graphContainer = new VBox(5);
