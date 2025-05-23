@@ -12,6 +12,7 @@
 
 package org.mazeApp.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mazeApp.model.Graph;
@@ -172,7 +173,7 @@ public class AlgorithmController {
         this.UserPlayButton.setOnAction(e -> {
             clearPreviousAnimation();  
             System.out.println("Player mode activated : use ZQSD to solve the maze");
-
+            long startTime = System.currentTimeMillis();
             MazeView mazeView = mainController.getMazeView();
             Graph graph = mainController.getCurrentGraph();
 
@@ -182,6 +183,22 @@ public class AlgorithmController {
             }
 
             UserPlaySolver userSolver = new UserPlaySolver(mazeView, graph);
+           //Indicating when to execute the task to draw the paths on the screen 
+            userSolver.setOnCompletion(() -> {
+              ArrayList<Integer> finalPath = userSolver.getFinalPath();
+              ArrayList<Integer> intermediatePath = userSolver.getPathVisitedSquares();
+              ArrayList<ArrayList<Integer>> pathsToDraw = new ArrayList<ArrayList<Integer>>();
+
+              pathsToDraw.add(intermediatePath);
+              pathsToDraw.add(finalPath);
+              
+              mazeView.nonAnimationVisualizeStep(pathsToDraw);
+
+              updatePathLengthLabel(finalPath);
+              updateVisitedSquaresLabel(intermediatePath.size()>=0 ? intermediatePath.size() : 0);
+              updateTimeExecutionLabel(System.currentTimeMillis() - startTime);
+              
+            });
             userSolver.attachToScene();
         });
        //toggle animation speed modifiers visibility 
@@ -252,9 +269,8 @@ public class AlgorithmController {
      * @param nbVisitedPaths Represents the total number of visited paths 
      * @param pathLength Represents the length of the path
      * */
-    private void updateVisitedSquaresLabel(int nbVisitedPaths, int pathLength){
-      totalVisitedSquares.setText("Total de cases visitées : "+nbVisitedPaths+" cases");
-      FinalSquares.setText("Nombre de cases du chemin : "+pathLength+" cases");
+    private void updateVisitedSquaresLabel(int nbVisitedSquares){
+      totalVisitedSquares.setText("Total de cases traitées: "+nbVisitedSquares);
     }
     
     /**
@@ -310,25 +326,27 @@ public class AlgorithmController {
     private void setupAlgorithmButton(Button button, String solverType) {
         button.setOnAction(e -> {
             try {
-                // Effacer l'animation précédente
                 clearPreviousAnimation();
                 
                 MazeSolver solver = createSolver(solverType);
                 
-                // Exécuter l'algorithme et mesurer le temps
+                // Computes the elapsed time  
                 long startTime = System.currentTimeMillis();
                 
                 MazeView mazeView = mainController.getMazeView();
                 List<Integer> path = solver.findPath(mazeView.getStartIndex(), mazeView.getEndIndex());
                 
                 updatePathLengthLabel(path);
-                updateVisitedSquaresLabel(solver.getvisitedVerticesNumber(), path != null ? path.size() : 0);
+                updateVisitedSquaresLabel(solver.getvisitedVerticesNumber() >= 0? solver.getvisitedVerticesNumber() : 0);
                 if (animationCBK.isSelected()) {
                     solver.visualize();
                     setupAnimationListener();
                 } else {
                     solver.nonAnimationVisualize();
                 }
+                
+                // Lancer la visualisation
+                solver.visualize();
                 
                 // Mettre à jour le temps d'exécution
                 long endTime = System.currentTimeMillis();
