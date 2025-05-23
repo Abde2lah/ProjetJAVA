@@ -1,0 +1,7 @@
+org.mazeApp
+org.mazeApp.controller
+org.mazeApp.model
+org.mazeApp.model.algorithms
+org.mazeApp.model.generator
+org.mazeApp.view
+org.mazeApp.view.EditingView
