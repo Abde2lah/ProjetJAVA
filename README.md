@@ -1,4 +1,4 @@
-# ☕ LABYRINTHE JAVA ☕
+# ☕ CYNAPSE ☕
 
 ## ⚠️ Sommaire ⚠️
 1. [📓 PRÉREQUIS D'INSTALLATION 📓](#-prérequis-dinstallation-)
